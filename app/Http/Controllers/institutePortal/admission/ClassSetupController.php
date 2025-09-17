@@ -107,10 +107,11 @@ class ClassSetupController extends Controller
 
         try {
 
-            foreach ($request->group_id as $key => $center_id) {
+            foreach ($request->institute_id as $key => $inst_id) {
                 $check = AdmissionClassSetup::where('institute_details_id', Auth::user()->institute_details_id)
                     ->where('class_id', $request->class_id)
-                    ->where('group_id', $center_id)->first();
+                    ->where('center_id', $request->center_id)
+                    ->where('institute_id', $inst_id)->first();
                 if ($check) {
                     continue;
                 }
@@ -118,10 +119,10 @@ class ClassSetupController extends Controller
                 $input->institute_details_id = Auth::user()->institute_details_id;
                 $input->class_id = $request->class_id;
                 $input->class_name = $request->class_name;
-                $input->institute_id = $request->institute_id;
-                $input->institute_name = $request->institute_name;
-                $input->center_id = $center_id;
-                $input->center_name = $request->center_name[$key];
+                $input->center_id = $request->center_id;
+                $input->center_name = $request->center_name;
+                $input->institute_id = $inst_id;
+                $input->institute_name = $request->institute_name[$key];
                 $input->save();
             }
 
