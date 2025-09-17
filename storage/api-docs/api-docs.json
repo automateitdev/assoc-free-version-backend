@@ -1,0 +1,773 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Automate V2 API",
+        "description": "Your API Description",
+        "contact": {
+            "email": "contact@example.com"
+        },
+        "license": {
+            "name": "Your License",
+            "url": "http://your-license-url.com"
+        },
+        "version": "1.0"
+    },
+    "servers": [
+        {
+            "url": "https://api.academyims.com",
+            "description": "Production Server"
+        }
+    ],
+    "paths": {
+        "/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "User login",
+                "operationId": "5019aeb0053a402ab1e28e5ab1aafb5e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful login"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "User logout",
+                "operationId": "e42f5a931444eb380dd267fff7385204",
+                "responses": {
+                    "200": {
+                        "description": "Successfully logged out"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/refresh": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Refresh authentication token",
+                "operationId": "f8169a56687cf857d94a38dc0f96600e",
+                "responses": {
+                    "200": {
+                        "description": "Token refreshed successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/fourth-subject-configs": {
+            "get": {
+                "tags": [
+                    "4th-Subjects"
+                ],
+                "summary": "Get a listing of Institute Class Map and Academic Year details",
+                "operationId": "434afa0311b590dfcb0716aca95571da",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "4th-Subjects"
+                ],
+                "summary": "Assigned as a 4th subject",
+                "operationId": "f669ce5f7a3c270c74cd0328925f7b5e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "subject_id": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            "75"
+                                        ]
+                                    },
+                                    "subject_type": {
+                                        "type": "integer",
+                                        "example": "1"
+                                    },
+                                    "studentAssign_id": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            "251"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Record saved successfully"
+                    },
+                    "400": {
+                        "description": "Bad request, validation failed"
+                    }
+                }
+            }
+        },
+        "/api/fourth-subject-configs/search": {
+            "post": {
+                "tags": [
+                    "4th-Subjects"
+                ],
+                "summary": "Search student data for assign 4th subject",
+                "operationId": "25944bd5b32cd76125ea72d04acf1c99",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "combinations_pivot_id": {
+                                        "type": "integer",
+                                        "example": "12"
+                                    },
+                                    "academic_year_id": {
+                                        "type": "integer",
+                                        "example": "2"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Record saved successfully"
+                    },
+                    "400": {
+                        "description": "Bad request, validation failed"
+                    }
+                }
+            }
+        },
+        "/api/fourth-subject-configs/assigned-list": {
+            "post": {
+                "tags": [
+                    "4th-Subjects"
+                ],
+                "summary": "Search Assigned List for view",
+                "operationId": "7ac4ab064f14ec9636e5eca6a80d1510",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "combinations_pivot_id": {
+                                        "type": "integer",
+                                        "example": "12"
+                                    },
+                                    "academic_year_id": {
+                                        "type": "integer",
+                                        "example": "2"
+                                    },
+                                    "subject_id": {
+                                        "type": "integer",
+                                        "example": "75"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Record saved successfully"
+                    },
+                    "400": {
+                        "description": "Bad request, validation failed"
+                    }
+                }
+            }
+        },
+        "/api/fourth-subject-configs/undo": {
+            "post": {
+                "tags": [
+                    "4th-Subjects"
+                ],
+                "summary": "Undo subject from assigned list",
+                "operationId": "d542bb4bbce5b89af51a3719b796fdf5",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "subject_id": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            "75"
+                                        ]
+                                    },
+                                    "studentAssign_id": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            "251"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Record saved successfully"
+                    },
+                    "400": {
+                        "description": "Bad request, validation failed"
+                    }
+                }
+            }
+        },
+        "/api/subject-configs": {
+            "get": {
+                "tags": [
+                    "Subject Config"
+                ],
+                "summary": "Get a listing of Institute Class Map, Academic Year, Subject details",
+                "operationId": "0bda0421647efeb914baf997926c160a",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Subject Config"
+                ],
+                "summary": "Subject config for all groups",
+                "operationId": "b3a34bdf8ed76f996ebdd255bbcdcc75",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "class_id": {
+                                        "type": "integer",
+                                        "example": "31"
+                                    },
+                                    "academic_year_id": {
+                                        "type": "integer",
+                                        "example": "2"
+                                    },
+                                    "subjectConfig": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "common": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "subject_id": {
+                                                                "type": "integer",
+                                                                "example": 64
+                                                            },
+                                                            "type": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "merge_id": {
+                                                                "type": "integer",
+                                                                "example": 0
+                                                            },
+                                                            "serial": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "subject_name": {
+                                                                "type": "string",
+                                                                "example": "bangla"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "group_wise": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "subject_id": {
+                                                                "type": "integer",
+                                                                "example": 73
+                                                            },
+                                                            "type": {
+                                                                "type": "integer",
+                                                                "example": 2
+                                                            },
+                                                            "merge_id": {
+                                                                "type": "integer",
+                                                                "example": 0
+                                                            },
+                                                            "serial": {
+                                                                "type": "integer",
+                                                                "example": 3
+                                                            },
+                                                            "group_id": {
+                                                                "type": "integer",
+                                                                "example": 35
+                                                            },
+                                                            "subject_name": {
+                                                                "type": "string",
+                                                                "example": "physics"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Record saved successfully"
+                    },
+                    "400": {
+                        "description": "Bad request, validation failed"
+                    }
+                }
+            }
+        },
+        "/api/subject-configs/search": {
+            "post": {
+                "tags": [
+                    "Subject Config"
+                ],
+                "summary": "Search for group-wise data",
+                "operationId": "b5543637633b7a295a9e2893c2614216",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "class_id": {
+                                        "type": "integer",
+                                        "example": 31
+                                    },
+                                    "group_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "academic_year_id": {
+                                        "type": "integer",
+                                        "example": 2
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "institute_details_id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "class_id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "class_name": {
+                                                        "type": "string"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "class_details": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "group_id": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "shift_id": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "section_id": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "created_at": {
+                                                                    "type": "string",
+                                                                    "format": "date-time"
+                                                                },
+                                                                "updated_at": {
+                                                                    "type": "string",
+                                                                    "format": "date-time"
+                                                                },
+                                                                "pivot": {
+                                                                    "properties": {
+                                                                        "institute_class_map_id": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "groups": {
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request, validation failed"
+                    }
+                }
+            }
+        },
+        "/api/subject-configs/view": {
+            "post": {
+                "tags": [
+                    "Subject Config"
+                ],
+                "summary": "Search Subject Config Data for view",
+                "operationId": "b9fccc4ab9031dc97305cc1f7f85aba3",
+                "parameters": [
+                    {
+                        "name": "class_id",
+                        "in": "query",
+                        "description": "Class ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "group_id",
+                        "in": "query",
+                        "description": "Group ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "academic_year_id",
+                        "in": "query",
+                        "description": "Academic Year ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "type": {
+                                                "description": "Type",
+                                                "type": "integer"
+                                            },
+                                            "serial": {
+                                                "description": "Serial",
+                                                "type": "integer"
+                                            },
+                                            "group_id": {
+                                                "description": "Group ID",
+                                                "type": "integer"
+                                            },
+                                            "merge_id": {
+                                                "description": "Merge ID",
+                                                "type": "integer"
+                                            },
+                                            "subject_id": {
+                                                "description": "Subject ID",
+                                                "type": "integer"
+                                            },
+                                            "subject_name": {
+                                                "description": "Subject Name",
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "description": "Validation errors",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "description": "Status",
+                                            "type": "string"
+                                        },
+                                        "message": {
+                                            "description": "Error message",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/student-enrollment": {
+            "get": {
+                "tags": [
+                    "Students"
+                ],
+                "summary": "Get a listing of student enrollments",
+                "operationId": "00250b8ebf1174e5ec7fc9ca5e2399ff",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            }
+        },
+        "/api/student-enrollment/store": {
+            "post": {
+                "tags": [
+                    "Students"
+                ],
+                "summary": "Store a new student enrollment",
+                "description": "Store a newly created resource in storage.",
+                "operationId": "11befc3f12d5f30f40c73e059ac88eb3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "student_name": {
+                                        "type": "string"
+                                    },
+                                    "student_gender": {
+                                        "type": "string"
+                                    },
+                                    "student_religion": {
+                                        "type": "string"
+                                    },
+                                    "class_roll": {
+                                        "type": "integer",
+                                        "format": "array"
+                                    },
+                                    "category": {
+                                        "type": "integer"
+                                    },
+                                    "academic_year": {
+                                        "type": "integer"
+                                    },
+                                    "academic_session": {
+                                        "type": "integer"
+                                    },
+                                    "assign_id": {
+                                        "type": "integer"
+                                    },
+                                    "father_name": {
+                                        "type": "string"
+                                    },
+                                    "mother_name": {
+                                        "type": "string"
+                                    },
+                                    "father_mobile": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Record saved successfully"
+                    },
+                    "400": {
+                        "description": "Bad request, validation failed"
+                    }
+                }
+            }
+        },
+        "/api/student-enrollment/excel-store": {
+            "post": {
+                "tags": [
+                    "Students"
+                ],
+                "summary": "Store a new student enrollment using Excel file",
+                "description": "Store a newly created resource in storage.",
+                "operationId": "39ef72f77d534f2c82b910cf8144b903",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "category": {
+                                        "type": "integer",
+                                        "example": "1"
+                                    },
+                                    "academic_year": {
+                                        "type": "integer",
+                                        "example": "2"
+                                    },
+                                    "academic_session": {
+                                        "type": "integer",
+                                        "example": "5"
+                                    },
+                                    "assign_id": {
+                                        "type": "integer",
+                                        "example": "12"
+                                    },
+                                    "file": {
+                                        "type": "file",
+                                        "format": "xlsx",
+                                        "example": "student.xlsx"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Record saved successfully"
+                    },
+                    "400": {
+                        "description": "Bad request, validation failed"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "Endpoints for user authentication"
+        }
+    ]
+}
