@@ -59,7 +59,7 @@ class ClassSetupController extends Controller
                 'class_name' => $classGroup->first()->class_name,
                 'center_id' => $classGroup->first()->center_id,
                 'center_name' => $classGroup->first()->center_name,
-                'institute' => $classGroup->map(function ($item) {
+                'institutes' => $classGroup->map(function ($item) {
                     return [
                         'institute_id' => $item->institute_id,
                         'institute_name' => $item->institute_name,
