@@ -57,10 +57,12 @@ class ClassSetupController extends Controller
             return [
                 'class_id' => $classGroup->first()->class_id,
                 'class_name' => $classGroup->first()->class_name,
-                'groups' => $classGroup->map(function ($item) {
+                'center_id' => $classGroup->first()->center_id,
+                'center_name' => $classGroup->first()->center_name,
+                'institute' => $classGroup->map(function ($item) {
                     return [
-                        'group_id' => $item->group_id,
-                        'group_name' => $item->group_name,
+                        'institute_id' => $item->institute_id,
+                        'institute_name' => $item->institute_name,
                     ];
                 })->values()->toArray(),
             ];
