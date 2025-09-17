@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\CorecategoryResource;
 use App\Http\Resources\CoreSubcategoryResource;
 use App\Http\Resources\AdmissionClassSetupResource;
+use App\Utils\ServerErrorMask;
 
 class ClassSetupController extends Controller
 {
@@ -96,7 +97,10 @@ class ClassSetupController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], Response::HTTP_BAD_REQUEST);
+            return response()->json(
+                ['errors' => ApiResponseHelper::formatErrors(ApiResponseHelper::SYSTEM_ERROR, $validator->errors()->toArray())],
+                422
+            );
         }
 
         DB::beginTransaction();
@@ -128,15 +132,24 @@ class ClassSetupController extends Controller
             DB::rollBack();
             $errorCode = $e->errorInfo[1];
             if ($errorCode == 1062) {
-                return response()->json(['status' => 'error', 'message' => 'Duplicate entry'], Response::HTTP_CONFLICT);
+                return response()->json(
+                    ['errors' => ApiResponseHelper::formatErrors(ApiResponseHelper::INVALID_REQUEST, ['Duplicate Entry'])],
+                    400
+                );
             }
 
             Log::error("class setup failed : $e");
-            return response()->json(['status' => 'error', 'message' => 'Database error'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->json(
+                ['errors' => ApiResponseHelper::formatErrors(ApiResponseHelper::SYSTEM_ERROR, [ServerErrorMask::SERVER_ERROR])],
+                500
+            );
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("class setup failed : $e");
-            return response()->json(['status' => 'error', 'message' => 'Server error'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->json(
+                ['errors' => ApiResponseHelper::formatErrors(ApiResponseHelper::SYSTEM_ERROR, [ServerErrorMask::UNKNOWN_ERROR])],
+                500
+            );
         }
     }
 
