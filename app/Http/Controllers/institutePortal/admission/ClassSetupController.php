@@ -35,7 +35,7 @@ class ClassSetupController extends Controller
             ], 401);
         }
         // $category_set = CoreCategory::with('coresubcategories')->get();
-        $category_set = CoreCategory::whereIn('id', [1, 3, 4, 5])->with('coresubcategories')->get();
+        $category_set = CoreCategory::whereIn('id', [1, 4, 8, 10])->with('coresubcategories')->get();
         $admissionStartup = AdmissionStartup::where('institute_details_id', Auth::user()->institute_details_id)->get();
         $groupedAdmissionStartup = $admissionStartup->groupBy('core_category_id')->map(function ($categoryGroup) {
             return [
