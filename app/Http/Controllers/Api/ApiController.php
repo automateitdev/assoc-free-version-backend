@@ -535,17 +535,23 @@ class ApiController extends Controller
                 $admission->other_file = $otherFilePath;
             }
 
-            $pay = AdmissionPayment::where('institute_details_id', $instituteDetails->id)
-                ->where('academic_year', $request->academic_year)
-                ->where('class_id', trim($request->class_id))
-                ->where('class_name', trim($request->class_name))
-                ->where('center_id', trim($request->center_id))
-                ->where('center_name', trim($request->center_name))
-                ->where('institute_id', trim($request->institute_id))
-                ->where('institute_name', trim($request->institute_name))
-                // ->where('shift', trim($request->shift))
-                // ->where('group', trim($request->group))
-                ->first();
+            $filters = [
+                'institute_details_id' => $instituteDetails->id,
+                'academic_year'        => trim($request->academic_year),
+                'class_id'             => $request->class_id,
+                'class_name'           => trim($request->class_name),
+                'center_id'            => $request->center_id,
+                'center_name'          => trim($request->center_name),
+                'institute_id'         => $request->institute_id,
+                'institute_name'       => trim($request->institute_name),
+                // 'shift'             => trim($request->shift),
+                // 'group'             => trim($request->group),
+            ];
+
+            // Log every key/value
+            Log::info('AdmissionPayment Query Filters', $filters);
+
+            $pay = AdmissionPayment::where($filters)->first();
 
             if ($sscRoll) {
 
