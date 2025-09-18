@@ -198,20 +198,36 @@ class AdmissionConfigController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'academic_year' => 'required',
-            'class' => 'required',
-            'center' => 'required',
-            // 'shift' => ['required', 'array', 'min:1', new NonEmptyArray],
-            // 'group' => ['required', 'array', 'min:1', new NonEmptyArray],
-            // 'file' => ['nullable', 'array', 'min:1', new NonEmptyArray],
-            'institutes' => ['required', 'array', 'min:1', new NonEmptyArray],
-            'amount' => ['required', 'array', 'min:1', new NonEmptyArray],
-            'start_date_time' => ['required', 'array', 'min:1', new NonEmptyArray],
-            'end_date_time' => ['required', 'array', 'min:1', new NonEmptyArray, new EndDateAfterStartDate],
-            'roll_start' => ['required', 'array', 'min:1', new NonEmptyArray],
-            'exam_enabled' => ['required', 'array', 'min:1', new NonEmptyArray],
-            'exam_date_time' => ['nullable', 'array', 'min:1'],
+            'academic_year'    => 'required|string',
+            'class'            => 'required|string',
+            'center_id'        => 'required',
+            'center_name'      => 'required|string',
+
+            'institute_id'     => ['required', 'array', 'min:1'],
+            'institute_id.*'   => ['required', 'integer'],
+
+            'institute_name'   => ['required', 'array', 'min:1'],
+            'institute_name.*' => ['required', 'string', 'min:1'],
+
+            'amount'           => ['required', 'array', 'min:1'],
+            'amount.*'         => ['required', 'numeric', 'min:0'],
+
+            'start_date_time'  => ['required', 'array', 'min:1'],
+            'start_date_time.*' => ['required', 'date'],
+
+            'end_date_time'    => ['required', 'array', 'min:1', new EndDateAfterStartDate],
+            'end_date_time.*'  => ['required', 'date'],
+
+            'roll_start'       => ['required', 'array', 'min:1'],
+            'roll_start.*'     => ['required', 'integer', 'min:1'],
+
+            'exam_enabled'     => ['required', 'array', 'min:1'],
+            'exam_enabled.*'   => ['required', 'in:YES,NO'],
+
+            'exam_date_time'   => ['nullable', 'array'],
+            'exam_date_time.*' => ['nullable', 'date'],
         ];
+
 
         $validator = Validator::make($request->all(), $rules);
 

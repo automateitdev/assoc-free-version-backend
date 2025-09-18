@@ -120,11 +120,11 @@ class ClassSetupController extends Controller
                 $input = new AdmissionClassSetup();
                 $input->institute_details_id = Auth::user()->institute_details_id;
                 $input->class_id = $request->class_id;
-                $input->class_name = $request->class_name;
+                $input->class_name = trim($request->class_name);
                 $input->center_id = $request->center_id;
-                $input->center_name = $request->center_name;
+                $input->center_name = trim($request->center_name);
                 $input->institute_id = $inst_id;
-                $input->institute_name = $request->institute_name[$key];
+                $input->institute_name = trim($request->institute_name[$key]);
                 $input->save();
             }
 
