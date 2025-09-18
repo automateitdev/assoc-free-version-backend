@@ -16,11 +16,18 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('institute_details_id');
             $table->string('academic_year');
-            $table->string('class');
+
+            $table->unsignedBigInteger('class_id');
+            $table->string('class_name');
+
             // $table->string('shift');
-            $table->string('center');
+            $table->unsignedBigInteger('center_id');
+            $table->string('center_name');
+
             // $table->string('group');
-            $table->string('institute');
+            $table->unsignedBigInteger('institute_id');
+            $table->string('institute_name');
+
             $table->decimal('amount', 8, 2);
             $table->dateTime('start_date_time');
             $table->dateTime('end_date_time');
