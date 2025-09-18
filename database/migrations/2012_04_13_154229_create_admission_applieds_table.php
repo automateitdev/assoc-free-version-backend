@@ -73,6 +73,7 @@ return new class extends Migration
             $table->string('student_pic');
             $table->string('student_birth_nid_file')->nullable();
             $table->string('other_file')->nullable();
+            $table->unsignedBigInteger('assigned_roll')->nullable();
             $table->string('approval_status')->default('pending');
             $table->string('status')->nullable();
             $table->date('date')->nullable();
