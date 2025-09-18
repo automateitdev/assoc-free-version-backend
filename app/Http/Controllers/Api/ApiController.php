@@ -542,8 +542,7 @@ class ApiController extends Controller
                 'class_name'           => trim($request->class_name),
                 'center_id'            => $request->center_id,
                 'center_name'          => trim($request->center_name),
-                'chosen_institute_id'         => $request->institute_id,
-                'chosen_institute_name'       => trim($request->institute_name),
+                'institute_id'         => $request->chosen_institute_id,
                 // 'shift'             => trim($request->shift),
                 // 'group'             => trim($request->group),
             ];
