@@ -56,14 +56,159 @@ class AdmissionConfigController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    // public function store(Request $request)
+    // {
+    //     $rules = [
+    //         'academic_year' => 'required',
+    //         'class' => 'required',
+    //         // 'shift' => ['required', 'array', 'min:1', new NonEmptyArray],
+    //         // 'group' => ['required', 'array', 'min:1', new NonEmptyArray],
+    //         // 'file' => ['nullable', 'array', 'min:1', new NonEmptyArray],
+    //         'institute' => ['required', 'array', 'min:1', new NonEmptyArray],
+    //         'amount' => ['required', 'array', 'min:1', new NonEmptyArray],
+    //         'start_date_time' => ['required', 'array', 'min:1', new NonEmptyArray],
+    //         'end_date_time' => ['required', 'array', 'min:1', new NonEmptyArray, new EndDateAfterStartDate],
+    //         'roll_start' => ['required', 'array', 'min:1', new NonEmptyArray],
+    //         'exam_enabled' => ['required', 'array', 'min:1', new NonEmptyArray],
+    //         'exam_date_time' => ['nullable', 'array', 'min:1'],
+    //     ];
+
+    //     $validator = Validator::make($request->all(), $rules);
+
+    //     if ($validator->fails()) {
+    //         $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, $validator->errors()->toArray());
+    //         return response()->json([
+    //             'errors' => $formattedErrors,
+    //             'payload ' => null,
+    //         ], 422);
+    //     }
+
+    //     foreach ($request->exam_enabled as $key => $requiredExam) {
+    //         if ($requiredExam == 'YES' && empty($request->exam_date_time[$key])) {
+    //             $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, ['exam_date_time' => 'The exam date time is required at index ' . $key + 1]);
+    //             return response()->json([
+    //                 'errors' => $formattedErrors,
+    //                 'payload' => null,
+    //             ], 422);
+    //         }
+    //     }
+
+    //     DB::beginTransaction();
+
+    //     try {
+
+    //         foreach ($request->shift as $eachShift) {
+    //             foreach ($request->group as $group_key => $group) {
+
+    //                 $admissionPay = AdmissionPayment::where('institute_details_id', Auth::user()->institute_details_id)
+    //                     ->where('academic_year', $request->academic_year)
+    //                     ->where('class', $request->class)
+    //                     ->where('shift', $eachShift)
+    //                     ->where('group', $group)
+    //                     ->first();
+
+    //                 if (empty($admissionPay)) {
+    //                     $admissionPay = new AdmissionPayment();
+    //                     $admissionPay->institute_details_id = Auth::user()->institute_details_id;
+    //                     $admissionPay->academic_year = $request->academic_year;
+    //                     $admissionPay->class = $request->class;
+    //                     $admissionPay->shift = $eachShift;
+    //                     $admissionPay->group = $group;
+    //                     $admissionPay->amount = $request->amount[$group_key];
+    //                     $admissionPay->start_date_time = $request->start_date_time[$group_key];
+    //                     $admissionPay->end_date_time = $request->end_date_time[$group_key];
+    //                     $admissionPay->roll_start = $request->roll_start[$group_key];
+    //                     $admissionPay->exam_enabled = $request->exam_enabled[$group_key];
+    //                     $admissionPay->exam_date_time =  $request->exam_date_time[$group_key] ?? NULL;
+    //                     $admissionPay->save();
+    //                 }
+
+    //                 if (!empty($request->file('file')[$group_key])) {
+
+    //                     $file = $request->file('file')[$group_key];
+    //                     $data = Excel::toArray([], $file);
+
+    //                     foreach ($data[0] as $key => $row) {
+    //                         // Skip header row
+    //                         if ($key == 0) {
+    //                             continue;
+    //                         }
+
+
+    //                         $roll = $row[1];
+    //                         $studentFound = AdmissionConfig::where('institute_details_id', Auth::user()->institute_details_id)->where('roll', $roll)
+    //                         ->where('admission_payment_id', $admissionPay->id)->exists();
+
+    //                         if ($studentFound) {
+    //                             continue;
+    //                         }
+
+    //                         $name = $row[2];
+    //                         $board = $row[3];
+    //                         $passing_year = $row[4];
+
+    //                         $input = new AdmissionConfig();
+    //                         $input->institute_details_id = Auth::user()->institute_details_id;
+    //                         $input->admission_payment_id = $admissionPay->id;
+    //                         $input->roll = $roll;
+    //                         $input->name = $name;
+    //                         $input->board = $board;
+    //                         $input->passing_year = $passing_year;
+    //                         $input->save();
+    //                     }
+    //                 } 
+    //                 // else {
+    //                 //     $input = new AdmissionConfig();
+    //                 //     $input->institute_details_id = Auth::user()->institute_details_id;
+    //                 //     $input->academic_year = $request->academic_year;
+    //                 //     $input->class = $request->class;
+    //                 //     $input->shift = $eachShift;
+    //                 //     $input->group = $group;
+    //                 //     $input->roll_start = $request->roll_start[$group_key];
+    //                 //     $input->amount = $request->amount[$group_key];
+    //                 //     $input->start_date_time = $request->start_date_time[$group_key];
+    //                 //     $input->end_date_time = $request->end_date_time[$group_key];
+    //                 //     $input->exam_enabled = $request->exam_enabled[$group_key];
+    //                 //     $input->exam_date_time =  $input->exam_date_time[$group_key] ?? null;
+    //                 //     $input->save();
+    //                 // }
+    //             }
+    //         }
+
+    //         DB::commit();
+
+    //         return response()->json(['status' => 'success', 'message' => 'Record saved successfully'], Response::HTTP_CREATED);
+    //     } catch (QueryException $e) {
+    //         DB::rollBack();
+    //         $errorCode = $e->errorInfo[1];
+    //         if ($errorCode == 1062) {
+    //             return response()->json(['status' => 'error', 'message' => 'Duplicate entry'], Response::HTTP_CONFLICT);
+    //         }
+
+    //         Log::error("Failed to store admission config: $e");
+    //         return response()->json(['status' => 'error', 'message' => 'Database error'], Response::HTTP_INTERNAL_SERVER_ERROR);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         Log::error("Failed to store admission config: $e");
+    //         return response()->json(['status' => 'error', 'message' => 'Server error'], Response::HTTP_INTERNAL_SERVER_ERROR);
+    //     }
+    // }
+
+
     public function store(Request $request)
     {
+
+
+
+
         $rules = [
             'academic_year' => 'required',
             'class' => 'required',
-            'shift' => ['required', 'array', 'min:1', new NonEmptyArray],
-            'group' => ['required', 'array', 'min:1', new NonEmptyArray],
-            'file' => ['nullable', 'array', 'min:1', new NonEmptyArray],
+            'center' => 'required',
+            // 'shift' => ['required', 'array', 'min:1', new NonEmptyArray],
+            // 'group' => ['required', 'array', 'min:1', new NonEmptyArray],
+            // 'file' => ['nullable', 'array', 'min:1', new NonEmptyArray],
+            'institutes' => ['required', 'array', 'min:1', new NonEmptyArray],
             'amount' => ['required', 'array', 'min:1', new NonEmptyArray],
             'start_date_time' => ['required', 'array', 'min:1', new NonEmptyArray],
             'end_date_time' => ['required', 'array', 'min:1', new NonEmptyArray, new EndDateAfterStartDate],
@@ -96,83 +241,83 @@ class AdmissionConfigController extends Controller
 
         try {
 
-            foreach ($request->shift as $eachShift) {
-                foreach ($request->group as $group_key => $group) {
+            // foreach ($request->shift as $eachShift) {
+            foreach ($request->instiutes as $inst_key => $inst) {
 
-                    $admissionPay = AdmissionPayment::where('institute_details_id', Auth::user()->institute_details_id)
-                        ->where('academic_year', $request->academic_year)
-                        ->where('class', $request->class)
-                        ->where('shift', $eachShift)
-                        ->where('group', $group)
-                        ->first();
+                $admissionPay = AdmissionPayment::where('institute_details_id', Auth::user()->institute_details_id)
+                    ->where('academic_year', $request->academic_year)
+                    ->where('class', $request->class)
+                    ->where('center', $request->center)
+                    ->where('institute', $inst)
+                    ->first();
 
-                    if (empty($admissionPay)) {
-                        $admissionPay = new AdmissionPayment();
-                        $admissionPay->institute_details_id = Auth::user()->institute_details_id;
-                        $admissionPay->academic_year = $request->academic_year;
-                        $admissionPay->class = $request->class;
-                        $admissionPay->shift = $eachShift;
-                        $admissionPay->group = $group;
-                        $admissionPay->amount = $request->amount[$group_key];
-                        $admissionPay->start_date_time = $request->start_date_time[$group_key];
-                        $admissionPay->end_date_time = $request->end_date_time[$group_key];
-                        $admissionPay->roll_start = $request->roll_start[$group_key];
-                        $admissionPay->exam_enabled = $request->exam_enabled[$group_key];
-                        $admissionPay->exam_date_time =  $request->exam_date_time[$group_key] ?? NULL;
-                        $admissionPay->save();
-                    }
-
-                    if (!empty($request->file('file')[$group_key])) {
-                        
-                        $file = $request->file('file')[$group_key];
-                        $data = Excel::toArray([], $file);
-
-                        foreach ($data[0] as $key => $row) {
-                            // Skip header row
-                            if ($key == 0) {
-                                continue;
-                            }
-
-                            
-                            $roll = $row[1];
-                            $studentFound = AdmissionConfig::where('institute_details_id', Auth::user()->institute_details_id)->where('roll', $roll)
-                            ->where('admission_payment_id', $admissionPay->id)->exists();
-
-                            if ($studentFound) {
-                                continue;
-                            }
-                            
-                            $name = $row[2];
-                            $board = $row[3];
-                            $passing_year = $row[4];
-
-                            $input = new AdmissionConfig();
-                            $input->institute_details_id = Auth::user()->institute_details_id;
-                            $input->admission_payment_id = $admissionPay->id;
-                            $input->roll = $roll;
-                            $input->name = $name;
-                            $input->board = $board;
-                            $input->passing_year = $passing_year;
-                            $input->save();
-                        }
-                    } 
-                    // else {
-                    //     $input = new AdmissionConfig();
-                    //     $input->institute_details_id = Auth::user()->institute_details_id;
-                    //     $input->academic_year = $request->academic_year;
-                    //     $input->class = $request->class;
-                    //     $input->shift = $eachShift;
-                    //     $input->group = $group;
-                    //     $input->roll_start = $request->roll_start[$group_key];
-                    //     $input->amount = $request->amount[$group_key];
-                    //     $input->start_date_time = $request->start_date_time[$group_key];
-                    //     $input->end_date_time = $request->end_date_time[$group_key];
-                    //     $input->exam_enabled = $request->exam_enabled[$group_key];
-                    //     $input->exam_date_time =  $input->exam_date_time[$group_key] ?? null;
-                    //     $input->save();
-                    // }
+                if (empty($admissionPay)) {
+                    $admissionPay = new AdmissionPayment();
+                    $admissionPay->institute_details_id = Auth::user()->institute_details_id;
+                    $admissionPay->academic_year = $request->academic_year;
+                    $admissionPay->class = $request->class;
+                    $admissionPay->center = $request->center;
+                    $admissionPay->institute = $inst;
+                    $admissionPay->amount = $request->amount[$inst_key];
+                    $admissionPay->start_date_time = $request->start_date_time[$inst_key];
+                    $admissionPay->end_date_time = $request->end_date_time[$inst_key];
+                    $admissionPay->roll_start = $request->roll_start[$inst_key];
+                    $admissionPay->exam_enabled = $request->exam_enabled[$inst_key];
+                    $admissionPay->exam_date_time =  $request->exam_date_time[$inst_key] ?? NULL;
+                    $admissionPay->save();
                 }
+
+                // if (!empty($request->file('file')[$group_key])) {
+
+                //     $file = $request->file('file')[$group_key];
+                //     $data = Excel::toArray([], $file);
+
+                //     foreach ($data[0] as $key => $row) {
+                //         // Skip header row
+                //         if ($key == 0) {
+                //             continue;
+                //         }
+
+
+                //         $roll = $row[1];
+                //         $studentFound = AdmissionConfig::where('institute_details_id', Auth::user()->institute_details_id)->where('roll', $roll)
+                //             ->where('admission_payment_id', $admissionPay->id)->exists();
+
+                //         if ($studentFound) {
+                //             continue;
+                //         }
+
+                //         $name = $row[2];
+                //         $board = $row[3];
+                //         $passing_year = $row[4];
+
+                //         $input = new AdmissionConfig();
+                //         $input->institute_details_id = Auth::user()->institute_details_id;
+                //         $input->admission_payment_id = $admissionPay->id;
+                //         $input->roll = $roll;
+                //         $input->name = $name;
+                //         $input->board = $board;
+                //         $input->passing_year = $passing_year;
+                //         $input->save();
+                //     }
+                // }
+                // else {
+                //     $input = new AdmissionConfig();
+                //     $input->institute_details_id = Auth::user()->institute_details_id;
+                //     $input->academic_year = $request->academic_year;
+                //     $input->class = $request->class;
+                //     $input->shift = $eachShift;
+                //     $input->group = $group;
+                //     $input->roll_start = $request->roll_start[$group_key];
+                //     $input->amount = $request->amount[$group_key];
+                //     $input->start_date_time = $request->start_date_time[$group_key];
+                //     $input->end_date_time = $request->end_date_time[$group_key];
+                //     $input->exam_enabled = $request->exam_enabled[$group_key];
+                //     $input->exam_date_time =  $input->exam_date_time[$group_key] ?? null;
+                //     $input->save();
+                // }
             }
+            // }
 
             DB::commit();
 
