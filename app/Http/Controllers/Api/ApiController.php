@@ -619,7 +619,7 @@ class ApiController extends Controller
             if ($instituteDetails->gateway == "SPG") {
                 $payment_url = "https://live.academyims.com/api/admission-payment";
             } else {
-                $payment_url = '/api/pay';
+                $payment_url = '/pay';
             }
 
             $admissionSetupData = AdmissionSetup::where('institute_details_id', $data->institute_details_id)
