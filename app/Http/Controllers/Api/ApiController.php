@@ -572,11 +572,8 @@ class ApiController extends Controller
 
 
             $fees = AdmissionFee::where('institute_details_id', $instituteDetails->id)->first();
-
-            Log::info("FEEEEEEEEEEEEEEEEEEEE", [$fees]);
-
             $softwareFee = 0;
-            if ($fees) {
+            if (!empty($fees)) {
                 $softwareFee = $fees->amount;
             }
             $admission->amount = $pay->amount + $softwareFee;
