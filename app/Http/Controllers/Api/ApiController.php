@@ -449,8 +449,8 @@ class ApiController extends Controller
             // 'shift' => 'required',
             // 'group' => 'required',
 
-            'institute_id' => 'required|integer',
-            'institute_name' => 'required',
+            'chosen_institute_id' => 'required|integer',
+            'chosen_institute_name' => 'required',
 
             'center_id' => 'required|integer',
             'center_name' => 'required',
@@ -542,8 +542,8 @@ class ApiController extends Controller
                 'class_name'           => trim($request->class_name),
                 'center_id'            => $request->center_id,
                 'center_name'          => trim($request->center_name),
-                'institute_id'         => $request->institute_id,
-                'institute_name'       => trim($request->institute_name),
+                'chosen_institute_id'         => $request->institute_id,
+                'chosen_institute_name'       => trim($request->institute_name),
                 // 'shift'             => trim($request->shift),
                 // 'group'             => trim($request->group),
             ];
@@ -552,6 +552,14 @@ class ApiController extends Controller
             Log::info('AdmissionPayment Query Filters', $filters);
 
             $pay = AdmissionPayment::where($filters)->first();
+
+            if (empty($pay)) {
+                $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, ['PAY404: Admission configuration missing, try later!']);
+                return response()->json([
+                    'errors' => $formattedErrors,
+                    'payload' => null,
+                ], 422);
+            }
 
             if ($sscRoll) {
 
