@@ -1239,14 +1239,18 @@ class ApiController extends Controller
 
             $fee = AdmissionFee::where('institute_details_id', $data->institute_details_id)->first();
             if (!$fee) {
-                $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, ['Invalid Request, Admission Fee Not Found!']);
-                return response()->json([
-                    'errors' => $formattedErrors,
-                    'payload' => null,
-                ], 400);
+                // $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, ['Invalid Request, Admission Fee Not Found!']);
+                // return response()->json([
+                //     'errors' => $formattedErrors,
+                //     'payload' => null,
+                // ], 400);
+
+                Log::info("No admission software fee found for institute details id: $data->institute_details_id");
             }
 
-            $actualAmount = (float)$admissionPayment->amount + (float)$fee->amount;
+            $softwareFee = $fee?->amount ?? 0;
+
+            $actualAmount = (float)$admissionPayment->amount + (float)$softwareFee;
 
             if ($actualAmount != (float)$data->amount) {
                 $data->amount = $actualAmount;
