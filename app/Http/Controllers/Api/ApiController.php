@@ -32,10 +32,134 @@ use Illuminate\Support\Js;
 
 class ApiController extends Controller
 {
+    // public function admission(string $instituteId)
+    // {
+    //     try {
+    //         // Validate and sanitize the institute ID if necessary
+    //         if (empty($instituteId)) {
+    //             $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, ['Invalid Request observed!']);
+    //             return response()->json([
+    //                 'errors' => $formattedErrors,
+    //                 'payload' => null,
+    //             ], 400);
+    //         }
+
+    //         $instituteDetails = InstituteDetail::where('institute_id', $instituteId)->first();
+
+    //         if (empty($instituteDetails)) {
+    //             $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, ['Institute not found!']);
+    //             return response()->json([
+    //                 'errors' => $formattedErrors,
+    //                 // 'instiutes'=> $institues,
+    //                 'payload' => null,
+    //             ], 404);
+    //         }
+    //         $admissionSetup = AdmissionSetup::where('institute_details_id', $instituteDetails->id)->with('institute')->first();
+    //         $detailConfig = AdmissionPayment::where('institute_details_id', $instituteDetails->id)->get();
+
+    //         // Initialize the result array
+    //         $result = [];
+
+    //         // Loop through each entry in the data
+    //         foreach ($detailConfig as $entry) {
+    //             // Check if the academic year already exists in the result array
+    //             if (!isset($result[$entry['academic_year']])) {
+    //                 $result[$entry['academic_year']] = [
+    //                     'academic_year' => $entry['academic_year'],
+    //                     'details' => []
+    //                 ];
+    //             }
+
+    //             // Find if the class already exists in the details array
+    //             $classExists = false;
+    //             foreach ($result[$entry['academic_year']]['details'] as &$detail) {
+    //                 if ($detail['class'] === $entry['class']) {
+    //                     $classExists = true;
+    //                     // Add the shift if it does not exist
+    //                     if (!in_array($entry['shift'], $detail['shifts'])) {
+    //                         $detail['shifts'][] = $entry['shift'];
+    //                     }
+    //                     // Add the group if it does not exist
+    //                     if (!in_array($entry['group'], $detail['groups'])) {
+    //                         $detail['groups'][] = $entry['group'];
+    //                     }
+    //                     break;
+    //                 }
+    //             }
+
+    //             // If the class does not exist, add it to the details array
+    //             if (!$classExists) {
+    //                 $result[$entry['academic_year']]['details'][] = [
+    //                     'class' => $entry['class'],
+    //                     'shifts' => [$entry['shift']],
+    //                     'groups' => [$entry['group']],
+    //                     'amount' => $entry['amount'],
+    //                     'start_date_time' => $entry['start_date_time'],
+    //                     'end_date_time' => $entry['start_date_time'],
+    //                     'exam_enabled' => $entry['exam_enabled'] === 'YES' ?  true : false,
+    //                     'exam_date_time' => $entry['exam_date_time']
+    //                 ];
+    //             }
+    //         }
+
+    //         // Convert the result to an array of values
+    //         $result = array_values($result);
+
+    //         // Check if admission config was found
+    //         if (!$admissionSetup) {
+    //             $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, ['Admission configuration not found']);
+    //             return response()->json([
+    //                 'errors' => $formattedErrors,
+    //                 'payload' => null,
+    //             ], 400);
+    //         }
+
+    //         $data = [
+    //             'id' => $admissionSetup->id,
+    //             'instiute_details' => $admissionSetup->institute,
+    //             'enabled' => $admissionSetup->enabled,
+    //             'heading' => $admissionSetup->heading,
+    //             'form' => $admissionSetup->form,
+    //             'subject_status' => $admissionSetup->subject,
+    //             'academic_info_status' => $admissionSetup->academic_info,
+    //             'details' => $result
+    //         ];
+
+    //         // Add the admission link based on the gateway
+    //         if ($instituteDetails->gateway == 'SPG') {
+    //             $data['admission_link'] = env('SPG_ADMISSION') . '/' . $admissionSetup->institute->institute_id;
+    //         } elseif ($instituteDetails->gateway == 'SSL') {
+    //             $data['admission_link'] = env('SSL_ADMISSION') . '/' . $admissionSetup->institute->institute_id;
+    //         }
+
+    //         $payment_instruction = AdmissionInstruction::first();
+
+    //         return response()->json([
+    //             'status' => 'success',
+    //             'messsage' => 'Data Found',
+    //             'admissionConfig' => $data,
+    //             'payment_instruction' => $payment_instruction,
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         Log::error("Failed on application form: $e");
+    //         $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, ['An unexpected error occurred! Try later.']);
+    //         return response()->json([
+    //             'errors' => $formattedErrors,
+    //             'payload' => null,
+    //         ], 400);
+    //     } catch (ModelNotFoundException $e) {
+    //         $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, ['Invalid Request observed!']);
+    //         return response()->json([
+    //             'errors' => $formattedErrors,
+    //             'payload' => null,
+    //         ], 400);
+    //     }
+    // }
+
     public function admission(string $instituteId)
     {
         try {
-            // Validate and sanitize the institute ID if necessary
+            // Validate institute ID
             if (empty($instituteId)) {
                 $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, ['Invalid Request observed!']);
                 return response()->json([
@@ -44,68 +168,81 @@ class ApiController extends Controller
                 ], 400);
             }
 
+            // Get institute details
             $instituteDetails = InstituteDetail::where('institute_id', $instituteId)->first();
-
             if (empty($instituteDetails)) {
                 $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, ['Institute not found!']);
                 return response()->json([
                     'errors' => $formattedErrors,
-                    // 'instiutes'=> $institues,
                     'payload' => null,
                 ], 404);
             }
-            $admissionSetup = AdmissionSetup::where('institute_details_id', $instituteDetails->id)->with('institute')->first();
+
+            // Get admission setup and payment details
+            $admissionSetup = AdmissionSetup::where('institute_details_id', $instituteDetails->id)
+                ->with('institute')
+                ->first();
+
             $detailConfig = AdmissionPayment::where('institute_details_id', $instituteDetails->id)->get();
 
-            // Initialize the result array
+            // Prepare result grouped by academic year, class, and center
             $result = [];
-
-            // Loop through each entry in the data
             foreach ($detailConfig as $entry) {
-                // Check if the academic year already exists in the result array
-                if (!isset($result[$entry['academic_year']])) {
-                    $result[$entry['academic_year']] = [
-                        'academic_year' => $entry['academic_year'],
+                $year = $entry['academic_year'];
+
+                // Initialize academic year if not exists
+                if (!isset($result[$year])) {
+                    $result[$year] = [
+                        'academic_year' => $year,
                         'details' => []
                     ];
                 }
 
-                // Find if the class already exists in the details array
                 $classExists = false;
-                foreach ($result[$entry['academic_year']]['details'] as &$detail) {
-                    if ($detail['class'] === $entry['class']) {
+
+                foreach ($result[$year]['details'] as &$detail) {
+                    // Match by class_id and center_id
+                    if ($detail['class_id'] === $entry['class_id'] && $detail['center_id'] === $entry['center_id']) {
                         $classExists = true;
-                        // Add the shift if it does not exist
-                        if (!in_array($entry['shift'], $detail['shifts'])) {
-                            $detail['shifts'][] = $entry['shift'];
+
+                        // Add institute if not already present
+                        if (!in_array($entry['institute_id'], $detail['institutes'])) {
+                            $detail['institutes'][] = [
+                                'id' => $entry['institute_id'],
+                                'name' => $entry['institute_name'],
+                            ];
                         }
-                        // Add the group if it does not exist
-                        if (!in_array($entry['group'], $detail['groups'])) {
-                            $detail['groups'][] = $entry['group'];
-                        }
+
                         break;
                     }
                 }
 
-                // If the class does not exist, add it to the details array
+                // If class + center combination does not exist, create new detail entry
                 if (!$classExists) {
-                    $result[$entry['academic_year']]['details'][] = [
-                        'class' => $entry['class'],
-                        'shifts' => [$entry['shift']],
-                        'groups' => [$entry['group']],
-                        'amount' => $entry['amount'],
+                    $result[$year]['details'][] = [
+                        'class_id'        => $entry['class_id'],
+                        'class_name'           => $entry['class_name'],
+                        'center_id'       => $entry['center_id'],
+                        'center_name'          => $entry['center_name'],
+                        'institutes'      => [
+                            [
+                                'id' => $entry['institute_id'],
+                                'name' => $entry['institute_name'],
+                            ]
+                        ],
+                        'amount'          => $entry['amount'],
                         'start_date_time' => $entry['start_date_time'],
-                        'end_date_time' => $entry['start_date_time'],
-                        'exam_enabled' => $entry['exam_enabled'] === 'YES' ?  true : false,
-                        'exam_date_time' => $entry['exam_date_time']
+                        'end_date_time'   => $entry['end_date_time'],
+                        'exam_enabled'    => $entry['exam_enabled'] === 'YES',
+                        'exam_date_time'  => $entry['exam_date_time']
                     ];
                 }
             }
 
-            // Convert the result to an array of values
+            // Convert result to values array
             $result = array_values($result);
 
-            // Check if admission config was found
+            // Check if admission setup exists
             if (!$admissionSetup) {
                 $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, ['Admission configuration not found']);
                 return response()->json([
@@ -114,18 +251,19 @@ class ApiController extends Controller
                 ], 400);
             }
 
+            // Prepare response data
             $data = [
-                'id' => $admissionSetup->id,
-                'instiute_details' => $admissionSetup->institute,
-                'enabled' => $admissionSetup->enabled,
-                'heading' => $admissionSetup->heading,
-                'form' => $admissionSetup->form,
-                'subject_status' => $admissionSetup->subject,
+                'id'                   => $admissionSetup->id,
+                'instiute_details'     => $admissionSetup->institute,
+                'enabled'              => $admissionSetup->enabled,
+                'heading'              => $admissionSetup->heading,
+                'form'                 => $admissionSetup->form,
+                'subject_status'       => $admissionSetup->subject,
                 'academic_info_status' => $admissionSetup->academic_info,
-                'details' => $result
+                'details'              => $result
             ];
 
-            // Add the admission link based on the gateway
+            // Add admission link based on gateway
             if ($instituteDetails->gateway == 'SPG') {
                 $data['admission_link'] = env('SPG_ADMISSION') . '/' . $admissionSetup->institute->institute_id;
             } elseif ($instituteDetails->gateway == 'SSL') {
@@ -136,7 +274,7 @@ class ApiController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'messsage' => 'Data Found',
+                'message' => 'Data Found',
                 'admissionConfig' => $data,
                 'payment_instruction' => $payment_instruction,
             ]);
@@ -155,6 +293,7 @@ class ApiController extends Controller
             ], 400);
         }
     }
+
 
     public function yearWiseSearch(Request $request, $year)
     {
