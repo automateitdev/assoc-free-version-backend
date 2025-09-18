@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('institute_details_id');
             $table->string('unique_number')->unique();
-            $table->string('student_name_bangla');
+            $table->string('student_name_bangla')->nullable();
             $table->string('student_name_english');
-            $table->string('student_mobile');
+            $table->string('student_mobile')->nullable();
             $table->string('father_name_bangla')->nullable();
             $table->string('father_name_english');
             $table->string('father_nid')->nullable();
