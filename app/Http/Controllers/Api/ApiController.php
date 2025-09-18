@@ -1203,7 +1203,7 @@ class ApiController extends Controller
             if ($instituteDetails->gateway == "SPG") {
                 $payment_url = "https://live.academyims.com/api/admission-payment";
             } else {
-                $payment_url = env('API_URL') . '/api/pay';
+                $payment_url = '/pay';
             }
 
             if ($data->approval_status != "Success") {
@@ -1216,12 +1216,18 @@ class ApiController extends Controller
             }
 
             $admissionPayment = AdmissionPayment::where('institute_details_id', $data->institute_details_id)
-                ->where('class', $data->class)
-                ->where('shift', $data->shift)
-                ->where('group', $data->group)
                 ->where('academic_year', $data->academic_year)
+                ->where('class_id', $data->class_id)
+                ->where('class_name', $data->class_name)
+                ->where('center_id', $data->center_id)
+                ->where('center_name', $data->center_name)
+                ->where('institute_id', $data->institute_id)
+                ->where('institute_name', $data->institute_name)
                 ->where('exam_enabled', 'YES')
+                // ->where('shift', $data->shift)
+                // ->where('group', $data->group)
                 ->first();
+
 
             if (!$admissionPayment) {
                 $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, ['Invalid Request, Admission Setup Not Found!']);
