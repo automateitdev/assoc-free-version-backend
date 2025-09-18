@@ -197,10 +197,6 @@ class AdmissionConfigController extends Controller
 
     public function store(Request $request)
     {
-
-
-
-
         $rules = [
             'academic_year' => 'required',
             'class' => 'required',
@@ -242,7 +238,7 @@ class AdmissionConfigController extends Controller
         try {
 
             // foreach ($request->shift as $eachShift) {
-            foreach ($request->instiutes as $inst_key => $inst) {
+            foreach ($request->institutes as $inst_key => $inst) {
 
                 $admissionPay = AdmissionPayment::where('institute_details_id', Auth::user()->institute_details_id)
                     ->where('academic_year', $request->academic_year)
