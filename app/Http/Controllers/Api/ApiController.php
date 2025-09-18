@@ -481,14 +481,16 @@ class ApiController extends Controller
         try {
             $instituteDetails = InstituteDetail::where('institute_id', $request->institute_id)->first();
 
-            $eduInformation = json_decode($request->edu_information, true);
-            $sscRoll = null;
-            if (is_array($eduInformation)) {
-                // Find the SSC exam roll number
-                foreach ($eduInformation as $education) {
-                    if ($education['exam'] === 'SSC') {
-                        $sscRoll = $education['roll'];
-                        break;
+            if ($request->has('edu_information')) {
+                $eduInformation = json_decode($request->edu_information, true);
+                $sscRoll = null;
+                if (is_array($eduInformation)) {
+                    // Find the SSC exam roll number
+                    foreach ($eduInformation as $education) {
+                        if ($education['exam'] === 'SSC') {
+                            $sscRoll = $education['roll'];
+                            break;
+                        }
                     }
                 }
             }
@@ -535,9 +537,14 @@ class ApiController extends Controller
 
             $pay = AdmissionPayment::where('institute_details_id', $instituteDetails->id)
                 ->where('academic_year', $request->academic_year)
-                ->where('class', trim($request->class))
-                ->where('shift', trim($request->shift))
-                ->where('group', trim($request->group))
+                ->where('class_id', trim($request->class_id))
+                ->where('class_name', trim($request->class_name))
+                ->where('center_id', trim($request->center_id))
+                ->where('center_name', trim($request->center_name))
+                ->where('institute_id', trim($request->institute_id))
+                ->where('institute_name', trim($request->institute_name))
+                // ->where('shift', trim($request->shift))
+                // ->where('group', trim($request->group))
                 ->first();
 
             if ($sscRoll) {
@@ -565,8 +572,11 @@ class ApiController extends Controller
 
 
             $fees = AdmissionFee::where('institute_details_id', $instituteDetails->id)->first();
-
-            $admission->amount = $pay->amount + $fees->amount;
+            $softwareFee = 0;
+            if ($fees) {
+                $softwareFee = $fees->amount;
+            }
+            $admission->amount = $pay->amount + $softwareFee;
             $admission->save();
 
             DB::commit();
