@@ -619,7 +619,7 @@ class ApiController extends Controller
             if ($instituteDetails->gateway == "SPG") {
                 $payment_url = "https://live.academyims.com/api/admission-payment";
             } else {
-                $payment_url = env('API_URL') . '/api/pay';
+                $payment_url = '/api/pay';
             }
 
             $admissionSetupData = AdmissionSetup::where('institute_details_id', $data->institute_details_id)
@@ -627,10 +627,23 @@ class ApiController extends Controller
 
             $pay = AdmissionPayment::where('institute_details_id', $data->institute_details_id)
                 ->where('academic_year', $data->academic_year)
-                ->where('class', $data->class)
-                ->where('shift', $data->shift)
-                ->where('group', $data->group)
+                ->where('class_id', $data->class_id)
+                ->where('class_name', $data->class_name)
+                ->where('center_id', $data->center_id)
+                ->where('center_name', $data->center_name)
+                ->where('institute_id', $data->institute_id)
+                ->where('institute_name', $data->institute_name)
+                // ->where('shift', $data->shift)
+                // ->where('group', $data->group)
                 ->first();
+
+            if (empty($pay)) {
+                $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, ['PAY404: Admission configuration missing, try later!']);
+                return response()->json([
+                    'errors' => $formattedErrors,
+                    'payload' => null,
+                ], 422);
+            }
 
             $fees = AdmissionFee::where('institute_details_id', $data->institute_details_id)->first();
 
@@ -661,7 +674,7 @@ class ApiController extends Controller
                 'message' => 'Application Data Found',
                 'student_data' => $data,
                 'admission_fee' => $paymentAmount,
-                'software_fee' => $fees->amount,
+                'software_fee' => $fees?->amount ?? 0,
                 'payment_url' => $payment_url,
                 'exam' => $pay->exam_enabled === 'YES' ?? false,
                 'deadline' => $pay->end_date_time,
