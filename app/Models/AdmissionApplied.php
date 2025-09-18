@@ -52,7 +52,7 @@ class AdmissionApplied extends Model
         // 'shift',
 
         'class_id',
-        'class_id',
+        'class_name',
 
         'institute_id',
         'institute_name',
