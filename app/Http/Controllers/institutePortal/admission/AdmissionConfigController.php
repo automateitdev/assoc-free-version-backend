@@ -199,7 +199,9 @@ class AdmissionConfigController extends Controller
     {
         $rules = [
             'academic_year'    => 'required|string',
-            'class'            => 'required|string',
+            'class_id'            => 'required|string',
+            'class_name'            => 'required|string',
+
             'center_id'        => 'required',
             'center_name'      => 'required|string',
 

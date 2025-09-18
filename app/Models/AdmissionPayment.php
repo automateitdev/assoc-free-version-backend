@@ -12,11 +12,17 @@ class AdmissionPayment extends Model
     protected $fillable = [
         'institute_details_id',
         'academic_year',
-        'class',
+
+        'class_id',
+        'class_name',
+
         // 'shift',
-        'center',
+        'center_id',
+        'center_name',
         // 'group',
-        'institute',
+        'institute_id',
+        'institute_name',
+
         'amount',
         'roll_start',
         'start_date_time',
