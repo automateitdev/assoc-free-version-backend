@@ -198,36 +198,33 @@ class AdmissionConfigController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'academic_year'    => 'required|string',
-            'class_id'            => 'required|string',
-            'class_name'            => 'required|string',
+            'academic_year'      => 'required|string',
+            'class_id'           => 'required|string',
+            'class_name'         => 'required|string',
+            'center_id'          => 'required',
+            'center_name'        => 'required|string',
 
-            'center_id'        => 'required',
-            'center_name'      => 'required|string',
+            'institutes'         => ['required', 'array', 'min:1'],
+            'institutes.*.id'    => ['required', 'integer'],
+            'institutes.*.name'  => ['required', 'string', 'min:1'],
 
-            'institute_id'     => ['required', 'array', 'min:1'],
-            'institute_id.*'   => ['required', 'integer'],
+            'amount'             => ['required', 'array', 'min:1'],
+            'amount.*'           => ['required', 'numeric', 'min:0'],
 
-            'institute_name'   => ['required', 'array', 'min:1'],
-            'institute_name.*' => ['required', 'string', 'min:1'],
+            'start_date_time'    => ['required', 'array', 'min:1'],
+            'start_date_time.*'  => ['required', 'date'],
 
-            'amount'           => ['required', 'array', 'min:1'],
-            'amount.*'         => ['required', 'numeric', 'min:0'],
+            'end_date_time'      => ['required', 'array', 'min:1', new EndDateAfterStartDate],
+            'end_date_time.*'    => ['required', 'date'],
 
-            'start_date_time'  => ['required', 'array', 'min:1'],
-            'start_date_time.*' => ['required', 'date'],
+            'roll_start'         => ['required', 'array', 'min:1'],
+            'roll_start.*'       => ['required', 'integer', 'min:1'],
 
-            'end_date_time'    => ['required', 'array', 'min:1', new EndDateAfterStartDate],
-            'end_date_time.*'  => ['required', 'date'],
+            'exam_enabled'       => ['required', 'array', 'min:1'],
+            'exam_enabled.*'     => ['required', 'in:YES,NO'],
 
-            'roll_start'       => ['required', 'array', 'min:1'],
-            'roll_start.*'     => ['required', 'integer', 'min:1'],
-
-            'exam_enabled'     => ['required', 'array', 'min:1'],
-            'exam_enabled.*'   => ['required', 'in:YES,NO'],
-
-            'exam_date_time'   => ['nullable', 'array'],
-            'exam_date_time.*' => ['nullable', 'date'],
+            'exam_date_time'     => ['nullable', 'array'],
+            'exam_date_time.*'   => ['nullable', 'date'],
         ];
 
 
@@ -269,9 +266,12 @@ class AdmissionConfigController extends Controller
                     $admissionPay = new AdmissionPayment();
                     $admissionPay->institute_details_id = Auth::user()->institute_details_id;
                     $admissionPay->academic_year = $request->academic_year;
-                    $admissionPay->class = $request->class;
-                    $admissionPay->center = $request->center;
-                    $admissionPay->institute = $inst;
+                    $admissionPay->class_id = $request->class_id;
+                    $admissionPay->class_name = $request->class_name;
+                    $admissionPay->center_id = $request->center_id;
+                    $admissionPay->center_name = $request->center_name;
+                    $admissionPay->institute_id = $request->institutes[$inst_key]['id'];
+                    $admissionPay->institute_name = $request->institutes[$inst_key]['name'];
                     $admissionPay->amount = $request->amount[$inst_key];
                     $admissionPay->start_date_time = $request->start_date_time[$inst_key];
                     $admissionPay->end_date_time = $request->end_date_time[$inst_key];
