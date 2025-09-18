@@ -257,9 +257,9 @@ class AdmissionConfigController extends Controller
 
                 $admissionPay = AdmissionPayment::where('institute_details_id', Auth::user()->institute_details_id)
                     ->where('academic_year', $request->academic_year)
-                    ->where('class', $request->class)
-                    ->where('center', $request->center)
-                    ->where('institute', $inst)
+                    ->where('class_id', $request->class_id)
+                    ->where('center_id', $request->center_id)
+                    ->where('institute_id', $request->institutes[$inst_key]['id'])
                     ->first();
 
                 if (empty($admissionPay)) {
