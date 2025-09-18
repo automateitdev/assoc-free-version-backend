@@ -505,6 +505,8 @@ class ApiController extends Controller
             $admission = new AdmissionApplied();
             $admission->fill($request->all());
             $admission->institute_details_id = $instituteDetails->id;
+            $admission->institute_id = $request->chosen_institute_id;
+            $admission->institute_name = $request->chosen_institute_name;
             $admission->unique_number = $uniqueNumber;
             $admission->date = Carbon::now();
             $admission->vaccine = $request->vaccine;
