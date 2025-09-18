@@ -52,9 +52,18 @@ return new class extends Migration
             $table->string('guardian_yearly_income')->nullable();
             $table->string('guardian_property')->nullable();
             $table->string('academic_year');
-            $table->string('class');
-            $table->string('shift');
-            $table->string('group');
+
+            $table->unsignedBigInteger('class_id');
+            $table->string('class_name');
+
+            $table->unsignedBigInteger('institute_id');
+            $table->string('institute_name');
+
+            $table->unsignedBigInteger('center_id');
+            $table->string('center_name');
+
+            // $table->string('shift');
+            // $table->string('group');
             $table->json('subject');
             $table->json('edu_information')->nullable();
             $table->string('quota')->nullable();

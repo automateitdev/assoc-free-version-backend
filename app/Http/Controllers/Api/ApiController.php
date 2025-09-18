@@ -401,10 +401,14 @@ class ApiController extends Controller
         }
     }
 
+    //     The student name bangla field is required.
+    // The shift field is required.
+    // The group field is required.
+
     public function studentStore(Request $request)
     {
         $rules = [
-            'student_name_bangla' => 'required',
+            // 'student_name_bangla' => 'required',
             'student_name_english' => 'required',
             'student_mobile' => 'required',
             'father_name_bangla' => 'nullable',
@@ -439,11 +443,20 @@ class ApiController extends Controller
             'guardian_yearly_income' => 'nullable',
             'guardian_property' => 'nullable',
             'academic_year' => 'required',
-            'class' => 'required',
-            'shift' => 'required',
-            'group' => 'required',
-            'subject' => 'required',
-            'edu_information' => 'required',
+
+            'class_id' => 'required|integer',
+            'class_name' => 'required',
+            // 'shift' => 'required',
+            // 'group' => 'required',
+
+            'institute_id' => 'required|integer',
+            'institute_name' => 'required',
+
+            'center_id' => 'required|integer',
+            'center_name' => 'required',
+
+            'subject' => 'sometimes|nullable',
+            'edu_information' => 'sometimes|nullable',
             'quota' => 'nullable',
             'vaccine' => 'nullable',
             'vaccine_name' => 'nullable',

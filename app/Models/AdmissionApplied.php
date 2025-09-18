@@ -49,9 +49,17 @@ class AdmissionApplied extends Model
         'guardian_yearly_income',
         'guardian_property',
         'academic_year',
-        'class',
-        'shift',
-        'group',
+        // 'shift',
+
+        'class_id',
+        'class_id',
+
+        'institute_id',
+        'institute_name',
+
+        'center_id',
+        'center_name',
+
         'subject',
         'edu_information',
         'assigned_roll',
