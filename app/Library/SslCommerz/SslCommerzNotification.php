@@ -3,6 +3,7 @@
 namespace App\Library\SslCommerz;
 
 use App\Models\SslInfo;
+use Illuminate\Support\Facades\Log;
 
 class SslCommerzNotification extends AbstractSslCommerz
 {
@@ -21,11 +22,14 @@ class SslCommerzNotification extends AbstractSslCommerz
     public function __construct($storeId, $storePassword)
     {
         $this->config = config('sslcommerz');
-
+        Log::info("Credentials::", [
+            $this->config['apiCredentials']['store_id'],
+            $this->config['apiCredentials']['store_password']
+        ]);
         $this->setStoreId($this->config['apiCredentials']['store_id']);
         $this->setStorePassword($this->config['apiCredentials']['store_password']);
 
-        
+
         // $this->setStoreId($storeId);
         // $this->setStorePassword($storePassword);
     }
