@@ -7,8 +7,8 @@ $storeId = env('SSLCZ_TESTMODE') ? env("SSLCZ_STORE_ID") : "testbox";
 $storePassword = env('SSLCZ_STORE_PASSWORD') ? env("SSLCZ_STORE_PASSWORD") : "qwerty";
 return [
 	'apiCredentials' => [
-		'store_id' => env("SSLCZ_STORE_ID"),
-		'store_password' => env("SSLCZ_STORE_PASSWORD"),
+		'store_id' => $storeId,
+		'store_password' => $storePassword,
 	],
 	'apiUrl' => [
 		'make_payment' => "/gwprocess/v4/api.php",
