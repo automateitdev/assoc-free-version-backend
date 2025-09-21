@@ -3,8 +3,8 @@
 use App\Models\SslInfo;
 
 $apiDomain = env('SSLCZ_TESTMODE') ? "https://sandbox.sslcommerz.com" : "https://securepay.sslcommerz.com";
-$storeId = env('SSLCZ_TESTMODE') ? env("SSLCZ_STORE_ID") : "testbox";
-$storePassword = env('SSLCZ_TESTMODE') ? env("SSLCZ_STORE_PASSWORD") : "qwerty";
+$storeId = env('SSLCZ_TESTMODE') ? "testbox" : env("SSLCZ_STORE_ID");
+$storePassword = env('SSLCZ_TESTMODE') ? "qwerty" : env("SSLCZ_STORE_PASSWORD");
 return [
 	'apiCredentials' => [
 		'store_id' => $storeId,
