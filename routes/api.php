@@ -300,3 +300,9 @@ Route::get('upozila-data/{district_id}', [ApiController::class, 'upozila']);
 
 //ssl payment
 Route::post('/pay', [ApiController::class, 'sslPayment']);
+Route::prefix('sslcz')->group(function () {
+    Route::post('/success', [ApiController::class, 'success']);
+    Route::post('/fail', [ApiController::class, 'fail']);
+    Route::post('/cancel', [ApiController::class, 'cancel']);
+    Route::post('/ipn', [ApiController::class, 'ipn']);
+});

@@ -17,8 +17,8 @@ return [
 	],
 	'apiDomain' => $apiDomain,
 	'connect_from_localhost' => env("IS_LOCALHOST", false), // For Sandbox, use "true", For Live, use "false"
-	'success_url' => '/success',
-	'failed_url' => '/fail',
-	'cancel_url' => '/cancel',
-	'ipn_url' => '/ipn',
+	'success_url' => config('app.frontend') . '/api/sslcz/success',
+	'failed_url' => config('app.frontend') . '/api/sslcz/fail',
+	'cancel_url' => config('app.frontend') . '/api/sslcz/cancel',
+	'ipn_url' => config('app.frontend') . '/api/sslcz/ipn',
 ];

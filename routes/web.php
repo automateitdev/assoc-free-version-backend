@@ -39,10 +39,7 @@ Route::get('/pdf-send', function () {
 //     \Log::info('hello');
 // });
 Route::post('/spgAdmissionConfirm', [ApiController::class, 'spgAdmissionConfirm']);
-Route::post('/success', [ApiController::class, 'success']);
-Route::post('/fail', [ApiController::class, 'fail']);
-Route::post('/cancel', [ApiController::class, 'cancel']);
-Route::post('/ipn', [ApiController::class, 'ipn']);
+
 
 
 // Route::get('/liveFix', [ApiController::class, 'liveFixation']);
