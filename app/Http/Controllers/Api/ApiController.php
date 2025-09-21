@@ -1050,7 +1050,7 @@ class ApiController extends Controller
                 ->where('academic_year', $admissionApplied->academic_year)
                 ->where('class_id', $admissionApplied->class_id)
                 ->where('center_id', $admissionApplied->center_id)
-                ->where('institutue_id', $admissionApplied->institutue_id)
+                ->where('institute_id', $admissionApplied->institute_id)
                 ->first();
 
             if ((float)$admissionPayment->amount !==  (float)$admissionApplied->amount) {
