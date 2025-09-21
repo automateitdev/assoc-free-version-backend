@@ -120,6 +120,7 @@ class SslCommerzNotification extends AbstractSslCommerz
                 # GIVE SERVICE
                 if ($status == "VALID" || $status == "VALIDATED") {
                     if ($merchant_trans_currency == "BDT") {
+                        Log::channel('ssl_log')->info("Currency BDT");
                         if (trim($merchant_trans_id) == trim($tran_id) && (abs($merchant_trans_amount - $amount) < 1) && trim($merchant_trans_currency) == trim('BDT')) {
                             return true;
                         } else {
@@ -129,6 +130,8 @@ class SslCommerzNotification extends AbstractSslCommerz
                         }
                     } else {
                         //echo "trim($merchant_trans_id) == trim($tran_id) && ( abs($merchant_trans_amount-$currency_amount) < 1 ) && trim($merchant_trans_currency)==trim($currency_type)";
+                        Log::channel('ssl_log')->info("Currency {$merchant_trans_currency}");
+
                         if (trim($merchant_trans_id) == trim($tran_id) && (abs($merchant_trans_amount - $currency_amount) < 1) && trim($merchant_trans_currency) == trim($currency_type)) {
                             return true;
                         } else {
