@@ -994,7 +994,7 @@ class ApiController extends Controller
             # That means something wrong happened. You can redirect customer to your product page.
             Log::channel('ssl_log')->error('Succees Request: Invalid transaction');
         }
-        $url = config('app.url') . "/application/preview/{$tran_id}";
+        $url = config('app.frontend') . "/application/preview/{$tran_id}";
 
         return redirect($url);
     }
@@ -1014,7 +1014,7 @@ class ApiController extends Controller
         } else {
             Log::channel('ssl_log')->error('Fail Request: Invalid transaction');
         }
-        $url = config('app.url') . "/application/preview/{$tran_id}";
+        $url = config('app.frontend') . "/application/preview/{$tran_id}";
         return redirect($url);
     }
 
@@ -1033,7 +1033,7 @@ class ApiController extends Controller
         } else {
             Log::channel('ssl_log')->error('Cancel Request: Invalid transaction');
         }
-        $url = config('app.url') . "/application/preview/{$tran_id}";
+        $url = config('app.frontend') . "/application/preview/{$tran_id}";
         return redirect($url);
     }
 

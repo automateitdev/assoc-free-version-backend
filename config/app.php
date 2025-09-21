@@ -56,6 +56,7 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
+    'frontend' => env('FRONTEND_APP_URL', 'https://apply.academyims.pro'),
 
     'asset_url' => env('ASSET_URL'),
 
