@@ -10,11 +10,13 @@ class SslCommerzNotification extends AbstractSslCommerz
     protected $data = [];
     protected $config = [];
 
+    protected $sslc_data;
     private $successUrl;
     private $cancelUrl;
     private $failedUrl;
     private $ipnUrl;
     private $error;
+
 
     /**
      * SslCommerzNotification constructor.
