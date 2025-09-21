@@ -5,6 +5,8 @@ use App\Models\SslInfo;
 $apiDomain = env('SSLCZ_TESTMODE') ? "https://sandbox.sslcommerz.com" : "https://securepay.sslcommerz.com";
 $storeId = env('SSLCZ_TESTMODE') ? "dalal68cf8f54ed4a0" : env("SSLCZ_STORE_ID");
 $storePassword = env('SSLCZ_TESTMODE') ? "dalal68cf8f54ed4a0@ssl" : env("SSLCZ_STORE_PASSWORD");
+$isLocalHost = env('SSLCZ_TESTMODE');
+
 return [
 	'apiCredentials' => [
 		'store_id' => $storeId,
@@ -18,7 +20,7 @@ return [
 		'refund_status' => "/validator/api/merchantTransIDvalidationAPI.php",
 	],
 	'apiDomain' => $apiDomain,
-	'connect_from_localhost' => env("IS_LOCALHOST", true), // For Sandbox, use "true", For Live, use "false"
+	'connect_from_localhost' => env("IS_LOCALHOST", $isLocalHost), // For Sandbox, use "true", For Live, use "false"
 	'success_url' => '/api/sslcz/success',
 	'failed_url' => '/api/sslcz/fail',
 	'cancel_url' => '/api/sslcz/cancel',
