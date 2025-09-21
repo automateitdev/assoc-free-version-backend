@@ -121,6 +121,16 @@ class SslCommerzNotification extends AbstractSslCommerz
                 if ($status == "VALID" || $status == "VALIDATED") {
                     if ($merchant_trans_currency == "BDT") {
                         Log::channel('ssl_log')->info("Currency BDT");
+
+                        Log::channel('ssl_log')->info("TRX INFO: ", [
+                            'merchant_trx_id' => $merchant_trans_id,
+                            'trx_id' => $tran_id,
+                            'merchant_trans_amount' => $merchant_trans_amount,
+                            'trans_amount' => $amount,
+                            'amount_difference' => abs($merchant_trans_amount - $amount),
+                            'merchant_trans_currency' => $merchant_trans_currency
+                        ]);
+
                         if (trim($merchant_trans_id) == trim($tran_id) && (abs($merchant_trans_amount - $amount) < 1) && trim($merchant_trans_currency) == trim('BDT')) {
                             return true;
                         } else {
