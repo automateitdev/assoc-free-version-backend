@@ -24,16 +24,13 @@ class SslCommerzNotification extends AbstractSslCommerz
     public function __construct($storeId, $storePassword)
     {
         $this->config = config('sslcommerz');
-        Log::info("Credentials::", [
-            $this->config['apiCredentials']['store_id'],
-            $this->config['apiCredentials']['store_password']
-        ]);
-        $this->setStoreId($this->config['apiCredentials']['store_id']);
-        $this->setStorePassword($this->config['apiCredentials']['store_password']);
-
-
-        // $this->setStoreId($storeId);
-        // $this->setStorePassword($storePassword);
+        if (env('SSLCZ_TESTMODE')) {
+            $this->setStoreId($this->config['apiCredentials']['store_id']);
+            $this->setStorePassword($this->config['apiCredentials']['store_password']);
+        } else {
+            $this->setStoreId($storeId);
+            $this->setStorePassword($storePassword);
+        }
     }
 
     public function orderValidate($post_data, $trx_id = '', $amount = 0, $currency = "BDT")
