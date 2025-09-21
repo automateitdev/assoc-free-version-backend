@@ -62,6 +62,8 @@ class SslCommerzNotification extends AbstractSslCommerz
             $store_passwd = urlencode($this->getStorePassword());
             $requested_url = ($this->config['apiDomain'] . $this->config['apiUrl']['order_validate'] . "?val_id=" . $val_id . "&store_id=" . $store_id . "&store_passwd=" . $store_passwd . "&v=1&format=json");
 
+            Log::channel('ssl_log')->info("Requested URL: {$requested_url}");
+
             $handle = curl_init();
             curl_setopt($handle, CURLOPT_URL, $requested_url);
             curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
@@ -76,6 +78,8 @@ class SslCommerzNotification extends AbstractSslCommerz
 
 
             $result = curl_exec($handle);
+
+            Log::channel('ssl_log')->info("URL Response: ", [$result]);
 
             $code = curl_getinfo($handle, CURLINFO_HTTP_CODE);
 
@@ -178,7 +182,6 @@ class SslCommerzNotification extends AbstractSslCommerz
             $hash_string = rtrim($hash_string, '&');
 
             if (md5($hash_string) == $post_data['verify_sign']) {
-
                 return true;
             } else {
                 $this->error = "Verification signature not matched";
