@@ -1045,12 +1045,24 @@ class ApiController extends Controller
             $tran_id = $request->input('tran_id');
 
             # Check order status in order table against the transaction id or order id.
-            $order_details = AdmissionApplied::where('unique_number', $tran_id)->first();
-            $findSslinfo = SslInfo::where('institute_details_id', $order_details->institute_details_id)->first();
+            $admissionApplied = AdmissionApplied::where('unique_number', $tran_id)->first();
+            $admissionPayment = AdmissionPayment::where('institute_details_id', $admissionApplied->institute_details_id)
+                ->where('academic_year', $admissionApplied->academic_year)
+                ->where('class_id', $admissionApplied->class_id)
+                ->where('center_id', $admissionApplied->center_id)
+                ->where('institutue_id', $admissionApplied->institutue_id)
+                ->first();
 
-            if (!in_array($order_details->approval_status, ['Processing', 'Success'])) {
+            if ((float)$admissionPayment->amount !==  (float)$admissionApplied->amount) {
+                $admissionApplied->amount = $admissionPayment->amount;
+                $admissionApplied->save();
+            }
+
+            $findSslinfo = SslInfo::where('institute_details_id', $admissionApplied->institute_details_id)->first();
+
+            if (!in_array($admissionApplied->approval_status, ['Processing', 'Success'])) {
                 $sslc = new SslCommerzNotification($findSslinfo->store_id, $findSslinfo->store_password);
-                $validation = $sslc->orderValidate($request->all(), $tran_id, $order_details->amount, "BDT");
+                $validation = $sslc->orderValidate($request->all(), $tran_id, $admissionApplied->amount, "BDT");
 
                 Log::alert($validation);
 
@@ -1060,24 +1072,20 @@ class ApiController extends Controller
                     in order table as Processing or Complete.
                     Here you can also send sms or email for successful transaction to customer
                     */
-                    $admissionPayment = AdmissionPayment::where('institute_details_id', $order_details->institute_details_id)
-                        ->where('academic_year', $order_details->academic_year)
-                        ->where('class', $order_details->class)
-                        ->where('shift', $order_details->shift)
-                        ->where('group', $order_details->group)
-                        ->first();
 
-                    $latestRoll = AdmissionApplied::where('institute_details_id', $order_details->institute_details_id)
-                        ->where('academic_year', $order_details->academic_year)
-                        ->where('class', $order_details->class)
-                        ->where('shift', $order_details->shift)
-                        ->where('group', $order_details->group)
+                    $latestRoll = AdmissionApplied::where('institute_details_id', $admissionApplied->institute_details_id)
+                        ->where('academic_year', $admissionApplied->academic_year)
+                        ->where('class_id', $admissionApplied->class_id)
+                        ->where('center_id', $admissionApplied->center_id)
+                        ->where('institute_id', $admissionApplied->institute_id)
+                        // ->where('shift', $admissionApplied->shift)
+                        // ->where('group', $admissionApplied->group)
                         ->where('approval_status', 'Success')
                         ->max('assigned_roll');
 
                     $newRoll = $latestRoll ? $latestRoll + 1 : $admissionPayment->roll_start;
 
-                    $update_product = AdmissionApplied::where('unique_number', $tran_id)->update([
+                    $admissionApplied->update([
                         'approval_status' => 'Success',
                         'date' => Carbon::now(),
                         'assigned_roll' => $newRoll,
@@ -1086,7 +1094,7 @@ class ApiController extends Controller
                 } else {
                     Log::channel('ssl_log')->error('IPN: Validation False');
                 }
-            } else if (in_array($order_details->approval_status, ['Processing', 'Success'])) {
+            } else if (in_array($admissionApplied->approval_status, ['Processing', 'Success'])) {
 
                 # That means Order status already updated. No need to update database.
                 Log::channel('ssl_log')->info('IPN: Transaction is already successfully completed');
