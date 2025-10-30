@@ -54,10 +54,9 @@ class CoreSettingsController extends Controller
             ],
         ];
 
-        if ($request->core_category_id !== 8 && $request->core_category_id !== 10) {
-            $rules['core_subcategory_name'][] = 'regex:/^[a-zA-Z0-9\s\-]+$/';
+        if (!in_array((int)$request->core_category_id, [8, 10])) {
+            $rules['core_subcategory_name'] .= '|regex:/^[a-zA-Z0-9\s\-]+$/';
         }
-
 
         // Validate the request data
         $validator = Validator::make($request->all(), $rules);
