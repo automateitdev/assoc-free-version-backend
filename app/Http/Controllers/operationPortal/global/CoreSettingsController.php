@@ -54,7 +54,7 @@ class CoreSettingsController extends Controller
             ],
         ];
 
-        if ($request->core_category_id !== 8 || $request->core_category_id !== 11) {
+        if ($request->core_category_id !== 8 || $request->core_category_id !== 10) {
             $rules['core_subcategory_name'][] = 'regex:/^[a-zA-Z0-9\s\-]+$/';
         }
 
