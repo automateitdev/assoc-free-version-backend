@@ -901,6 +901,11 @@ class ApiController extends Controller
         try {
             $student = AdmissionApplied::where('unique_number', $request->unique_number)->first();
 
+            if ($student->amount !== ($request->admission_fee + $request->software_fee)) {
+                $student->amount = $request->admission_fee + $request->software_fee;
+                $student->save();
+            }
+
             $post_data = array();
             $post_data['total_amount'] = $request->admission_fee + $request->software_fee; # You cannot pay less than 10
             $post_data['currency'] = "BDT";
@@ -1053,10 +1058,10 @@ class ApiController extends Controller
                 ->where('institute_id', $admissionApplied->institute_id)
                 ->first();
 
-            if ((float)$admissionPayment->amount !==  (float)$admissionApplied->amount) {
-                $admissionApplied->amount = $admissionPayment->amount;
-                $admissionApplied->save();
-            }
+            // if ((float)$admissionPayment->amount !==  (float)$admissionApplied->amount) {
+            //     $admissionApplied->amount = $admissionPayment->amount;
+            //     $admissionApplied->save();
+            // }
 
             $findSslinfo = SslInfo::where('institute_details_id', $admissionApplied->institute_details_id)->first();
 
@@ -1064,7 +1069,7 @@ class ApiController extends Controller
                 $sslc = new SslCommerzNotification($findSslinfo->store_id, $findSslinfo->store_password);
                 $validation = $sslc->orderValidate($request->all(), $tran_id, $admissionApplied->amount, "BDT");
 
-                Log::alert($validation);
+                Log::channel('ssl_logs')->alert('IPN Validation', ['validation' => $validation]);
 
                 if ($validation == true) {
                     /*
