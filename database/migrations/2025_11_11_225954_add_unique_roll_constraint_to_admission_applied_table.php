@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('admission_applied', function (Blueprint $table) {
+        Schema::table('admission_applieds', function (Blueprint $table) {
             // Add a unique index to prevent duplicate rolls in same academic_year + class + center
             $table->unique(
                 ['academic_year', 'class_id', 'center_id', 'assigned_roll'],
@@ -25,7 +25,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('admission_applied', function (Blueprint $table) {
+        Schema::table('admission_applieds', function (Blueprint $table) {
             $table->dropUnique('unique_roll_per_year_class_center');
         });
     }
