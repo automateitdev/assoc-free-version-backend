@@ -21,141 +21,19 @@ use App\Helpers\ApiResponseHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Jobs\UpdateAcademicYearIdsJob;
 use App\Models\AdmissionInstruction;
 use App\Models\AdmissionSubjectSetup;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Library\SslCommerz\SslCommerzNotification;
 use App\Models\AdmissionSpgPay;
+use App\Models\CoreSubcategory;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Js;
 
 class ApiController extends Controller
 {
-    // public function admission(string $instituteId)
-    // {
-    //     try {
-    //         // Validate and sanitize the institute ID if necessary
-    //         if (empty($instituteId)) {
-    //             $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, ['Invalid Request observed!']);
-    //             return response()->json([
-    //                 'errors' => $formattedErrors,
-    //                 'payload' => null,
-    //             ], 400);
-    //         }
-
-    //         $instituteDetails = InstituteDetail::where('institute_id', $instituteId)->first();
-
-    //         if (empty($instituteDetails)) {
-    //             $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, ['Institute not found!']);
-    //             return response()->json([
-    //                 'errors' => $formattedErrors,
-    //                 // 'instiutes'=> $institues,
-    //                 'payload' => null,
-    //             ], 404);
-    //         }
-    //         $admissionSetup = AdmissionSetup::where('institute_details_id', $instituteDetails->id)->with('institute')->first();
-    //         $detailConfig = AdmissionPayment::where('institute_details_id', $instituteDetails->id)->get();
-
-    //         // Initialize the result array
-    //         $result = [];
-
-    //         // Loop through each entry in the data
-    //         foreach ($detailConfig as $entry) {
-    //             // Check if the academic year already exists in the result array
-    //             if (!isset($result[$entry['academic_year']])) {
-    //                 $result[$entry['academic_year']] = [
-    //                     'academic_year' => $entry['academic_year'],
-    //                     'details' => []
-    //                 ];
-    //             }
-
-    //             // Find if the class already exists in the details array
-    //             $classExists = false;
-    //             foreach ($result[$entry['academic_year']]['details'] as &$detail) {
-    //                 if ($detail['class'] === $entry['class']) {
-    //                     $classExists = true;
-    //                     // Add the shift if it does not exist
-    //                     if (!in_array($entry['shift'], $detail['shifts'])) {
-    //                         $detail['shifts'][] = $entry['shift'];
-    //                     }
-    //                     // Add the group if it does not exist
-    //                     if (!in_array($entry['group'], $detail['groups'])) {
-    //                         $detail['groups'][] = $entry['group'];
-    //                     }
-    //                     break;
-    //                 }
-    //             }
-
-    //             // If the class does not exist, add it to the details array
-    //             if (!$classExists) {
-    //                 $result[$entry['academic_year']]['details'][] = [
-    //                     'class' => $entry['class'],
-    //                     'shifts' => [$entry['shift']],
-    //                     'groups' => [$entry['group']],
-    //                     'amount' => $entry['amount'],
-    //                     'start_date_time' => $entry['start_date_time'],
-    //                     'end_date_time' => $entry['start_date_time'],
-    //                     'exam_enabled' => $entry['exam_enabled'] === 'YES' ?  true : false,
-    //                     'exam_date_time' => $entry['exam_date_time']
-    //                 ];
-    //             }
-    //         }
-
-    //         // Convert the result to an array of values
-    //         $result = array_values($result);
-
-    //         // Check if admission config was found
-    //         if (!$admissionSetup) {
-    //             $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, ['Admission configuration not found']);
-    //             return response()->json([
-    //                 'errors' => $formattedErrors,
-    //                 'payload' => null,
-    //             ], 400);
-    //         }
-
-    //         $data = [
-    //             'id' => $admissionSetup->id,
-    //             'instiute_details' => $admissionSetup->institute,
-    //             'enabled' => $admissionSetup->enabled,
-    //             'heading' => $admissionSetup->heading,
-    //             'form' => $admissionSetup->form,
-    //             'subject_status' => $admissionSetup->subject,
-    //             'academic_info_status' => $admissionSetup->academic_info,
-    //             'details' => $result
-    //         ];
-
-    //         // Add the admission link based on the gateway
-    //         if ($instituteDetails->gateway == 'SPG') {
-    //             $data['admission_link'] = env('SPG_ADMISSION') . '/' . $admissionSetup->institute->institute_id;
-    //         } elseif ($instituteDetails->gateway == 'SSL') {
-    //             $data['admission_link'] = env('SSL_ADMISSION') . '/' . $admissionSetup->institute->institute_id;
-    //         }
-
-    //         $payment_instruction = AdmissionInstruction::first();
-
-    //         return response()->json([
-    //             'status' => 'success',
-    //             'messsage' => 'Data Found',
-    //             'admissionConfig' => $data,
-    //             'payment_instruction' => $payment_instruction,
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         Log::error("Failed on application form: $e");
-    //         $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, ['An unexpected error occurred! Try later.']);
-    //         return response()->json([
-    //             'errors' => $formattedErrors,
-    //             'payload' => null,
-    //         ], 400);
-    //     } catch (ModelNotFoundException $e) {
-    //         $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, ['Invalid Request observed!']);
-    //         return response()->json([
-    //             'errors' => $formattedErrors,
-    //             'payload' => null,
-    //         ], 400);
-    //     }
-    // }
-
     public function admission(string $instituteId)
     {
         try {
@@ -189,18 +67,20 @@ class ApiController extends Controller
             $result = [];
             foreach ($detailConfig as $entry) {
                 $year = $entry['academic_year'];
+                $year_id = $entry['academic_year_id'];
 
                 // Initialize academic year if not exists
-                if (!isset($result[$year])) {
-                    $result[$year] = [
+                if (!isset($result[$year_id])) {
+                    $result[$year_id] = [
                         'academic_year' => $year,
+                        'academic_year_id' => $year_id,
                         'details' => []
                     ];
                 }
 
                 $classExists = false;
 
-                foreach ($result[$year]['details'] as &$detail) {
+                foreach ($result[$year_id]['details'] as &$detail) {
                     // Match by class_id and center_id
                     if ($detail['class_id'] === $entry['class_id'] && $detail['center_id'] === $entry['center_id']) {
                         $classExists = true;
@@ -219,7 +99,7 @@ class ApiController extends Controller
 
                 // If class + center combination does not exist, create new detail entry
                 if (!$classExists) {
-                    $result[$year]['details'][] = [
+                    $result[$year_id]['details'][] = [
                         'class_id'        => $entry['class_id'],
                         'class_name'           => $entry['class_name'],
                         'center_id'       => $entry['center_id'],
@@ -298,6 +178,7 @@ class ApiController extends Controller
     public function yearWiseSearch(Request $request, $year)
     {
         $query = AdmissionPayment::where('institute_details_id', $request->institute_details_id)
+            ->where('academic_year', $request->academic_year_id)
             ->where('academic_year', $year);
 
         if ($request->has('class')) {
@@ -442,7 +323,9 @@ class ApiController extends Controller
             'guardian_occupation' => 'nullable',
             'guardian_yearly_income' => 'nullable',
             'guardian_property' => 'nullable',
-            'academic_year' => 'required',
+
+            'academic_year_id' => 'required|integer',
+            'academic_year' => 'required|string',
 
             'class_id' => 'required|integer',
             'class_name' => 'required',
@@ -539,6 +422,7 @@ class ApiController extends Controller
 
             $filters = [
                 'institute_details_id' => $instituteDetails->id,
+                'academic_year_id'     => $request->academic_year_id,
                 'academic_year'        => trim($request->academic_year),
                 'class_id'             => $request->class_id,
                 'class_name'           => trim($request->class_name),
@@ -627,6 +511,7 @@ class ApiController extends Controller
 
             $pay = AdmissionPayment::where('institute_details_id', $data->institute_details_id)
                 ->where('academic_year', $data->academic_year)
+                ->where('academic_year_id', $data->academic_year_id)
                 ->where('class_id', $data->class_id)
                 ->where('class_name', $data->class_name)
                 ->where('center_id', $data->center_id)
@@ -729,6 +614,7 @@ class ApiController extends Controller
             'guardian_yearly_income' => 'sometimes|nullable',
             'guardian_property' => 'sometimes|nullable',
             'academic_year' => 'sometimes|required',
+            'academic_year_id' => 'sometimes|required',
             'class' => 'sometimes|required',
             'shift' => 'sometimes|required',
             'group' => 'sometimes|required',
@@ -1042,75 +928,171 @@ class ApiController extends Controller
         return redirect($url);
     }
 
+    // public function ipn(Request $request)
+    // {
+    //     # Received all the payment information from the gateway
+    //     if ($request->input('tran_id')) # Check transaction id is posted or not.
+    //     {
+    //         $tran_id = $request->input('tran_id');
+
+    //         # Check order status in order table against the transaction id or order id.
+    //         $admissionApplied = AdmissionApplied::where('unique_number', $tran_id)->first();
+    //         $admissionPayment = AdmissionPayment::where('institute_details_id', $admissionApplied->institute_details_id)
+    //             ->where('academic_year', $admissionApplied->academic_year)
+    //             ->where('academic_year_id', $admissionApplied->academic_year_id)
+    //             ->where('class_id', $admissionApplied->class_id)
+    //             ->where('center_id', $admissionApplied->center_id)
+    //             ->where('institute_id', $admissionApplied->institute_id)
+    //             ->first();
+
+    //         // if ((float)$admissionPayment->amount !==  (float)$admissionApplied->amount) {
+    //         //     $admissionApplied->amount = $admissionPayment->amount;
+    //         //     $admissionApplied->save();
+    //         // }
+
+    //         $findSslinfo = SslInfo::where('institute_details_id', $admissionApplied->institute_details_id)->first();
+
+    //         if (!in_array($admissionApplied->approval_status, ['Processing', 'Success'])) {
+    //             $sslc = new SslCommerzNotification($findSslinfo->store_id, $findSslinfo->store_password);
+    //             $validation = $sslc->orderValidate($request->all(), $tran_id, $admissionApplied->amount, "BDT");
+
+    //             Log::channel('ssl_logs')->alert('IPN Validation', ['validation' => $validation]);
+
+    //             if ($validation == true) {
+    //                 /*
+    //                 That means IPN worked. Here you need to update order status
+    //                 in order table as Processing or Complete.
+    //                 Here you can also send sms or email for successful transaction to customer
+    //                 */
+
+    //                 $latestRoll = AdmissionApplied::where('institute_details_id', $admissionApplied->institute_details_id)
+    //                     ->where('academic_year', $admissionApplied->academic_year)
+    //                     ->where('academic_year_id', $admissionApplied->academic_year_id)
+    //                     ->where('class_id', $admissionApplied->class_id)
+    //                     ->where('center_id', $admissionApplied->center_id)
+    //                     ->where('institute_id', $admissionApplied->institute_id)
+    //                     // ->where('shift', $admissionApplied->shift)
+    //                     // ->where('group', $admissionApplied->group)
+    //                     ->where('approval_status', 'Success')
+    //                     ->max('assigned_roll');
+
+    //                 $newRoll = $latestRoll ? $latestRoll + 1 : $admissionPayment->roll_start;
+
+    //                 $admissionApplied->update([
+    //                     'approval_status' => 'Success',
+    //                     'date' => Carbon::now(),
+    //                     'assigned_roll' => $newRoll,
+    //                 ]);
+    //                 Log::channel('ssl_log')->info('IPN: Transaction is successfully completed');
+    //             } else {
+    //                 Log::channel('ssl_log')->error('IPN: Validation False');
+    //             }
+    //         } else if (in_array($admissionApplied->approval_status, ['Processing', 'Success'])) {
+
+    //             # That means Order status already updated. No need to update database.
+    //             Log::channel('ssl_log')->info('IPN: Transaction is already successfully completed');
+    //         } else {
+    //             # That means something wrong happened. You can redirect customer to your product page.
+    //             Log::channel('ssl_log')->error('IPN: Invalid transaction');
+    //         }
+    //     } else {
+    //         Log::channel('ssl_log')->error('IPN: Invalid data');
+    //     }
+    // }
+
     public function ipn(Request $request)
     {
-        # Received all the payment information from the gateway
-        if ($request->input('tran_id')) # Check transaction id is posted or not.
-        {
-            $tran_id = $request->input('tran_id');
+        // Received all the payment information from the gateway
+        if (!$request->input('tran_id')) {
+            Log::channel('ssl_log')->error('IPN: Invalid data');
+            return;
+        }
 
-            # Check order status in order table against the transaction id or order id.
-            $admissionApplied = AdmissionApplied::where('unique_number', $tran_id)->first();
-            $admissionPayment = AdmissionPayment::where('institute_details_id', $admissionApplied->institute_details_id)
-                ->where('academic_year', $admissionApplied->academic_year)
+        $tran_id = $request->input('tran_id');
+
+        // Find the applied admission record
+        $admissionApplied = AdmissionApplied::where('unique_number', $tran_id)->first();
+        if (!$admissionApplied) {
+            Log::channel('ssl_log')->error("IPN: Admission record not found for tran_id {$tran_id}");
+            return;
+        }
+
+        // Find the corresponding payment info
+        $admissionPayment = AdmissionPayment::where('institute_details_id', $admissionApplied->institute_details_id)
+            ->where('academic_year', $admissionApplied->academic_year)
+            ->where('academic_year_id', $admissionApplied->academic_year_id)
+            ->where('class_id', $admissionApplied->class_id)
+            ->where('center_id', $admissionApplied->center_id)
+            ->where('institute_id', $admissionApplied->institute_id)
+            ->first();
+
+        if (!$admissionPayment) {
+            Log::channel('ssl_log')->error("IPN: AdmissionPayment not found for admission ID {$admissionApplied->id}");
+            return;
+        }
+
+        $findSslinfo = SslInfo::where('institute_details_id', $admissionApplied->institute_details_id)->first();
+        if (!$findSslinfo) {
+            Log::channel('ssl_log')->error("IPN: SslInfo not found for institute_details_id {$admissionApplied->institute_details_id}");
+            return;
+        }
+
+        // Only process if not already Processing or Success
+        if (in_array($admissionApplied->approval_status, ['Processing', 'Success'])) {
+            Log::channel('ssl_log')->info('IPN: Transaction is already successfully completed');
+            return;
+        }
+
+        $sslc = new SslCommerzNotification($findSslinfo->store_id, $findSslinfo->store_password);
+        $validation = $sslc->orderValidate($request->all(), $tran_id, $admissionApplied->amount, "BDT");
+
+        Log::channel('ssl_logs')->alert('IPN Validation', ['validation' => $validation]);
+
+        if (!$validation) {
+            Log::channel('ssl_log')->error('IPN: Validation False');
+            return;
+        }
+
+        // ✅ Safe roll assignment using transaction & row locking
+        DB::transaction(function () use ($admissionApplied, $admissionPayment) {
+
+            // Lock existing rows for this academic_year + class_id + center_id
+            $latestRoll = AdmissionApplied::where('academic_year', $admissionApplied->academic_year)
+                ->where('academic_year_id', $admissionApplied->academic_year_id)
                 ->where('class_id', $admissionApplied->class_id)
                 ->where('center_id', $admissionApplied->center_id)
-                ->where('institute_id', $admissionApplied->institute_id)
-                ->first();
+                ->where('approval_status', 'Success')
+                ->lockForUpdate()
+                ->max('assigned_roll');
 
-            // if ((float)$admissionPayment->amount !==  (float)$admissionApplied->amount) {
-            //     $admissionApplied->amount = $admissionPayment->amount;
-            //     $admissionApplied->save();
-            // }
+            // Calculate new roll
+            $newRoll = $latestRoll ? $latestRoll + 1 : $admissionPayment->roll_start;
 
-            $findSslinfo = SslInfo::where('institute_details_id', $admissionApplied->institute_details_id)->first();
-
-            if (!in_array($admissionApplied->approval_status, ['Processing', 'Success'])) {
-                $sslc = new SslCommerzNotification($findSslinfo->store_id, $findSslinfo->store_password);
-                $validation = $sslc->orderValidate($request->all(), $tran_id, $admissionApplied->amount, "BDT");
-
-                Log::channel('ssl_logs')->alert('IPN Validation', ['validation' => $validation]);
-
-                if ($validation == true) {
-                    /*
-                    That means IPN worked. Here you need to update order status
-                    in order table as Processing or Complete.
-                    Here you can also send sms or email for successful transaction to customer
-                    */
-
-                    $latestRoll = AdmissionApplied::where('institute_details_id', $admissionApplied->institute_details_id)
-                        ->where('academic_year', $admissionApplied->academic_year)
-                        ->where('class_id', $admissionApplied->class_id)
-                        ->where('center_id', $admissionApplied->center_id)
-                        ->where('institute_id', $admissionApplied->institute_id)
-                        // ->where('shift', $admissionApplied->shift)
-                        // ->where('group', $admissionApplied->group)
-                        ->where('approval_status', 'Success')
-                        ->max('assigned_roll');
-
-                    $newRoll = $latestRoll ? $latestRoll + 1 : $admissionPayment->roll_start;
-
-                    $admissionApplied->update([
-                        'approval_status' => 'Success',
-                        'date' => Carbon::now(),
-                        'assigned_roll' => $newRoll,
-                    ]);
-                    Log::channel('ssl_log')->info('IPN: Transaction is successfully completed');
-                } else {
-                    Log::channel('ssl_log')->error('IPN: Validation False');
-                }
-            } else if (in_array($admissionApplied->approval_status, ['Processing', 'Success'])) {
-
-                # That means Order status already updated. No need to update database.
-                Log::channel('ssl_log')->info('IPN: Transaction is already successfully completed');
-            } else {
-                # That means something wrong happened. You can redirect customer to your product page.
-                Log::channel('ssl_log')->error('IPN: Invalid transaction');
+            // Safety check: ensure roll doesn't already exist
+            while (AdmissionApplied::where('academic_year', $admissionApplied->academic_year)
+                ->where('academic_year_id', $admissionApplied->academic_year_id)
+                ->where('class_id', $admissionApplied->class_id)
+                ->where('center_id', $admissionApplied->center_id)
+                ->where('assigned_roll', $newRoll)
+                ->exists()
+            ) {
+                $newRoll++;
             }
-        } else {
-            Log::channel('ssl_log')->error('IPN: Invalid data');
-        }
+
+            // Update admission record
+            $admissionApplied->update([
+                'approval_status' => 'Success',
+                'date' => now(),
+                'assigned_roll' => $newRoll,
+            ]);
+        });
+
+        Log::channel('ssl_log')->info('IPN: Transaction is successfully completed', [
+            'admission_id' => $admissionApplied->id,
+            'assigned_roll' => $admissionApplied->assigned_roll
+        ]);
     }
+
 
     //ssl payment end
 
@@ -1230,6 +1212,7 @@ class ApiController extends Controller
 
             $admissionPayment = AdmissionPayment::where('institute_details_id', $data->institute_details_id)
                 ->where('academic_year', $data->academic_year)
+                ->where('academic_year_id', $data->academic_year_id)
                 ->where('class_id', $data->class_id)
                 ->where('class_name', $data->class_name)
                 ->where('center_id', $data->center_id)
@@ -1410,6 +1393,7 @@ class ApiController extends Controller
                 $admissionPayment = AdmissionPayment::where([
                     'institute_details_id' => $application->institute_details_id,
                     'academic_year' => $application->academic_year,
+                    'academic_year_id' => $application->academic_year_id,
                     'class' => $application->class,
                     'shift' => $application->shift,
                     'group' => $application->group,
@@ -1420,6 +1404,7 @@ class ApiController extends Controller
                     $maxAssignedRoll = AdmissionApplied::where([
                         'institute_details_id' => $admissionPayment->institute_details_id,
                         'academic_year' => $admissionPayment->academic_year,
+                        'academic_year_id' => $admissionPayment->academic_year_id,
                         'class' => $admissionPayment->class,
                         'shift' => $admissionPayment->shift,
                         'group' => $admissionPayment->group,
@@ -1443,5 +1428,16 @@ class ApiController extends Controller
             'message' => 'Missing rolls assigned successfully',
             'newly_assigned_rolls' => $newlyAssignedRolls
         ]);
+    }
+
+
+
+    public function populateAcademicYearId()
+    {
+        try {
+            UpdateAcademicYearIdsJob::dispatch();
+        } catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
     }
 }

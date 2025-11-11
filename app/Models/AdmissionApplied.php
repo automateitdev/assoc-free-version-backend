@@ -48,7 +48,9 @@ class AdmissionApplied extends Model
         'guardian_occupation',
         'guardian_yearly_income',
         'guardian_property',
+
         'academic_year',
+        'academic_year_id',
         // 'shift',
 
         'class_id',

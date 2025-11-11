@@ -46,3 +46,5 @@ Route::post('/spgAdmissionConfirm', [ApiController::class, 'spgAdmissionConfirm'
 // Route::get('/fix-assign-roll', [ApiController::class, 'fixAssignRoll']);
 
 Route::get('/admission-url', [ApiController::class, 'admissionUrl']);
+
+

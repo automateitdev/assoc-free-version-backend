@@ -198,6 +198,7 @@ class AdmissionConfigController extends Controller
     public function store(Request $request)
     {
         $rules = [
+            'academic_year_id'   => 'required|integer',
             'academic_year'      => 'required|string',
             'class_id'           => 'required|string',
             'class_name'         => 'required|string',
@@ -257,6 +258,7 @@ class AdmissionConfigController extends Controller
 
                 $admissionPay = AdmissionPayment::where('institute_details_id', Auth::user()->institute_details_id)
                     ->where('academic_year', $request->academic_year)
+                    ->where('academic_year_id', $request->academic_year_id)
                     ->where('class_id', $request->class_id)
                     ->where('center_id', $request->center_id)
                     ->where('institute_id', $request->institutes[$inst_key]['id'])
@@ -266,6 +268,7 @@ class AdmissionConfigController extends Controller
                     $admissionPay = new AdmissionPayment();
                     $admissionPay->institute_details_id = Auth::user()->institute_details_id;
                     $admissionPay->academic_year = $request->academic_year;
+                    $admissionPay->academic_year_id = $request->academic_year_id;
                     $admissionPay->class_id = $request->class_id;
                     $admissionPay->class_name = $request->class_name;
                     $admissionPay->center_id = $request->center_id;

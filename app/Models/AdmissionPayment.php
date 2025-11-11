@@ -11,6 +11,7 @@ class AdmissionPayment extends Model
 
     protected $fillable = [
         'institute_details_id',
+        'academic_year_id',
         'academic_year',
 
         'class_id',

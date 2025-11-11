@@ -306,3 +306,8 @@ Route::prefix('sslcz')->group(function () {
     Route::post('/fail', [ApiController::class, 'fail']);
     Route::post('/ipn', [ApiController::class, 'ipn']);
 });
+
+
+
+// Fixation:
+Route::get('/fix/academic-year-id', [ApiController::class, 'populateAcademicYearId']);

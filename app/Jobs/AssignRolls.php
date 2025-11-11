@@ -23,46 +23,7 @@ class AssignRolls implements ShouldQueue
         //
     }
 
-    /**
-     * Execute the job.
-     */
-    // public function handle()
-    // {
-    //     // Fetch all AdmissionPayment records
-    //     $admissionPayments = AdmissionPayment::all();
 
-    //     foreach ($admissionPayments as $admissionPayment) {
-    //         // Get the highest assigned roll for the current AdmissionPayment criteria
-    //         $maxAssignedRoll = AdmissionApplied::where([
-    //             ['institute_details_id', $admissionPayment->institute_details_id],
-    //             ['academic_year', $admissionPayment->academic_year],
-    //             ['class', $admissionPayment->class],
-    //             ['shift', $admissionPayment->shift],
-    //             ['group', $admissionPayment->group]
-    //         ])->max('assigned_roll');
-
-    //         // If no roll has been assigned yet, start from the roll_start value
-    //         $startRoll = $maxAssignedRoll ? $maxAssignedRoll + 1 : $admissionPayment->roll_start;
-
-    //         // Fetch all successful applications for the current AdmissionPayment criteria without assigned rolls
-    //         $applications = AdmissionApplied::where([
-    //             ['institute_details_id', $admissionPayment->institute_details_id],
-    //             ['academic_year', $admissionPayment->academic_year],
-    //             ['class', $admissionPayment->class],
-    //             ['shift', $admissionPayment->shift],
-    //             ['group', $admissionPayment->group],
-    //             ['approval_status', 'Success'],
-    //             ['assigned_roll', null]
-    //         ])->orderBy('id')->get();
-
-    //         // Assign rolls starting from startRoll
-    //         $roll = $startRoll;
-    //         foreach ($applications as $application) {
-    //             $application->update(['assigned_roll' => $roll]);
-    //             $roll++;
-    //         }
-    //     }
-    // }
     public function handle()
     {
         // Fetch all AdmissionPayment records
