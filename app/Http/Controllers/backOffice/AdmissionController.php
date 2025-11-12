@@ -276,15 +276,35 @@ class AdmissionController extends Controller
 
     public function examEssentials()
     {
-        $distinctCombinations = AdmissionPayment::select('academic_year_id', 'class_id', 'center_id')
+        $grouped = AdmissionPayment::select(
+            'academic_year_id',
+            'academic_year',
+            'class_id',
+            'class_name',
+            'center_id',
+            'center_name'
+        )
             ->distinct()
-            ->with(['academicYear:id,name', 'class:id,name', 'center:id,name'])
-            ->get();
+            ->get()
+            ->groupBy(fn($item) => $item->academic_year_id . '-' . $item->class_id)
+            ->map(function ($group) {
+                return [
+                    'academic_year_id' => $group->first()->academic_year_id,
+                'academic_year' => $group->first()->academic_year,
+                    'class_id' => $group->first()->class_id,
+                'class_name' => $group->first()->class_name,
+                'centers' => $group->map(fn($g) => [
+                    'id' => $g->center_id,
+                    'name' => $g->center_name,
+                ])->unique('id')->values()
+                ];
+            })
+            ->values();
 
         return response()->json([
             'status' => 'success',
             'message' => 'Fetched exam essentials',
-            'essentials' => $distinctCombinations ?? [],
+            'essentials' => $grouped ?? [],
         ]);
     }
 }
