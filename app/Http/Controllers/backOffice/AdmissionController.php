@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\AdmissionFeeResource;
 use App\Models\AcademicDetail;
 use App\Models\AdmissionPayment;
+use App\Models\CenterExam;
 use App\Models\Exam;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
@@ -346,6 +347,11 @@ class AdmissionController extends Controller
             ->first();
 
         if ($examFound) {
+
+            $examFound->name               = $request->name;
+            $examFound->total_marks        = $request->filled('total_mark') ? $request->total_mark : null;
+            $examFound->save();
+
             // Get existing center IDs already linked
             $existingCenterIds = $examFound->centerExams()->pluck('center_id')->toArray();
 
@@ -406,5 +412,90 @@ class AdmissionController extends Controller
             'status' => 'success',
             'message' => 'Exam and centers saved successfully'
         ]);
+    }
+
+
+    public function removeExamCenter($center_id)
+    {
+        try {
+            $centerExam = CenterExam::find($center_id);
+
+            if (!$centerExam) {
+                $formattedErrors = ApiResponseHelper::formatErrors(
+                    ApiResponseHelper::INVALID_REQUEST,
+                    ['Requested center not found!']
+                );
+                return response()->json([
+                    'errors' => $formattedErrors,
+                ], 400);
+            }
+
+            $centerExam->delete();
+
+            return response()->json([
+                "status" => "success",
+                "message" => "Center detached from the exam successfully"
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Could not remove exam center:", [
+                "message" => $e->getMessage(),
+                "trace" => $e->getTraceAsString()
+            ]);
+
+            $formattedErrors = ApiResponseHelper::formatErrors(
+                ApiResponseHelper::SYSTEM_ERROR,
+                ServerErrorMask::SERVER_ERROR
+            );
+
+            return response()->json([
+                'errors' => $formattedErrors,
+            ], 500);
+        }
+    }
+
+
+
+    public function removeExam($exam_id)
+    {
+        try {
+            $exam = Exam::find($exam_id);
+
+            if (!$exam) {
+                $formattedErrors = ApiResponseHelper::formatErrors(
+                    ApiResponseHelper::INVALID_REQUEST,
+                    ['Requested exam not found!']
+                );
+                return response()->json([
+                    'errors' => $formattedErrors,
+                ], 400);
+            }
+
+            DB::transaction(function () use ($exam) {
+                // Delete related centers first
+                $exam->centerExams()->delete();
+
+                // Then delete the exam
+                $exam->delete();
+            });
+
+            return response()->json([
+                "status" => "success",
+                "message" => "Exam removed successfully"
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Could not remove exam:", [
+                "message" => $e->getMessage(),
+                "trace" => $e->getTraceAsString()
+            ]);
+
+            $formattedErrors = ApiResponseHelper::formatErrors(
+                ApiResponseHelper::SYSTEM_ERROR,
+                ServerErrorMask::SERVER_ERROR
+            );
+
+            return response()->json([
+                'errors' => $formattedErrors,
+            ], 500);
+        }
     }
 }
