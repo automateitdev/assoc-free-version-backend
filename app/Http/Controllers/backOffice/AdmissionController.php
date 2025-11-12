@@ -18,6 +18,7 @@ use App\Models\AcademicDetail;
 use App\Models\AdmissionPayment;
 use App\Models\Exam;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Auth;
 
 class AdmissionController extends Controller
 {
@@ -311,7 +312,9 @@ class AdmissionController extends Controller
     }
 
     public function getAdmissionExamList() {
-        Exam::
+        $instituteDetailsId = Auth::user()->institute_detail->institute_details_id;
+        $examList = Exam::where('institute_details_id', $instituteDetailsId)->with('centerExams')->get();
+        return response()->json(['status' => 'success', 'exams' => $examList]);
     }
 
     public function admissionExamSave(Request $request)
