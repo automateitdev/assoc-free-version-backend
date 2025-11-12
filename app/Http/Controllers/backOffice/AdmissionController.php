@@ -333,6 +333,41 @@ class AdmissionController extends Controller
             ], 422);
         }
 
+
+        $examFound = Exam::where('academic_year_id', $request->academic_year_id)
+            ->where('class_id', $request->class_id)
+            ->first();
+
+        if ($examFound) {
+            // Get existing center IDs already linked
+            $existingCenterIds = $examFound->centerExams()->pluck('center_id')->toArray();
+
+            // Filter incoming centers to only add new ones
+            $newCenters = collect($request->centers)
+                ->filter(fn($c) => !in_array($c['center_id'], $existingCenterIds))
+                ->map(fn($c) => [
+                    'exam_id'     => $examFound->id,
+                    'exam_name'   => $examFound->name,
+                    'center_id'   => $c['center_id'],
+                    'center_name' => $c['center_name'],
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                ])
+                ->toArray();
+
+            if (!empty($newCenters)) {
+                // Insert only the new centers
+                DB::table('center_exam')->insert($newCenters);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Centers updated successfully for existing exam.',
+            ]);
+        }
+
+
+
         // ✅ Save exam
         $exam = new Exam();
         $exam->academic_year      = $request->academic_year;
@@ -360,11 +395,8 @@ class AdmissionController extends Controller
         DB::table('center_exam')->insert($centerExamRows);
 
         return response()->json([
-            'message' => 'Exam and centers saved successfully',
-            'payload' => [
-                'exam' => $exam,
-                'centers' => $request->centers
-            ]
-        ], 201);
+            'status' => 'success',
+            'message' => 'Exam and centers saved successfully'
+        ]);
     }
 }
