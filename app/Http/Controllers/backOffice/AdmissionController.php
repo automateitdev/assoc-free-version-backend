@@ -312,7 +312,7 @@ class AdmissionController extends Controller
     }
 
     public function getAdmissionExamList() {
-        $instituteDetailsId = Auth::user()->institute_detail->institute_details_id;
+        $instituteDetailsId = Auth::user()->institute_details_id;
         $examList = Exam::where('institute_details_id', $instituteDetailsId)->with('centerExams')->get();
         return response()->json(['status' => 'success', 'exams' => $examList]);
     }
@@ -373,11 +373,11 @@ class AdmissionController extends Controller
             ]);
         }
 
-        Log::info(Auth::user());
+        // Log::info(Auth::user()->institute_details_id);
 
         // ✅ Save exam
         $exam = new Exam();
-        $exam->institute_details_id = Auth::user()->institute_detail->institute_details_id;
+        $exam->institute_details_id = Auth::user()->institute_details_id;
         $exam->academic_year      = $request->academic_year;
         $exam->academic_year_id   = $request->academic_year_id;
         $exam->class_id           = $request->class_id;
