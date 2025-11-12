@@ -373,7 +373,7 @@ class AdmissionController extends Controller
             ]);
         }
 
-
+        Log::info(Auth::user()->institute_detail);
 
         // ✅ Save exam
         $exam = new Exam();
