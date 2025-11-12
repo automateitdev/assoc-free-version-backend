@@ -312,7 +312,8 @@ class AdmissionController extends Controller
         ]);
     }
 
-    public function getAdmissionExamList() {
+    public function getAdmissionExamList()
+    {
         $instituteDetailsId = Auth::user()->institute_details_id;
         $examList = Exam::where('institute_details_id', $instituteDetailsId)->with('centerExams')->get();
         return response()->json(['status' => 'success', 'exams' => $examList]);
@@ -320,99 +321,118 @@ class AdmissionController extends Controller
 
     public function admissionExamSave(Request $request)
     {
-        $rules = [
-            'name'                  => 'required|string',
-            'academic_year'         => 'required|string',
-            'academic_year_id'      => 'required|integer',
-            'class_id'              => 'required|integer',
-            'class_name'            => 'required|string',
-            'centers'               => 'required|array|min:1',
-            'centers.*.center_id'   => 'required|integer|min:1',
-            'centers.*.center_name' => 'required|string|min:1',
-            'total_mark'            => 'required|numeric'
+        // Base validation rules
+        $baseRules = [
+            'academic_year_id' => 'required|integer',
+            'class_id'         => 'required|integer',
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        // Run base validation first
+        $validator = Validator::make($request->all(), $baseRules);
         if ($validator->fails()) {
-            $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, $validator->errors()->toArray());
             return response()->json([
-                'errors' => $formattedErrors,
+                'errors' => ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, $validator->errors()->toArray()),
                 'payload' => null,
             ], 422);
         }
 
-
-        $examFound = Exam::where('academic_year_id', $request->academic_year_id)
+        // Check if exam exists for this institute/year/class
+        $exam = Exam::where('institute_details_id', Auth::user()->institute_details_id)
+            ->where('academic_year_id', $request->academic_year_id)
             ->where('class_id', $request->class_id)
             ->first();
 
-        if ($examFound) {
+        // ✅ If exam already exists → update and sync new centers
+        if ($exam) {
+            if ($request->filled('name')) {
+                $exam->name = $request->name;
+            }
 
-            $examFound->name               = $request->name;
-            $examFound->total_marks        = $request->filled('total_mark') ? $request->total_mark : null;
-            $examFound->save();
+            if ($request->filled('total_mark')) {
+                $exam->total_marks = $request->total_mark;
+            }
+
+            $exam->save();
 
             // Get existing center IDs already linked
-            $existingCenterIds = $examFound->centerExams()->pluck('center_id')->toArray();
+            $existingCenterIds = $exam->centerExams()->pluck('center_id')->toArray();
 
-            // Filter incoming centers to only add new ones
-            $newCenters = collect($request->centers)
+            // Filter new centers
+            $newCenters = collect($request->centers ?? [])
                 ->filter(fn($c) => !in_array($c['center_id'], $existingCenterIds))
                 ->map(fn($c) => [
-                    'exam_id'     => $examFound->id,
-                    'exam_name'   => $examFound->name,
+                'exam_id'     => $exam->id,
+                'exam_name'   => $exam->name,
                     'center_id'   => $c['center_id'],
                     'center_name' => $c['center_name'],
                     'created_at'  => now(),
                     'updated_at'  => now(),
                 ])
+                ->values()
                 ->toArray();
 
             if (!empty($newCenters)) {
-                // Insert only the new centers
                 DB::table('center_exam')->insert($newCenters);
             }
 
             return response()->json([
-                'status' => 'success',
-                'message' => 'Centers updated successfully for existing exam.',
+                'status'  => 'success',
+                'message' => empty($newCenters)
+                    ? 'Exam updated successfully. (No new centers added)'
+                    : 'Exam updated and new centers added successfully.',
             ]);
         }
 
-        // Log::info(Auth::user()->institute_details_id);
+        // ✅ Exam does not exist → validate full data for creation
+        $createRules = array_merge($baseRules, [
+            'name'                  => 'required|string',
+            'academic_year'         => 'required|string',
+            'class_name'            => 'required|string',
+            'centers'               => 'required|array|min:1',
+            'centers.*.center_id'   => 'required|integer|min:1',
+            'centers.*.center_name' => 'required|string|min:1',
+            'total_mark'            => 'required|numeric',
+        ]);
 
-        // ✅ Save exam
-        $exam = new Exam();
-        $exam->institute_details_id = Auth::user()->institute_details_id;
-        $exam->academic_year      = $request->academic_year;
-        $exam->academic_year_id   = $request->academic_year_id;
-        $exam->class_id           = $request->class_id;
-        $exam->class_name         = $request->class_name;
-        $exam->name               = $request->name;
-        $exam->total_marks        = $request->filled('total_mark') ? $request->total_mark : null;
-        $exam->is_generic         = true;
+        $validator = Validator::make($request->all(), $createRules);
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, $validator->errors()->toArray()),
+                'payload' => null,
+            ], 422);
+        }
 
-        $exam->save();
+        // ✅ Create new exam and associated centers
+        DB::transaction(function () use ($request) {
+            $exam = Exam::create([
+                'institute_details_id' => Auth::user()->institute_details_id,
+                'academic_year'        => $request->academic_year,
+                'academic_year_id'     => $request->academic_year_id,
+                'class_id'             => $request->class_id,
+                'class_name'           => $request->class_name,
+                'name'                 => $request->name,
+                'total_marks'          => $request->total_mark,
+                'is_generic'           => true,
+            ]);
 
-        // ✅ Save pivot table manually
-        $centerExamRows = collect($request->centers)->map(function ($center) use ($exam) {
-            return [
+            $centerExamRows = collect($request->centers)->map(fn($center) => [
                 'exam_id'      => $exam->id,
-                'exam_name'      => $exam->name,
+                'exam_name'    => $exam->name,
                 'center_id'    => $center['center_id'],
                 'center_name'  => $center['center_name'],
                 'created_at'   => now(),
                 'updated_at'   => now(),
-            ];
-        })->toArray();
+            ])->toArray();
 
-        DB::table('center_exam')->insert($centerExamRows);
+            DB::table('center_exam')->insert($centerExamRows);
+        });
 
         return response()->json([
-            'status' => 'success',
-            'message' => 'Exam and centers saved successfully'
+            'status'  => 'success',
+            'message' => 'Exam and centers saved successfully.',
         ]);
     }
+
 
 
     public function removeExamCenter($center_id)
