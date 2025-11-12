@@ -349,6 +349,7 @@ class AdmissionController extends Controller
         $centerExamRows = collect($request->centers)->map(function ($center) use ($exam) {
             return [
                 'exam_id'      => $exam->id,
+                'exam_name'      => $exam->name,
                 'center_id'    => $center['center_id'],
                 'center_name'  => $center['center_name'],
                 'created_at'   => now(),
