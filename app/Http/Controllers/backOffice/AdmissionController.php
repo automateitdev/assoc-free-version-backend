@@ -321,7 +321,7 @@ class AdmissionController extends Controller
             'centers'               => 'required|array|min:1',
             'centers.*.center_id'   => 'required|integer|min:1',
             'centers.*.center_name' => 'required|string|min:1',
-            'total_marks'           => 'nullable|numeric'
+            'total_marks'           => 'required|numeric'
         ];
 
         $validator = Validator::make($request->all(), $rules);
