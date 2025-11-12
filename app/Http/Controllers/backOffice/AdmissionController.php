@@ -321,7 +321,7 @@ class AdmissionController extends Controller
             'centers'               => 'required|array|min:1',
             'centers.*.center_id'   => 'required|integer|min:1',
             'centers.*.center_name' => 'required|string|min:1',
-            'total_marks'           => 'required|numeric'
+            'total_mark'            => 'required|numeric'
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -340,7 +340,7 @@ class AdmissionController extends Controller
         $exam->class_id           = $request->class_id;
         $exam->class_name         = $request->class_name;
         $exam->name               = $request->name;
-        $exam->total_marks        = $request->filled('total_marks') ? $request->total_marks : null;
+        $exam->total_marks        = $request->filled('total_mark') ? $request->total_mark : null;
         $exam->is_generic         = true;
 
         $exam->save();
