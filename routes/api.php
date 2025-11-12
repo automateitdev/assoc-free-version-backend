@@ -281,6 +281,8 @@ Route::group(['middleware' => ['auth:api']], function () {
     // ADMISSION EXAM
     Route::get('admission/exam/essentials', [AdmissionController::class, 'examEssentials']);
     Route::get('admission/exams', [AdmissionController::class, 'getAdmissionExamList']);
+    Route::get('/admission/examinee-list', [AdmissionController::class, 'getAdmissionExamineeList']);
+
     Route::post('admission/exam-save', [AdmissionController::class, 'admissionExamSave']);
     Route::delete('admission/remove/center/{center_id}', [AdmissionController::class, 'removeExamCenter']);
     Route::delete('admission/remove/exam/{exam_id}', [AdmissionController::class, 'removeExam']);

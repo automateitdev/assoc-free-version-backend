@@ -15,6 +15,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\AdmissionFeeResource;
 use App\Models\AcademicDetail;
+use App\Models\AdmissionApplied;
 use App\Models\AdmissionPayment;
 use App\Models\CenterExam;
 use App\Models\Exam;
@@ -361,8 +362,8 @@ class AdmissionController extends Controller
             $newCenters = collect($request->centers ?? [])
                 ->filter(fn($c) => !in_array($c['center_id'], $existingCenterIds))
                 ->map(fn($c) => [
-                'exam_id'     => $exam->id,
-                'exam_name'   => $exam->name,
+                    'exam_id'     => $exam->id,
+                    'exam_name'   => $exam->name,
                     'center_id'   => $c['center_id'],
                     'center_name' => $c['center_name'],
                     'created_at'  => now(),
@@ -517,5 +518,73 @@ class AdmissionController extends Controller
                 'errors' => $formattedErrors,
             ], 500);
         }
+    }
+
+
+    public function getAdmissionExamineeList(Request $request)
+    {
+        $rules = [
+            "exam"          => 'required|integer',
+            "academic_year" => 'required|integer',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([
+                'errors'  => ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, $validator->errors()->toArray()),
+                'payload' => null,
+            ], 422);
+        }
+
+        $exam = Exam::where('institute_details_id', Auth::user()->institute_details_id)
+            ->find($request->exam);
+
+        if (!$exam) {
+            $formattedErrors = ApiResponseHelper::formatErrors(
+                ApiResponseHelper::INVALID_REQUEST,
+                ['Requested exam not found or does not belong to this institute!']
+            );
+            return response()->json([
+                'errors' => $formattedErrors,
+                'payload' => null,
+            ], 400);
+        }
+
+        // ✅ Get all center IDs linked to this exam
+        $centers = $exam->centerExams->pluck('center_id')->toArray();
+
+        // ✅ Fetch examinees that belong to those centers
+        $list = AdmissionApplied::select(
+            'id',
+            'unique_number',
+            'student_name_english',
+            'institute_details_id',
+            'guardian_mobile',
+            'class_id',
+            'class_name',
+            'academic_year_id',
+            'academic_year',
+            'center_id',
+            'center_name',
+            'approval_status',
+            'status',
+            'assigned_roll'
+        )
+            ->where('institute_details_id', Auth::user()->institute_details_id)
+            ->whereIn('center_id', $centers)
+            ->where('academic_year_id', $exam->academic_year_id)
+            ->where('class_id', $exam->class_id)
+            ->whereNotNull('assigned_roll')
+            ->where('approval_status', 'Success')
+            ->where('status', 200)
+            ->orderBy('center_name')
+            ->orderBy('assigned_roll')
+            ->get();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Examinee list fetched successfully.',
+            'list'   => $list,
+        ]);
     }
 }
