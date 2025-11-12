@@ -310,6 +310,10 @@ class AdmissionController extends Controller
         ]);
     }
 
+    public function getAdmissionExamList() {
+        Exam::
+    }
+
     public function admissionExamSave(Request $request)
     {
         $rules = [
@@ -370,6 +374,7 @@ class AdmissionController extends Controller
 
         // ✅ Save exam
         $exam = new Exam();
+        $exam->institute_details_id = Auth::user()->institute_detail->institute_details_id;
         $exam->academic_year      = $request->academic_year;
         $exam->academic_year_id   = $request->academic_year_id;
         $exam->class_id           = $request->class_id;

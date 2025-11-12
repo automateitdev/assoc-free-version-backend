@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('exams', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->unsignedBigInteger('institute_details_id');
             $table->unsignedBigInteger('academic_year_id');
             $table->string('academic_year');
             $table->unsignedBigInteger('class_id');

@@ -9,6 +9,7 @@ class Exam extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'institute_details_id',
         'academic_year',
         'academic_year_id',
         'class_id',
@@ -25,6 +26,11 @@ class Exam extends Model
         'is_published' => 'boolean',
         'has_subjects' => 'boolean',
     ];
+
+    public function instituteDetail()
+    {
+        return $this->belongsTo(InstituteDetail::class, 'institute_details_id');
+    }
 
     public function centerExams()
     {
