@@ -14,6 +14,7 @@ use App\Models\AdmissionInstruction;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\AdmissionFeeResource;
+use App\Models\AdmissionPayment;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class AdmissionController extends Controller
@@ -270,6 +271,20 @@ class AdmissionController extends Controller
         $instruction = AdmissionInstruction::first();
         return response()->json([
             'instruction' => $instruction
+        ]);
+    }
+
+    public function examEssentials()
+    {
+        $distinctCombinations = AdmissionPayment::select('academic_year_id', 'class_id', 'center_id')
+            ->distinct()
+            ->with(['academicYear:id,name', 'class:id,name', 'center:id,name'])
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Fetched exam essentials',
+            'essentials' => $distinctCombinations ?? [],
         ]);
     }
 }

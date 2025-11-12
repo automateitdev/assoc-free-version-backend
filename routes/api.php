@@ -97,8 +97,8 @@ Route::group(['middleware' => ['auth:admin-api']], function () {
         Route::resource('wallet', WalletController::class);
         Route::post('wallet-mapping', [WalletController::class, 'walletMapping'])->name('wallet.mapping');
         Route::post('add-wallet', [WalletController::class, 'addNewWallet'])->name('wallet.add');
-        Route::post('/wallet/status-update', [WalletController::class, 'walletStatusToggle'])->name('wallet.add');
-        Route::post('/wallet-map/status-update', [WalletController::class, 'walletMapStatusToggle'])->name('wallet.add');
+        Route::post('/wallet/status-update', [WalletController::class, 'walletStatusToggle'])->name('wallet.status.toggle');
+        Route::post('/wallet-map/status-update', [WalletController::class, 'walletMapStatusToggle'])->name('wallet-map.status.update');
 
         //global data
         Route::get('core-category', [CoreSettingsController::class, 'index']);
@@ -277,6 +277,9 @@ Route::group(['middleware' => ['auth:api']], function () {
 
     Route::post('admission-lottery-generate', [AdmissionLottery::class, 'lotteryGenerate']);
     Route::post('admission-lottery-list', [AdmissionLottery::class, 'lotteryList']);
+
+    // ADMISSION EXAM
+    Route::get('admission/exam/essentials', [AdmissionController::class, 'examEssentials']);
 });
 
 //admission api
