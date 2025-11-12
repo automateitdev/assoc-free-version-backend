@@ -14,7 +14,9 @@ use App\Models\AdmissionInstruction;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\AdmissionFeeResource;
+use App\Models\AcademicDetail;
 use App\Models\AdmissionPayment;
+use App\Models\Exam;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class AdmissionController extends Controller
@@ -306,5 +308,62 @@ class AdmissionController extends Controller
             'message' => 'Fetched exam essentials',
             'essentials' => $grouped ?? [],
         ]);
+    }
+
+    public function admissionExamSave(Request $request)
+    {
+        $rules = [
+            'name'                  => 'required|string',
+            'academic_year'         => 'required|string',
+            'academic_year_id'      => 'required|integer',
+            'class_id'              => 'required|integer',
+            'class_name'            => 'required|string',
+            'centers'               => 'required|array|min:1',
+            'centers.*.center_id'   => 'required|integer|min:1',
+            'centers.*.center_name' => 'required|string|min:1',
+            'total_marks'           => 'nullable|numeric'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, $validator->errors()->toArray());
+            return response()->json([
+                'errors' => $formattedErrors,
+                'payload' => null,
+            ], 422);
+        }
+
+        // ✅ Save exam
+        $exam = new Exam();
+        $exam->academic_year      = $request->academic_year;
+        $exam->academic_year_id   = $request->academic_year_id;
+        $exam->class_id           = $request->class_id;
+        $exam->class_name         = $request->class_name;
+        $exam->name               = $request->name;
+        $exam->total_marks        = $request->filled('total_marks') ? $request->total_marks : null;
+        $exam->is_generic         = true;
+
+        $exam->save();
+
+        // ✅ Save pivot table manually
+        $centerExamRows = collect($request->centers)->map(function ($center) use ($exam) {
+            return [
+                'exam_id'      => $exam->id,
+                'center_id'    => $center['center_id'],
+                'center_name'  => $center['center_name'],
+                'created_at'   => now(),
+                'updated_at'   => now(),
+            ];
+        })->toArray();
+
+        DB::table('center_exam')->insert($centerExamRows);
+
+        return response()->json([
+            'message' => 'Exam and centers saved successfully',
+            'payload' => [
+                'exam' => $exam,
+                'centers' => $request->centers
+            ]
+        ], 201);
     }
 }

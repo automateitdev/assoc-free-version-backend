@@ -280,6 +280,7 @@ Route::group(['middleware' => ['auth:api']], function () {
 
     // ADMISSION EXAM
     Route::get('admission/exam/essentials', [AdmissionController::class, 'examEssentials']);
+    Route::get('admission/exam-save', [AdmissionController::class, 'admissionExamSave']);
 });
 
 //admission api
