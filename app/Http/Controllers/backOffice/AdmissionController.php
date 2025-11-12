@@ -21,6 +21,7 @@ use App\Models\CenterExam;
 use App\Models\Exam;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
+use Savannabits\PrimevueDatatables\PrimevueDatatables;
 
 class AdmissionController extends Controller
 {
@@ -554,7 +555,7 @@ class AdmissionController extends Controller
         $centers = $exam->centerExams->pluck('center_id')->toArray();
 
         // ✅ Fetch examinees that belong to those centers
-        $list = AdmissionApplied::select(
+        $query = AdmissionApplied::select(
             'id',
             'unique_number',
             'student_name_english',
@@ -570,16 +571,17 @@ class AdmissionController extends Controller
             'status',
             'assigned_roll'
         )
-            ->where('institute_details_id', Auth::user()->institute_details_id)
-            ->whereIn('center_id', $centers)
+            ->where('institute_details_id', Auth::user()->institute_details_id) // 3
+            ->whereIn('center_id', $centers) //
             ->where('academic_year_id', $exam->academic_year_id)
             ->where('class_id', $exam->class_id)
             ->whereNotNull('assigned_roll')
             ->where('approval_status', 'Success')
             ->where('status', 200)
             ->orderBy('center_name')
-            ->orderBy('assigned_roll')
-            ->get();
+            ->orderBy('assigned_roll');
+
+        $list = PrimevueDatatables::of($query)->make();
 
         return response()->json([
             'status'  => 'success',
