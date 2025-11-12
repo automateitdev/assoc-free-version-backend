@@ -560,6 +560,8 @@ class AdmissionController extends Controller
             'unique_number',
             'student_name_english',
             'institute_details_id',
+            'institute_id',
+            'institute_name',
             'guardian_mobile',
             'class_id',
             'class_name',
