@@ -290,13 +290,13 @@ class AdmissionController extends Controller
             ->map(function ($group) {
                 return [
                     'academic_year_id' => $group->first()->academic_year_id,
-                'academic_year' => $group->first()->academic_year,
+                    'academic_year' => $group->first()->academic_year,
                     'class_id' => $group->first()->class_id,
-                'class_name' => $group->first()->class_name,
-                'centers' => $group->map(fn($g) => [
-                    'id' => $g->center_id,
-                    'name' => $g->center_name,
-                ])->unique('id')->values()
+                    'class_name' => $group->first()->class_name,
+                    'centers' => $group->map(fn($g) => [
+                        'id' => $g->center_id,
+                        'name' => $g->center_name,
+                    ])->unique('id')->values()
                 ];
             })
             ->values();
