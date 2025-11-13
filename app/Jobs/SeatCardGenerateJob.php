@@ -50,7 +50,7 @@ class SeatCardGenerateJob implements ShouldQueue
         ?array $dtParams = [],
         ?array $searchableColumns = []
     ) {
-        $this->report_title = 'Rupali SureCash Archive';
+        $this->report_title = 'Seat Card';
         $this->userId = $userId;
         $this->instituteDetailsId = $instituteDetailsId;
         $this->academic_year_id = $academic_year_id;
@@ -61,7 +61,7 @@ class SeatCardGenerateJob implements ShouldQueue
         $this->dtParams = $dtParams;
         $this->searchableColumns = $searchableColumns;
 
-        Log::channel('exports_log')->info("🧾 Initializing SureCash PDF export [{$this->exportId}] for user {$this->userId}");
+        Log::channel('exports_log')->info("🧾 Initializing Seat Card PDF export [{$this->exportId}] for user {$this->userId}");
     }
 
     public function handle(): void
