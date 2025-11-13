@@ -95,91 +95,105 @@ class SeatCardGenerateJob implements ShouldQueue
 
         $pdf = new Fpdi('P', 'mm', 'A4');
         $pdf->SetAutoPageBreak(false);
-        $pdf->SetFont('Arial', '', 10);
+        $pdf->SetFont('Arial', '', 9);
 
+        // A4 measurements and layout
         $pageWidth = 210;
         $pageHeight = 297;
         $marginX = 10;
         $marginY = 10;
-        $cardWidth = ($pageWidth - 3 * $marginX) / 2;
-        $cardHeight = 90;
+        $columns = 2;
+        $rows = 5;
+
+        // Calculate card size
+        $availableWidth = $pageWidth - ($marginX * ($columns + 1));
+        $availableHeight = $pageHeight - ($marginY * ($rows + 1));
+        $cardWidth = $availableWidth / $columns;
+        $cardHeight = $availableHeight / $rows;
+
+        $totalStudents = count($students);
+        $pdf->AddPage();
 
         $x = $marginX;
         $y = $marginY;
-        $totalStudents = count($students);
-
-        $pdf->AddPage();
 
         foreach ($students as $index => $student) {
 
-            if ($y + $cardHeight > $pageHeight - $marginY) {
+            // Draw card border
+            $pdf->Rect($x, $y, $cardWidth, $cardHeight);
+
+            // === TOP ROW: Logo + Header + Photo ===
+            $pdf->SetFont('Arial', 'B', 10);
+
+            // Logo box (left)
+            $pdf->Rect($x + 4, $y + 4, 15, 15);
+            $pdf->SetXY($x + 4, $y + 19);
+            $pdf->SetFont('Arial', '', 7);
+            $pdf->Cell(15, 4, 'Logo', 0, 0, 'C');
+
+            // Header (center)
+            $pdf->SetFont('Arial', 'B', 9);
+            $pdf->SetXY($x + 22, $y + 5);
+            $pdf->Cell($cardWidth - 44, 5, $this->associationName ?? 'Association Name', 0, 1, 'C');
+
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->SetX($x + 22);
+            $pdf->Cell($cardWidth - 44, 4, $this->associationAddress ?? 'Address', 0, 1, 'C');
+
+            $pdf->SetFillColor(200, 200, 200);
+            $pdf->SetX($x + 22);
+            $pdf->SetFont('Arial', 'B', 8);
+            $pdf->Cell($cardWidth - 44, 5, 'Exam Seat Card', 0, 1, 'C', true);
+
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->SetX($x + 22);
+            $pdf->Cell($cardWidth - 44, 4, $this->examName ?? 'Scholarship', 0, 1, 'C');
+
+            // Photo box (right)
+            $pdf->Rect($x + $cardWidth - 19, $y + 4, 15, 15);
+            $pdf->SetXY($x + $cardWidth - 19, $y + 19);
+            $pdf->SetFont('Arial', '', 7);
+            $pdf->Cell(15, 4, 'Photo', 0, 0, 'C');
+
+            // Roll box (below photo)
+            $pdf->Rect($x + $cardWidth - 19, $y + 21, 15, 7);
+            $pdf->SetXY($x + $cardWidth - 19, $y + 21);
+            $pdf->SetFont('Arial', 'B', 7);
+            $pdf->Cell(15, 3, 'Roll', 0, 2, 'C');
+            $pdf->SetFont('Arial', '', 7);
+            $pdf->Cell(15, 3, (string) $student->assigned_roll, 0, 0, 'C');
+
+            // === STUDENT INFO SECTION ===
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->SetXY($x + 6, $y + 28);
+            $pdf->MultiCell(
+                $cardWidth - 25,
+                4,
+                "Name: {$student->student_name_english}\n" .
+                    "Unique ID: " . ($student->unique_id ?? '---') . "\n" .
+                    "Year/Session: " . ($student->academic_year ?? '2025') . "\n" .
+                    "Institute: {$student->institute_name}\n" .
+                    "Center: " . ($student->center_name ?? '---')
+            );
+
+            // Move to next position
+            if (($index + 1) % $columns === 0) {
+                // Move to next row
+                $x = $marginX;
+                $y += $cardHeight + $marginY;
+            } else {
+                // Next column
+                $x += $cardWidth + $marginX;
+            }
+
+            // New page after 10 cards
+            if (($index + 1) % ($columns * $rows) === 0 && $index + 1 < $totalStudents) {
                 $pdf->AddPage();
                 $x = $marginX;
                 $y = $marginY;
             }
 
-            // Draw main border
-            $pdf->Rect($x, $y, $cardWidth, $cardHeight);
-
-            // === TOP ROW ===
-            // Logo box (left)
-            $pdf->Rect($x + 5, $y + 5, 25, 25);
-            $pdf->SetXY($x + 5, $y + 30);
-            $pdf->SetFont('Arial', '', 8);
-            $pdf->Cell(25, 5, 'Logo', 0, 0, 'C');
-
-            // Header (center)
-            $pdf->SetFont('Arial', 'B', 11);
-            $pdf->SetXY($x + 35, $y + 6);
-            $pdf->Cell($cardWidth - 70, 6, $this->associationName, 0, 1, 'C');
-
-            $pdf->SetFont('Arial', '', 9);
-            $pdf->SetX($x + 35);
-            $pdf->Cell($cardWidth - 70, 5, $this->associationAddress, 0, 1, 'C');
-
-            $pdf->SetFont('Arial', 'B', 10);
-            $pdf->SetFillColor(200, 200, 200);
-            $pdf->SetX($x + 35);
-            $pdf->Cell($cardWidth - 70, 6, 'Seat Card', 0, 1, 'C', true);
-
-            $pdf->SetFont('Arial', '', 9);
-            $pdf->SetX($x + 35);
-            $pdf->Cell($cardWidth - 70, 5, $this->examName, 0, 1, 'C');
-
-            // Photo box (right)
-            $pdf->Rect($x + $cardWidth - 35, $y + 5, 25, 25);
-            $pdf->SetXY($x + $cardWidth - 35, $y + 30);
-            $pdf->Cell(25, 5, 'Photo', 0, 0, 'C');
-
-            // Roll box (below photo)
-            $pdf->Rect($x + $cardWidth - 35, $y + 35, 25, 10);
-            $pdf->SetXY($x + $cardWidth - 35, $y + 35);
-            $pdf->SetFont('Arial', 'B', 9);
-            $pdf->Cell(25, 5, 'Roll', 0, 2, 'C');
-            $pdf->SetFont('Arial', '', 9);
-            $pdf->Cell(25, 5, (string) $student->assigned_roll, 0, 0, 'C');
-
-            // === SECOND SECTION: Student Info ===
-            $pdf->SetFont('Arial', '', 9);
-            $pdf->SetXY($x + 10, $y + 42);
-            $pdf->MultiCell(
-                $cardWidth - 50,
-                6,
-                "Name: {$student->student_name_english}\n" .
-                    "Unique ID: " . ($student->unique_id ?? '---') . "\n" .
-                    "Year/Session: " . ($student->academic_year ?? '2025') . "\n" .
-                    "Institute Name: {$student->institute_name}\n" .
-                    "Exam Center Name: " . ($student->center_name ?? '---')
-            );
-
-            // Move to next card position
-            if ($x + $cardWidth + $marginX * 2 <= $pageWidth) {
-                $x += $cardWidth + $marginX;
-            } else {
-                $x = $marginX;
-                $y += $cardHeight + $marginY;
-            }
-
+            // Progress tracking
             $progress = (int)(($index + 1) / max(1, $totalStudents) * 100);
             Cache::put($progressKey, $progress, now()->addHours(1));
         }
@@ -192,6 +206,7 @@ class SeatCardGenerateJob implements ShouldQueue
 
         return $finalFile;
     }
+
 
 
 
