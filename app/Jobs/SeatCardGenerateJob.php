@@ -127,7 +127,7 @@ class SeatCardGenerateJob implements ShouldQueue
             $pdf->Rect($x + 5, $y + 10, 15, 15);
             $pdf->SetXY($x + 5, $y + 29);
             $pdf->SetFont('Arial', '', 7);
-            $pdf->Cell(15, 4, 0, 0, 'C');
+            $pdf->Cell(15, 4, '', 0, 'C');
 
             // Header center text
             $pdf->SetFont('Arial', 'B', 7);
@@ -151,14 +151,14 @@ class SeatCardGenerateJob implements ShouldQueue
             $pdf->Rect($x + $cardWidth - 22, $y + 10, 15, 18);
             $pdf->SetXY($x + $cardWidth - 22, $y + 29);
             $pdf->SetFont('Arial', '', 7);
-            $pdf->Cell(15, 4, 0, 0, 'C');
+            $pdf->Cell(15, 4, '', 0, 'C');
 
             // === STUDENT INFO ===
             $pdf->SetFont('Arial', '', 7);
             $pdf->SetXY($x + 8, $y + 34);
             $pdf->MultiCell(
                 $cardWidth - 16,
-                4.5,
+                3,
                 "Name: {$student->student_name_english}\n" .
                     "Unique ID: " . ($student->unique_number ?? '---') . "\n" .
                     "Year/Session: " . ($student->academic_year) . "\n" .
