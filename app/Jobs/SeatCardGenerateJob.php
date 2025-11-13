@@ -206,7 +206,11 @@ class SeatCardGenerateJob implements ShouldQueue
                 'L'
             );
 
-            // === ROLL NUMBER BOX (right side, aligned with student info) ===
+            // === ROLL NUMBER (right side, aligned with student info) ===
+            $rollX = $x + 10;
+            $rollWidth = $cardWidth - 16;
+            $rollY = $y + 30; // same as student info top
+
             $headerHeight = 6; // height for "Roll No." row
             $valueHeight = 6;  // height for the roll number row
             $boxHeight = $headerHeight + $valueHeight;
