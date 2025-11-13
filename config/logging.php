@@ -149,6 +149,13 @@ return [
             'level' => 'debug',
             'days' => 14,
         ],
+
+        'exports_log' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/export.log'),
+            'level' => 'debug',
+            'days' => 14,
+        ],
     ],
 
 ];
