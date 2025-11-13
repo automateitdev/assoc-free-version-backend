@@ -93,47 +93,83 @@ class SeatCardGenerateJob implements ShouldQueue
 
         $pdf = new Fpdi('P', 'mm', 'A4');
         $pdf->SetAutoPageBreak(false);
-        $pdf->SetFont('Arial', '', 12);
+        $pdf->SetFont('Arial', '', 10);
 
         $pageWidth = 210;
         $pageHeight = 297;
         $marginX = 10;
         $marginY = 10;
-        $cardWidth = ($pageWidth - 3 * $marginX) / 2; // 2 cards horizontally
-        $cardHeight = 70; // Adjust to fit vertically
+        $cardWidth = ($pageWidth - 3 * $marginX) / 2;
+        $cardHeight = 90;
 
         $x = $marginX;
         $y = $marginY;
-        $cardCount = 0;
         $totalStudents = count($students);
 
         $pdf->AddPage();
 
         foreach ($students as $index => $student) {
 
-            // Start new page if needed
             if ($y + $cardHeight > $pageHeight - $marginY) {
                 $pdf->AddPage();
                 $x = $marginX;
                 $y = $marginY;
             }
 
-            // Draw card border
+            // Draw main border
             $pdf->Rect($x, $y, $cardWidth, $cardHeight);
 
-            // Add student info
-            $pdf->SetXY($x + 5, $y + 5);
+            // Header Section
+            $pdf->SetFont('Arial', 'B', 11);
+            $pdf->SetXY($x, $y + 4);
+            $pdf->Cell($cardWidth, 6, 'Association Name', 0, 1, 'C');
+
+            $pdf->SetFont('Arial', '', 9);
+            $pdf->SetX($x);
+            $pdf->Cell($cardWidth, 5, 'Address', 0, 1, 'C');
+
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->SetFillColor(200, 200, 200);
+            $pdf->SetX($x + ($cardWidth - 50) / 2);
+            $pdf->Cell(50, 6, 'Exam Seat Card', 0, 1, 'C', true);
+
+            $pdf->SetFont('Arial', '', 9);
+            $pdf->SetX($x);
+            $pdf->Cell($cardWidth, 5, 'Talent Scholarship 2025 (Admission Form Name)', 0, 1, 'C');
+
+            // Logo box (left)
+            $pdf->Rect($x + 5, $y + 25, 25, 25);
+            $pdf->SetXY($x + 5, $y + 48);
+            $pdf->SetFont('Arial', '', 8);
+            $pdf->Cell(25, 5, 'Logo', 0, 0, 'C');
+
+            // Photo box (right)
+            $pdf->Rect($x + $cardWidth - 35, $y + 25, 25, 25);
+            $pdf->SetXY($x + $cardWidth - 35, $y + 48);
+            $pdf->Cell(25, 5, 'Photo', 0, 0, 'C');
+
+            // Roll box (below photo)
+            $pdf->Rect($x + $cardWidth - 35, $y + 52, 25, 10);
+            $pdf->SetXY($x + $cardWidth - 35, $y + 52);
+            $pdf->SetFont('Arial', 'B', 9);
+            $pdf->Cell(25, 5, 'Roll', 0, 2, 'C');
+            $pdf->SetFont('Arial', '', 9);
+            $pdf->Cell(25, 5, (string) $student->assigned_roll, 0, 0, 'C');
+
+            // Details section
+            $pdf->SetFont('Arial', '', 9);
+            $pdf->SetXY($x + 35, $y + 25);
             $pdf->MultiCell(
-                $cardWidth - 10,
+                $cardWidth - 70,
                 6,
                 "Name: {$student->student_name_english}\n" .
-                    "Institute: {$student->institute_name}\n" .
-                    "Class: {$student->class_name}\n" .
-                    "Exam: {$student->exam_name}\n" .
-                    "Roll: {$student->assigned_roll}"
+                    "Unique ID: " . ($student->unique_id ?? '---') . "\n" .
+                    "Year/Session: " . ($student->academic_year ?? '2025') . "\n" .
+                    "Institute Name: {$student->institute_name}\n" .
+                    "Exam Center Name: " . ($student->center_name ?? '---')
             );
 
-            // Move to next card horizontally
+            // Move to next card position
             if ($x + $cardWidth + $marginX * 2 <= $pageWidth) {
                 $x += $cardWidth + $marginX;
             } else {
@@ -141,12 +177,11 @@ class SeatCardGenerateJob implements ShouldQueue
                 $y += $cardHeight + $marginY;
             }
 
-            // Update progress
             $progress = (int)(($index + 1) / max(1, $totalStudents) * 100);
             Cache::put($progressKey, $progress, now()->addHours(1));
         }
 
-        // Save PDF
+        // Save file
         $relativeDir = "exports/user_{$this->userId}/" . now()->format('Ymd_His') . "/{$this->exportId}";
         Storage::disk('public')->makeDirectory($relativeDir);
         $finalFile = "{$relativeDir}/{$this->fileName}.pdf";
@@ -154,6 +189,7 @@ class SeatCardGenerateJob implements ShouldQueue
 
         return $finalFile;
     }
+
 
     private function getStudents()
     {
