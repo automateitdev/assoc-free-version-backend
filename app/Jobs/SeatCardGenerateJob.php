@@ -95,7 +95,7 @@ class SeatCardGenerateJob implements ShouldQueue
 
         $pdf = new Fpdi('P', 'mm', 'A4');
         $pdf->SetAutoPageBreak(false);
-        $pdf->SetFont('Arial', '', 9);
+        $pdf->SetFont('Arial', '', 7);
 
         // Page & layout setup
         $pageWidth = 210;
@@ -132,16 +132,16 @@ class SeatCardGenerateJob implements ShouldQueue
             // Header center text
             $pdf->SetFont('Arial', 'B', 9);
             $pdf->SetXY($x + 25, $y + 6);
-            $pdf->Cell($cardWidth - 50, 5, $this->associationName ?? 'PRIVATE SCHOOL SOCIETY OF BANGLADESH', 0, 1, 'C');
+            $pdf->Cell($cardWidth - 50, 5, $this->associationName ?? 'Association Name', 0, 1, 'C');
 
             $pdf->SetFont('Arial', '', 8);
             $pdf->SetX($x + 25);
-            $pdf->Cell($cardWidth - 50, 4, $this->associationAddress ?? '8, Arjun Das Agarwal Road, Courtpara, Kushtia.', 0, 1, 'C');
+            $pdf->Cell($cardWidth - 50, 4, $this->associationAddress ?? 'Association Address', 0, 1, 'C');
 
             $pdf->SetFont('Arial', 'B', 8);
             $pdf->SetFillColor(200, 200, 200);
             $pdf->SetX($x + 25);
-            $pdf->Cell($cardWidth - 50, 5, 'Exam Seat Card', 0, 1, 'C', true);
+            $pdf->Cell($cardWidth - 50, 5, 'Seat Card', 0, 1, 'C', true);
 
             $pdf->SetFont('Arial', '', 8);
             $pdf->SetX($x + 25);
@@ -160,8 +160,8 @@ class SeatCardGenerateJob implements ShouldQueue
                 $cardWidth - 16,
                 4.5,
                 "Name: {$student->student_name_english}\n" .
-                    "Unique ID: " . ($student->unique_id ?? '---') . "\n" .
-                    "Year/Session: " . ($student->academic_year ?? '2025') . "\n" .
+                    "Unique ID: " . ($student->unique_number ?? '---') . "\n" .
+                    "Year/Session: " . ($student->academic_year) . "\n" .
                     "Institute: {$student->institute_name}\n" .
                     "Center: " . ($student->center_name ?? '---'),
                 0,
@@ -216,7 +216,10 @@ class SeatCardGenerateJob implements ShouldQueue
         return AdmissionApplied::select(
             'student_name_english',
             'institute_name',
+            'academic_year',
             'class_name',
+            'center_name',
+            'unique_number',
             'assigned_roll'
         )
             ->where('institute_details_id', $this->instituteDetailsId)
