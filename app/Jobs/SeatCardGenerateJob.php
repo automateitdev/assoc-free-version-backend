@@ -124,7 +124,7 @@ class SeatCardGenerateJob implements ShouldQueue
 
             // === HEADER ===
             // Logo box
-            $pdf->Rect($x + 5, $y + 10, 15, 15);
+            $pdf->Rect($x + 5, $y + 12, 15, 15);
             $pdf->SetXY($x + 5, $y + 35);
             $pdf->SetFont('Arial', '', 7);
             $pdf->Cell(15, 4, '', 0, 'C');
@@ -148,7 +148,20 @@ class SeatCardGenerateJob implements ShouldQueue
             $pdf->Cell($cardWidth - 50, 4, $this->examName ?? 'Scholarship', 0, 1, 'C');
 
             // Photo box (lowered a bit)
-            $pdf->Rect($x + $cardWidth - 22, $y + 10, 15, 15);
+            $photoX = $x + $cardWidth - 22;
+            $photoY = $y + 12;
+            $photoW = 15;
+            $photoH = 15;
+
+            $pdf->Rect($photoX, $photoY, $photoW, $photoH);
+
+            // Insert student photo if exists
+            if (!empty($student->student_pic)) {
+                $photoPath = Storage::disk('public')->path("{$student->student_pic}");
+                if (file_exists($photoPath)) {
+                    $pdf->Image($photoPath, $photoX, $photoY, $photoW, $photoH);
+                }
+            }
             $pdf->SetXY($x + $cardWidth - 22, $y + 35);
             $pdf->SetFont('Arial', '', 7);
             $pdf->Cell(15, 4, '', 0, 'C');
@@ -230,7 +243,8 @@ class SeatCardGenerateJob implements ShouldQueue
             'class_name',
             'center_name',
             'unique_number',
-            'assigned_roll'
+            'assigned_roll',
+            'student_pic'
         )
             ->where('institute_details_id', $this->instituteDetailsId)
             ->whereIn('center_id', $this->centers)
