@@ -263,7 +263,8 @@ class SeatCardGenerateJob implements ShouldQueue
         $this->associationName = $assoc->institute_name;
         $this->associationAddress = $assoc->institute_address;
 
-        $query = AdmissionApplied::select(
+        $query = AdmissionApplied::query()
+            ->select(
             'student_name_english',
             'institute_name',
             'academic_year',
