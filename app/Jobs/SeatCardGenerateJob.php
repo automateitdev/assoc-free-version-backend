@@ -29,6 +29,7 @@ class SeatCardGenerateJob implements ShouldQueue
     public string $fileName;
     public string $exportId;
 
+    public string $associationLogo;
     public string $associationName;
     public string $associationAddress;
     public int $timeout = 7200;
@@ -125,6 +126,23 @@ class SeatCardGenerateJob implements ShouldQueue
             // === HEADER ===
             // Logo box
             $pdf->Rect($x + 5, $y + 12, 15, 15);
+
+            $logoX = $x + $cardWidth - 22;
+            $logoY = $y + 12;
+            $logoW = 15;
+            $logoH = 15;
+
+            $pdf->Rect($logoX, $logoY, $logoW, $logoH);
+
+            // Insert student photo if exists
+            if (!empty($this->associationLogo)) {
+                $logoPath = Storage::disk('public')->path("{$this->associationLogo}");
+                if (file_exists($logoPath)) {
+                    $pdf->Image($logoPath, $photoX, $photoY, $photoW, $photoH);
+                }
+            }
+
+
             $pdf->SetXY($x + 5, $y + 35);
             $pdf->SetFont('Arial', '', 7);
             $pdf->Cell(15, 4, '', 0, 'C');
@@ -185,11 +203,11 @@ class SeatCardGenerateJob implements ShouldQueue
             $pdf->SetFont('Arial', 'B', 8);
 
             // Horizontal position: right edge of student info box
-            $rollX = $x + 8;
+            $rollX = $x + 10;
             $rollWidth = $cardWidth - 16;
 
             // Vertical position: same as top of student info
-            $rollY = $y + 34; // same as student info top
+            $rollY = $y + 30; // same as student info top
             $pdf->SetXY($rollX, $rollY);
 
             // Place roll number on the right side of the student info box
@@ -232,6 +250,7 @@ class SeatCardGenerateJob implements ShouldQueue
     {
 
         $assoc = InstituteDetail::find($this->instituteDetailsId);
+        $this->associationLogo = $assoc->logo;
 
         $this->associationName = $assoc->institute_name;
         $this->associationAddress = $assoc->institute_address;
