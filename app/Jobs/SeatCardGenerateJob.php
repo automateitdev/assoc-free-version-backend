@@ -99,7 +99,7 @@ class SeatCardGenerateJob implements ShouldQueue
         $pageHeight = 297;
         $marginX = 10;
         $marginY = 10;
-        $cardWidth = ($pageWidth - 3 * $marginX);
+        $cardWidth = ($pageWidth - 3 * $marginX) / 2;
         $cardHeight = 90;
 
         $x = $marginX;
@@ -119,48 +119,49 @@ class SeatCardGenerateJob implements ShouldQueue
             // Draw main border
             $pdf->Rect($x, $y, $cardWidth, $cardHeight);
 
-            // Header Section
-            $pdf->SetFont('Arial', 'B', 11);
-            $pdf->SetXY($x, $y + 4);
-            $pdf->Cell($cardWidth, 6, 'Association Name', 0, 1, 'C');
-
-            $pdf->SetFont('Arial', '', 9);
-            $pdf->SetX($x);
-            $pdf->Cell($cardWidth, 5, 'Address', 0, 1, 'C');
-
-            $pdf->SetFont('Arial', 'B', 10);
-            $pdf->SetFillColor(200, 200, 200);
-            $pdf->SetX($x + ($cardWidth - 50) / 2);
-            $pdf->Cell(50, 6, 'Exam Seat Card', 0, 1, 'C', true);
-
-            $pdf->SetFont('Arial', '', 9);
-            $pdf->SetX($x);
-            $pdf->Cell($cardWidth, 5, 'Talent Scholarship 2025 (Admission Form Name)', 0, 1, 'C');
-
+            // === TOP ROW ===
             // Logo box (left)
-            $pdf->Rect($x + 5, $y + 25, 25, 25);
-            $pdf->SetXY($x + 5, $y + 48);
+            $pdf->Rect($x + 5, $y + 5, 25, 25);
+            $pdf->SetXY($x + 5, $y + 30);
             $pdf->SetFont('Arial', '', 8);
             $pdf->Cell(25, 5, 'Logo', 0, 0, 'C');
 
+            // Header (center)
+            $pdf->SetFont('Arial', 'B', 11);
+            $pdf->SetXY($x + 35, $y + 6);
+            $pdf->Cell($cardWidth - 70, 6, 'Association Name', 0, 1, 'C');
+
+            $pdf->SetFont('Arial', '', 9);
+            $pdf->SetX($x + 35);
+            $pdf->Cell($cardWidth - 70, 5, 'Address', 0, 1, 'C');
+
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->SetFillColor(200, 200, 200);
+            $pdf->SetX($x + 35);
+            $pdf->Cell($cardWidth - 70, 6, 'Exam Seat Card', 0, 1, 'C', true);
+
+            $pdf->SetFont('Arial', '', 9);
+            $pdf->SetX($x + 35);
+            $pdf->Cell($cardWidth - 70, 5, 'Talent Scholarship 2025 (Admission Form Name)', 0, 1, 'C');
+
             // Photo box (right)
-            $pdf->Rect($x + $cardWidth - 35, $y + 25, 25, 25);
-            $pdf->SetXY($x + $cardWidth - 35, $y + 48);
+            $pdf->Rect($x + $cardWidth - 35, $y + 5, 25, 25);
+            $pdf->SetXY($x + $cardWidth - 35, $y + 30);
             $pdf->Cell(25, 5, 'Photo', 0, 0, 'C');
 
             // Roll box (below photo)
-            $pdf->Rect($x + $cardWidth - 35, $y + 52, 25, 10);
-            $pdf->SetXY($x + $cardWidth - 35, $y + 52);
+            $pdf->Rect($x + $cardWidth - 35, $y + 35, 25, 10);
+            $pdf->SetXY($x + $cardWidth - 35, $y + 35);
             $pdf->SetFont('Arial', 'B', 9);
             $pdf->Cell(25, 5, 'Roll', 0, 2, 'C');
             $pdf->SetFont('Arial', '', 9);
             $pdf->Cell(25, 5, (string) $student->assigned_roll, 0, 0, 'C');
 
-            // Details section
+            // === SECOND SECTION: Student Info ===
             $pdf->SetFont('Arial', '', 9);
-            $pdf->SetXY($x + 35, $y + 25);
+            $pdf->SetXY($x + 10, $y + 42);
             $pdf->MultiCell(
-                $cardWidth - 70,
+                $cardWidth - 50,
                 6,
                 "Name: {$student->student_name_english}\n" .
                     "Unique ID: " . ($student->unique_id ?? '---') . "\n" .
@@ -189,6 +190,7 @@ class SeatCardGenerateJob implements ShouldQueue
 
         return $finalFile;
     }
+
 
 
     private function getStudents()
