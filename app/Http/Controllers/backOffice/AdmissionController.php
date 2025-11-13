@@ -673,6 +673,7 @@ class AdmissionController extends Controller
             $exam->academic_year_id,
             $exam->class_id,
             $centers,
+            $exam->name,
             $fileName,
             $exportId,
             $dtParams,
