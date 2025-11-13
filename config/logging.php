@@ -156,6 +156,13 @@ return [
             'level' => 'debug',
             'days' => 14,
         ],
+
+        'datatable_log' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/datatable.log'),
+            'level' => 'debug',
+            'days' => 14,
+        ],
     ],
 
 ];
