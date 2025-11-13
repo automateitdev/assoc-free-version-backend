@@ -175,10 +175,10 @@ class SeatCardGenerateJob implements ShouldQueue
             $pdf->Cell($cardWidth - 50, 4, $this->examName ?? 'Scholarship', 0, 1, 'C');
 
             // Photo box (lowered a bit)
-            $photoX = $x + $cardWidth - $logoX - $photoW;
-            $photoY = $y + 12;
             $photoW = 12;
             $photoH = 12;
+            $photoX = $x + $cardWidth - $logoX - $photoW; // now $photoW is defined
+            $photoY = $y + 12;
 
             $pdf->Rect($photoX, $photoY, $photoW, $photoH);
 
