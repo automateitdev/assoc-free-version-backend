@@ -207,15 +207,11 @@ class SeatCardGenerateJob implements ShouldQueue
             );
 
             // === ROLL NUMBER BOX (right side, aligned with student info) ===
-            $rollX = $x + 10;         // keep your existing horizontal position
-            $rollWidth = $cardWidth - 16; // keep your existing width
-            $rollY = $y + 30;         // existing vertical position
-
-            $headerHeight = 6;
-            $valueHeight = 6;
+            $headerHeight = 6; // height for "Roll No." row
+            $valueHeight = 6;  // height for the roll number row
             $boxHeight = $headerHeight + $valueHeight;
 
-            // Draw the outer box (same position/width as before)
+            // Draw outer rectangle
             $pdf->Rect($rollX, $rollY, $rollWidth, $boxHeight);
 
             // Row 1: header
@@ -223,10 +219,14 @@ class SeatCardGenerateJob implements ShouldQueue
             $pdf->SetXY($rollX, $rollY);
             $pdf->Cell($rollWidth, $headerHeight, "Roll No.", 0, 1, 'C');
 
+            // Draw a horizontal line between header and value
+            $pdf->Line($rollX, $rollY + $headerHeight, $rollX + $rollWidth, $rollY + $headerHeight);
+
             // Row 2: value
             $pdf->SetFont('Arial', 'B', 8);
             $pdf->SetXY($rollX, $rollY + $headerHeight);
             $pdf->Cell($rollWidth, $valueHeight, (string)$student->assigned_roll, 0, 1, 'C');
+
 
 
             // === Move to next position ===
