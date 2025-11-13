@@ -206,27 +206,32 @@ class SeatCardGenerateJob implements ShouldQueue
                 'L'
             );
 
-            // === ROLL NUMBER (right side, aligned with student info) ===
-            $pdf->SetFont('Arial', 'B', 8);
+            // === ROLL NUMBER (right side, aligned with photo) ===
+            $cellPadding = 2; // optional padding inside box
+            $headerHeight = 5; // height of "Roll No." row
+            $valueHeight = 6;  // height of roll number value
+            $boxWidth = 30;    // adjust width to your liking
+            $boxHeight = $headerHeight + $valueHeight;
 
-            $rollX = $x + 10;              // current X position (left of the text cell)
-            $rollY = $y + 30;              // current Y position
-            $text = "Roll No: " . (string)$student->assigned_roll;
+            // Align box to the right side, same margin as photo
+            $boxX = $x + $cardWidth - 5 - $boxWidth; // 5 mm right margin like photo
+            $boxY = $y + 30; // same vertical alignment as before
 
-            // Calculate text width
-            $textWidth = $pdf->GetStringWidth($text) + 4; // small padding
-            $cellHeight = 6;
+            // Draw outer rectangle
+            $pdf->Rect($boxX, $boxY, $boxWidth, $boxHeight);
 
-            // Adjust X so the box and text stay right-aligned
-            $boxX = $rollX + ($cardWidth - 16) - $textWidth; // same as previous right-aligned Cell
-            $boxY = $rollY;
-
-            // Draw box
-            $pdf->Rect($boxX, $boxY, $textWidth, $cellHeight);
-
-            // Print text inside the box
+            // Row 1: header
+            $pdf->SetFont('Arial', 'B', 7);
             $pdf->SetXY($boxX, $boxY);
-            $pdf->Cell($textWidth, $cellHeight, $text, 0, 1, 'C');
+            $pdf->Cell($boxWidth, $headerHeight, "Roll No.", 0, 1, 'C');
+
+            // Draw a line between header and value
+            $pdf->Line($boxX, $boxY + $headerHeight, $boxX + $boxWidth, $boxY + $headerHeight);
+
+            // Row 2: value
+            $pdf->SetFont('Arial', 'B', 8);
+            $pdf->SetXY($boxX, $boxY + $headerHeight);
+            $pdf->Cell($boxWidth, $valueHeight, (string)$student->assigned_roll, 0, 1, 'C');
 
 
             // === Move to next position ===
