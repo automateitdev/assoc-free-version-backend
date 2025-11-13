@@ -136,7 +136,7 @@ class SeatCardGenerateJob implements ShouldQueue
 
             // Insert student photo if exists
             if (!empty($this->associationLogo)) {
-                $logoPath = Storage::disk('public')->path("{$this->associationLogo}");
+                $logoPath = Storage::disk('public')->path("/storage/{$this->associationLogo}");
                 if (file_exists($logoPath)) {
                     $pdf->Image($logoPath, $logoX, $logoY, $logoW, $logoH);
                 }
@@ -252,7 +252,6 @@ class SeatCardGenerateJob implements ShouldQueue
         $assoc = InstituteDetail::find($this->instituteDetailsId);
         $this->associationLogo = $assoc->logo;
 
-        Log::channel('exports_log')->info($this->associationLogo);
 
         $this->associationName = $assoc->institute_name;
         $this->associationAddress = $assoc->institute_address;
