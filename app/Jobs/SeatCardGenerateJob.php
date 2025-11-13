@@ -138,7 +138,7 @@ class SeatCardGenerateJob implements ShouldQueue
             if (!empty($this->associationLogo)) {
                 $logoPath = Storage::disk('public')->path("{$this->associationLogo}");
                 if (file_exists($logoPath)) {
-                    $pdf->Image($logoPath, $photoX, $photoY, $photoW, $photoH);
+                    $pdf->Image($logoPath, $logoX, $logoY, $logoW, $logoH);
                 }
             }
 
