@@ -97,7 +97,7 @@ class SeatCardGenerateJob implements ShouldQueue
         $pdf->SetAutoPageBreak(false);
         $pdf->SetFont('Arial', '', 9);
 
-        // A4 and layout configuration
+        // Page & layout setup
         $pageWidth = 210;
         $pageHeight = 297;
         $marginX = 10;
@@ -105,57 +105,57 @@ class SeatCardGenerateJob implements ShouldQueue
         $columns = 2;
         $rows = 5;
 
-        // Calculate card dimensions
+        // Calculate card sizes (2x5 grid)
         $availableWidth = $pageWidth - ($marginX * ($columns + 1));
         $availableHeight = $pageHeight - ($marginY * ($rows + 1));
         $cardWidth = $availableWidth / $columns;
         $cardHeight = $availableHeight / $rows;
 
         $pdf->AddPage();
-        $totalStudents = count($students);
 
         $x = $marginX;
         $y = $marginY;
+        $totalStudents = count($students);
 
         foreach ($students as $index => $student) {
 
-            // Card border
+            // Draw border
             $pdf->Rect($x, $y, $cardWidth, $cardHeight);
 
-            // === HEADER AREA (Top) ===
-            // Logo (left)
-            $pdf->Rect($x + 5, $y + 6, 15, 15);
-            $pdf->SetXY($x + 5, $y + 22);
+            // === HEADER ===
+            // Logo box
+            $pdf->Rect($x + 5, $y + 8, 15, 15);
+            $pdf->SetXY($x + 5, $y + 24);
             $pdf->SetFont('Arial', '', 7);
             $pdf->Cell(15, 4, 'Logo', 0, 0, 'C');
 
-            // Header (center)
+            // Header center text
             $pdf->SetFont('Arial', 'B', 9);
-            $pdf->SetXY($x + 22, $y + 6);
-            $pdf->Cell($cardWidth - 44, 5, $this->associationName ?? 'Association Name', 0, 1, 'C');
+            $pdf->SetXY($x + 25, $y + 6);
+            $pdf->Cell($cardWidth - 50, 5, $this->associationName ?? 'PRIVATE SCHOOL SOCIETY OF BANGLADESH', 0, 1, 'C');
 
             $pdf->SetFont('Arial', '', 8);
-            $pdf->SetX($x + 22);
-            $pdf->Cell($cardWidth - 44, 4, $this->associationAddress ?? 'Address', 0, 1, 'C');
+            $pdf->SetX($x + 25);
+            $pdf->Cell($cardWidth - 50, 4, $this->associationAddress ?? '8, Arjun Das Agarwal Road, Courtpara, Kushtia.', 0, 1, 'C');
 
             $pdf->SetFont('Arial', 'B', 8);
             $pdf->SetFillColor(200, 200, 200);
-            $pdf->SetX($x + 22);
-            $pdf->Cell($cardWidth - 44, 5, 'Exam Seat Card', 0, 1, 'C', true);
+            $pdf->SetX($x + 25);
+            $pdf->Cell($cardWidth - 50, 5, 'Exam Seat Card', 0, 1, 'C', true);
 
             $pdf->SetFont('Arial', '', 8);
-            $pdf->SetX($x + 22);
-            $pdf->Cell($cardWidth - 44, 4, $this->examName ?? 'Talent Scholarship 2025', 0, 1, 'C');
+            $pdf->SetX($x + 25);
+            $pdf->Cell($cardWidth - 50, 4, $this->examName ?? 'Scholarship', 0, 1, 'C');
 
-            // Photo (moved slightly lower)
+            // Photo box (lowered a bit)
             $pdf->Rect($x + $cardWidth - 22, $y + 10, 15, 18);
             $pdf->SetXY($x + $cardWidth - 22, $y + 29);
             $pdf->SetFont('Arial', '', 7);
             $pdf->Cell(15, 4, 'Photo', 0, 0, 'C');
 
-            // === STUDENT INFO AREA ===
-            $pdf->SetXY($x + 8, $y + 32);
+            // === STUDENT INFO ===
             $pdf->SetFont('Arial', '', 8);
+            $pdf->SetXY($x + 8, $y + 34);
             $pdf->MultiCell(
                 $cardWidth - 16,
                 4.5,
@@ -168,34 +168,34 @@ class SeatCardGenerateJob implements ShouldQueue
                 'L'
             );
 
-            // === ROLL NUMBER (centered & bold) ===
+            // === ROLL NUMBER (bottom centered, bigger font) ===
             $pdf->SetFont('Arial', 'B', 11);
-            $pdf->SetXY($x, $y + $cardHeight - 15);
+            $pdf->SetXY($x, $y + $cardHeight - 13);
             $pdf->Cell($cardWidth, 7, "Roll No: " . (string) $student->assigned_roll, 0, 0, 'C');
 
-            // === Move to next card position ===
+            // === Move to next position ===
             if (($index + 1) % $columns === 0) {
-                // Move to next row
+                // next row
                 $x = $marginX;
                 $y += $cardHeight + $marginY;
             } else {
-                // Move to next column
+                // next column
                 $x += $cardWidth + $marginX;
             }
 
-            // New page after 10 cards
+            // New page after every 10 cards
             if (($index + 1) % ($columns * $rows) === 0 && $index + 1 < $totalStudents) {
                 $pdf->AddPage();
                 $x = $marginX;
                 $y = $marginY;
             }
 
-            // Track progress
+            // Update progress
             $progress = (int)(($index + 1) / max(1, $totalStudents) * 100);
             Cache::put($progressKey, $progress, now()->addHours(1));
         }
 
-        // Save file
+        // Save
         $relativeDir = "exports/user_{$this->userId}/" . now()->format('Ymd_His') . "/{$this->exportId}";
         Storage::disk('public')->makeDirectory($relativeDir);
         $finalFile = "{$relativeDir}/{$this->fileName}.pdf";
