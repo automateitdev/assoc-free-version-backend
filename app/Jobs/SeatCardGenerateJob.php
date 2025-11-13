@@ -200,6 +200,7 @@ class SeatCardGenerateJob implements ShouldQueue
                     "Unique ID: " . ($student->unique_number ?? '---') . "\n" .
                     "Year/Session: " . ($student->academic_year) . "\n" .
                     "Institute: {$student->institute_name}\n" .
+                    "Class: " . ($student->class_name ?? '---') . "\n" .
                     "Center: " . ($student->center_name ?? '---'),
                 0,
                 'L'
