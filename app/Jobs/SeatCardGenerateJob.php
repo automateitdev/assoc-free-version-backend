@@ -174,17 +174,14 @@ class SeatCardGenerateJob implements ShouldQueue
             $pdf->SetX($x + 25);
             $pdf->Cell($cardWidth - 50, 4, $this->examName ?? 'Scholarship', 0, 1, 'C');
 
-            // Photo box (lowered a bit)
+            // Photo (symmetrical)
             $photoW = 12;
             $photoH = 12;
-            $photoX = $x + $cardWidth - $logoX - $photoW; // now $photoW is defined
+            $photoX = $x + $cardWidth - 5 - $photoW; // 5 mm margin from right
             $photoY = $y + 12;
-
             $pdf->Rect($photoX, $photoY, $photoW, $photoH);
-
-            // Insert student photo if exists
             if (!empty($student->student_pic)) {
-                $photoPath = Storage::disk('public')->path("{$student->student_pic}");
+                $photoPath = Storage::disk('public')->path($student->student_pic);
                 if (file_exists($photoPath)) {
                     $pdf->Image($photoPath, $photoX, $photoY, $photoW, $photoH);
                 }
