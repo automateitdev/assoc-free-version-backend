@@ -127,8 +127,8 @@ class SeatCardGenerateJob implements ShouldQueue
             // Logo box
             $logoX = $x + 5;
             $logoY = $y + 12;
-            $logoW = 15;
-            $logoH = 15;
+            $logoW = 12;
+            $logoH = 12;
 
             $pdf->Rect($logoX, $logoY, $logoW, $logoH);
 
@@ -166,8 +166,8 @@ class SeatCardGenerateJob implements ShouldQueue
             // Photo box (lowered a bit)
             $photoX = $x + $cardWidth - 22;
             $photoY = $y + 12;
-            $photoW = 15;
-            $photoH = 15;
+            $photoW = 12;
+            $photoH = 12;
 
             $pdf->Rect($photoX, $photoY, $photoW, $photoH);
 
