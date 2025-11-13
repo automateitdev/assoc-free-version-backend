@@ -99,7 +99,7 @@ class SeatCardGenerateJob implements ShouldQueue
         $pageHeight = 297;
         $marginX = 10;
         $marginY = 10;
-        $cardWidth = ($pageWidth - 3 * $marginX) / 2;
+        $cardWidth = ($pageWidth - 3 * $marginX);
         $cardHeight = 90;
 
         $x = $marginX;
