@@ -257,11 +257,12 @@ class SeatCardGenerateJob implements ShouldQueue
 
     private function getStudents()
     {
-
         $assoc = InstituteDetail::find($this->instituteDetailsId);
-        $this->associationLogo = $assoc->logo;
-        $this->associationName = $assoc->institute_name;
-        $this->associationAddress = $assoc->institute_address;
+        if ($assoc) {
+            $this->associationLogo = $assoc->logo;
+            $this->associationName = $assoc->institute_name;
+            $this->associationAddress = $assoc->institute_address;
+        }
 
         $query = AdmissionApplied::query()
             ->select(
@@ -279,31 +280,22 @@ class SeatCardGenerateJob implements ShouldQueue
             ->where('academic_year_id', $this->academic_year_id)
             ->where('class_id', $this->class_id)
             ->whereNotNull('assigned_roll')
-            ->where('approval_status', 'Success')
-            ->orderBy('center_name')
-            ->orderBy('assigned_roll')
-            ->get()
-            ->map(function ($student) {
-                // Exam name can be dynamic; adjust here
-                $student->exam_name = $this->examName;
-                return $student;
-            });
+            ->where('approval_status', 'Success');
 
-        // Apply PrimeVue filters / sorting if provided
+        // Apply PrimeVue filters / sorting
         if (!empty($this->dtParams)) {
             try {
                 $datatable = new PrimevueDatatables();
                 $datatable->dtParams($this->dtParams)
                     ->searchableColumns($this->searchableColumns ?? [])
                     ->query($query)
-                    ->make(); // make() will apply filters/sorts to the builder
+                    ->make();
             } catch (Throwable $pvEx) {
-                // if PrimeVue application fails, log and continue with unfiltered query
-                Log::channel('exports_log')->warning("⚠️ PrimeVue filter application failed for export [{$this->exportId}]: " . $pvEx->getMessage());
+                Log::channel('exports_log')->warning("⚠️ PrimeVue filter failed for export [{$this->exportId}]: " . $pvEx->getMessage());
             }
         }
 
-        // ensure deterministic ordering
+        // Sorting
         if (!empty($this->dtParams['sortField']) && !empty($this->dtParams['sortOrder'])) {
             $orderDir = $this->dtParams['sortOrder'] == 1 ? 'asc' : 'desc';
             $query->orderBy($this->dtParams['sortField'], $orderDir);
@@ -311,8 +303,15 @@ class SeatCardGenerateJob implements ShouldQueue
             $query->orderBy('id');
         }
 
-        return $query;
+        // Fetch results and add exam_name
+        $students = $query->get()->map(function ($student) {
+            $student->exam_name = $this->examName;
+            return $student;
+        });
+
+        return $students;
     }
+
 
     public function failed(Throwable $exception): void
     {
