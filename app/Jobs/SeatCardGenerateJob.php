@@ -252,6 +252,8 @@ class SeatCardGenerateJob implements ShouldQueue
         $assoc = InstituteDetail::find($this->instituteDetailsId);
         $this->associationLogo = $assoc->logo;
 
+        Log::channel('exports_log')->info($this->associationLogo);
+
         $this->associationName = $assoc->institute_name;
         $this->associationAddress = $assoc->institute_address;
 
