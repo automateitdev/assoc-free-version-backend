@@ -206,22 +206,27 @@ class SeatCardGenerateJob implements ShouldQueue
                 'L'
             );
 
-            // === ROLL NUMBER (keep exact position as before) ===
+            // === ROLL NUMBER (right side, aligned with student info) ===
             $pdf->SetFont('Arial', 'B', 8);
 
-            // Horizontal position and width stay exactly the same
-            $rollX = $x + 10;
-            $rollY = $y + 30; // vertical position
-            $cellWidth = $pdf->GetStringWidth("Roll No: " . $student->assigned_roll) + 4; // small padding
+            $rollX = $x + 10;              // current X position (left of the text cell)
+            $rollY = $y + 30;              // current Y position
+            $text = "Roll No: " . (string)$student->assigned_roll;
+
+            // Calculate text width
+            $textWidth = $pdf->GetStringWidth($text) + 4; // small padding
             $cellHeight = 6;
 
-            // Draw a rectangle around the text
-            $pdf->Rect($rollX - 2, $rollY - 1, $cellWidth, $cellHeight);
+            // Adjust X so the box and text stay right-aligned
+            $boxX = $rollX + ($cardWidth - 16) - $textWidth; // same as previous right-aligned Cell
+            $boxY = $rollY;
 
-            // Print the roll number inside the box
-            $pdf->SetXY($rollX, $rollY);
-            $pdf->Cell($cellWidth, $cellHeight, "Roll No: " . (string)$student->assigned_roll, 0, 1, 'C');
+            // Draw box
+            $pdf->Rect($boxX, $boxY, $textWidth, $cellHeight);
 
+            // Print text inside the box
+            $pdf->SetXY($boxX, $boxY);
+            $pdf->Cell($textWidth, $cellHeight, $text, 0, 1, 'C');
 
 
             // === Move to next position ===
