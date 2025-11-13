@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Savannabits\PrimevueDatatables\PrimevueDatatables;
 use Throwable;
 
 class SeatCardGenerateJob implements ShouldQueue
@@ -32,8 +33,14 @@ class SeatCardGenerateJob implements ShouldQueue
     public string $associationLogo;
     public string $associationName;
     public string $associationAddress;
-    public int $timeout = 7200;
+
+    public ?array $dtParams;
+    public ?array $searchableColumns;
+
+    public int $timeout = 7200; // seconds (2 hours) - adjust if you want shorter auto-release
     public int $tries = 2;
+    protected int $bufferSize = 500; // number of rows to buffer before writing
+    protected int $countLimitForEstimate = 1000000; // up to this many rows we'll try to get an exact count
 
     public function __construct(
         int $userId,
@@ -43,7 +50,9 @@ class SeatCardGenerateJob implements ShouldQueue
         array $centers,
         string $examName,
         string $fileName,
-        ?string $exportId = null
+        ?string $exportId = null,
+        ?array $dtParams = [],
+        ?array $searchableColumns = []
     ) {
         $this->userId = $userId;
         $this->instituteDetailsId = $instituteDetailsId;
@@ -53,6 +62,8 @@ class SeatCardGenerateJob implements ShouldQueue
         $this->examName = $examName;
         $this->fileName = $fileName;
         $this->exportId = $exportId ?? (string) Str::uuid();
+        $this->dtParams = $dtParams;
+        $this->searchableColumns = $searchableColumns;
 
         Log::channel('exports_log')->info("🧾 Initializing Seat Card PDF export for {$this->examName} [{$this->exportId}] for user {$this->userId}");
     }
@@ -252,7 +263,7 @@ class SeatCardGenerateJob implements ShouldQueue
         $this->associationName = $assoc->institute_name;
         $this->associationAddress = $assoc->institute_address;
 
-        return AdmissionApplied::select(
+        $query = AdmissionApplied::select(
             'student_name_english',
             'institute_name',
             'academic_year',
@@ -276,6 +287,30 @@ class SeatCardGenerateJob implements ShouldQueue
                 $student->exam_name = $this->examName;
                 return $student;
             });
+
+        // Apply PrimeVue filters / sorting if provided
+        if (!empty($this->dtParams)) {
+            try {
+                $datatable = new PrimevueDatatables();
+                $datatable->dtParams($this->dtParams)
+                    ->searchableColumns($this->searchableColumns ?? [])
+                    ->query($query)
+                    ->make(); // make() will apply filters/sorts to the builder
+            } catch (Throwable $pvEx) {
+                // if PrimeVue application fails, log and continue with unfiltered query
+                Log::channel('exports_log')->warning("⚠️ PrimeVue filter application failed for export [{$this->exportId}]: " . $pvEx->getMessage());
+            }
+        }
+
+        // ensure deterministic ordering
+        if (!empty($this->dtParams['sortField']) && !empty($this->dtParams['sortOrder'])) {
+            $orderDir = $this->dtParams['sortOrder'] == 1 ? 'asc' : 'desc';
+            $query->orderBy($this->dtParams['sortField'], $orderDir);
+        } else {
+            $query->orderBy('id');
+        }
+
+        return $query;
     }
 
     public function failed(Throwable $exception): void
