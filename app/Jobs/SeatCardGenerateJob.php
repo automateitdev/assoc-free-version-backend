@@ -192,7 +192,7 @@ class SeatCardGenerateJob implements ShouldQueue
 
             // === STUDENT INFO ===
             $pdf->SetFont('Arial', '', 7);
-            $pdf->SetXY($x + 8, $y + 28);
+            $pdf->SetXY($x + 8, $y + 26);
             $pdf->MultiCell(
                 $cardWidth - 16,
                 3,
@@ -206,19 +206,28 @@ class SeatCardGenerateJob implements ShouldQueue
                 'L'
             );
 
-            // === ROLL NUMBER (right side, aligned with student info) ===
-            $pdf->SetFont('Arial', 'B', 8);
+            // === ROLL NUMBER BOX (right side, aligned with student info) ===
+            $pdf->SetFont('Arial', 'B', 7); // Header font
 
-            // Horizontal position: right edge of student info box
-            $rollX = $x + 10;
-            $rollWidth = $cardWidth - 16;
+            // Box dimensions
+            $boxX = $x + 10;              // same horizontal as before
+            $boxY = $y + 30;              // same vertical as before
+            $boxWidth = $cardWidth - 16;
+            $headerHeight = 6;            // height for "Roll No." row
+            $valueHeight = 6;             // height for roll number row
+            $boxHeight = $headerHeight + $valueHeight;
 
-            // Vertical position: same as top of student info
-            $rollY = $y + 30; // same as student info top
-            $pdf->SetXY($rollX, $rollY);
+            // Draw the outer box
+            $pdf->Rect($boxX, $boxY, $boxWidth, $boxHeight);
 
-            // Place roll number on the right side of the student info box
-            $pdf->Cell($rollWidth, 6, "Roll No: " . (string) $student->assigned_roll, 0, 1, 'R');
+            // Row 1: header
+            $pdf->SetXY($boxX, $boxY);
+            $pdf->Cell($boxWidth, $headerHeight, "Roll No.", 0, 1, 'C');
+
+            // Row 2: value
+            $pdf->SetFont('Arial', 'B', 8); // bigger font for the roll number
+            $pdf->SetXY($boxX, $boxY + $headerHeight);
+            $pdf->Cell($boxWidth, $valueHeight, (string)$student->assigned_roll, 0, 1, 'C');
 
 
             // === Move to next position ===
