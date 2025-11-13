@@ -168,12 +168,19 @@ class SeatCardGenerateJob implements ShouldQueue
                 'L'
             );
 
-            // === ROLL NUMBER (right after header, centered, bold) ===
+            // === ROLL NUMBER (right side, aligned with student info) ===
             $pdf->SetFont('Arial', 'B', 8);
 
-            // Place it about 2–3 mm below the header area
-            $pdf->SetXY($x, $y + 25); // was at bottom, now just below header
-            $pdf->Cell($cardWidth, 6, "Roll No: " . (string) $student->assigned_roll, 0, 0, 'C');
+            // Horizontal position: right edge of student info box
+            $rollX = $x + 8;
+            $rollWidth = $cardWidth - 16;
+
+            // Vertical position: same as top of student info
+            $rollY = $y + 34; // same as student info top
+            $pdf->SetXY($rollX, $rollY);
+
+            // Place roll number on the right side of the student info box
+            $pdf->Cell($rollWidth, 6, "Roll No: " . (string) $student->assigned_roll, 0, 1, 'R');
 
 
             // === Move to next position ===
