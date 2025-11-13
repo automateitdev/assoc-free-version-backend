@@ -206,30 +206,21 @@ class SeatCardGenerateJob implements ShouldQueue
                 'L'
             );
 
-            // === ROLL NUMBER (right side, aligned with student info) ===
-            $rollX = $x + 10;
-            $rollWidth = $cardWidth - 16;
-            $rollY = $y + 30; // same as student info top
-
-            $headerHeight = 6; // height for "Roll No." row
-            $valueHeight = 6;  // height for the roll number row
-            $boxHeight = $headerHeight + $valueHeight;
-
-            // Draw outer rectangle
-            $pdf->Rect($rollX, $rollY, $rollWidth, $boxHeight);
-
-            // Row 1: header
-            $pdf->SetFont('Arial', 'B', 7);
-            $pdf->SetXY($rollX, $rollY);
-            $pdf->Cell($rollWidth, $headerHeight, "Roll No.", 0, 1, 'C');
-
-            // Draw a horizontal line between header and value
-            $pdf->Line($rollX, $rollY + $headerHeight, $rollX + $rollWidth, $rollY + $headerHeight);
-
-            // Row 2: value
+            // === ROLL NUMBER (keep exact position as before) ===
             $pdf->SetFont('Arial', 'B', 8);
-            $pdf->SetXY($rollX, $rollY + $headerHeight);
-            $pdf->Cell($rollWidth, $valueHeight, (string)$student->assigned_roll, 0, 1, 'C');
+
+            // Horizontal position and width stay exactly the same
+            $rollX = $x + 10;
+            $rollY = $y + 30; // vertical position
+            $cellWidth = $pdf->GetStringWidth("Roll No: " . $student->assigned_roll) + 4; // small padding
+            $cellHeight = 6;
+
+            // Draw a rectangle around the text
+            $pdf->Rect($rollX - 2, $rollY - 1, $cellWidth, $cellHeight);
+
+            // Print the roll number inside the box
+            $pdf->SetXY($rollX, $rollY);
+            $pdf->Cell($cellWidth, $cellHeight, "Roll No: " . (string)$student->assigned_roll, 0, 1, 'C');
 
 
 
