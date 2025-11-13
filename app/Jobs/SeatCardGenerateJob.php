@@ -192,7 +192,7 @@ class SeatCardGenerateJob implements ShouldQueue
 
             // === STUDENT INFO ===
             $pdf->SetFont('Arial', '', 7);
-            $pdf->SetXY($x + 8, $y + 26);
+            $pdf->SetXY($x + 5, $y + 26);
             $pdf->MultiCell(
                 $cardWidth - 16,
                 3,
