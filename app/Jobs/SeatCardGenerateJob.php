@@ -29,6 +29,8 @@ class SeatCardGenerateJob implements ShouldQueue
     public string $fileName;
     public string $exportId;
 
+    public string $associationName;
+    public string $associationAddress;
     public int $timeout = 7200;
     public int $tries = 2;
 
@@ -129,20 +131,20 @@ class SeatCardGenerateJob implements ShouldQueue
             // Header (center)
             $pdf->SetFont('Arial', 'B', 11);
             $pdf->SetXY($x + 35, $y + 6);
-            $pdf->Cell($cardWidth - 70, 6, 'Association Name', 0, 1, 'C');
+            $pdf->Cell($cardWidth - 70, 6, $this->associationName, 0, 1, 'C');
 
             $pdf->SetFont('Arial', '', 9);
             $pdf->SetX($x + 35);
-            $pdf->Cell($cardWidth - 70, 5, 'Address', 0, 1, 'C');
+            $pdf->Cell($cardWidth - 70, 5, $this->associationAddress, 0, 1, 'C');
 
             $pdf->SetFont('Arial', 'B', 10);
             $pdf->SetFillColor(200, 200, 200);
             $pdf->SetX($x + 35);
-            $pdf->Cell($cardWidth - 70, 6, 'Exam Seat Card', 0, 1, 'C', true);
+            $pdf->Cell($cardWidth - 70, 6, 'Seat Card', 0, 1, 'C', true);
 
             $pdf->SetFont('Arial', '', 9);
             $pdf->SetX($x + 35);
-            $pdf->Cell($cardWidth - 70, 5, 'Talent Scholarship 2025 (Admission Form Name)', 0, 1, 'C');
+            $pdf->Cell($cardWidth - 70, 5, $this->examName, 0, 1, 'C');
 
             // Photo box (right)
             $pdf->Rect($x + $cardWidth - 35, $y + 5, 25, 25);
@@ -195,6 +197,12 @@ class SeatCardGenerateJob implements ShouldQueue
 
     private function getStudents()
     {
+
+        $assoc = InstituteDetail::find($this->instituteDetailsId);
+
+        $this->associationName = $assoc->institute_name;
+        $this->associationAddress = $assoc->institute_address;
+
         return AdmissionApplied::select(
             'student_name_english',
             'institute_name',
