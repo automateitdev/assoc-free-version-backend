@@ -157,12 +157,12 @@ class SeatCardGenerateJob implements ShouldQueue
             $pdf->Cell(15, 4, '', 0, 'C');
 
             // Header center text (tighter to top)
-            $$pdf->SetFont('Arial', 'B', 7);
-            $pdf->SetXY($x + 25, $y + 2);
+            $pdf->SetFont('Arial', 'B', 7);
+            $pdf->SetXY($x + 25, $y + 2); // moved up from +5 to +2
             $pdf->Cell($cardWidth - 50, 5, $this->associationName ?? 'Association Name', 0, 1, 'C');
 
             $pdf->SetFont('Arial', '', 7);
-            $pdf->SetXY($x + 25, $y + 6); // manually adjust to 1mm below previous line
+            $pdf->SetX($x + 25);
             $pdf->Cell($cardWidth - 50, 4, $this->associationAddress ?? 'Association Address', 0, 1, 'C');
 
             $pdf->SetFont('Arial', 'B', 7);
