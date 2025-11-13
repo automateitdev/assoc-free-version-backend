@@ -125,7 +125,7 @@ class SeatCardGenerateJob implements ShouldQueue
             // === HEADER ===
             // Logo box
             $pdf->Rect($x + 5, $y + 10, 15, 15);
-            $pdf->SetXY($x + 5, $y + 29);
+            $pdf->SetXY($x + 5, $y + 35);
             $pdf->SetFont('Arial', '', 7);
             $pdf->Cell(15, 4, '', 0, 'C');
 
@@ -148,14 +148,14 @@ class SeatCardGenerateJob implements ShouldQueue
             $pdf->Cell($cardWidth - 50, 4, $this->examName ?? 'Scholarship', 0, 1, 'C');
 
             // Photo box (lowered a bit)
-            $pdf->Rect($x + $cardWidth - 22, $y + 10, 15, 18);
-            $pdf->SetXY($x + $cardWidth - 22, $y + 29);
+            $pdf->Rect($x + $cardWidth - 22, $y + 10, 15, 15);
+            $pdf->SetXY($x + $cardWidth - 22, $y + 35);
             $pdf->SetFont('Arial', '', 7);
             $pdf->Cell(15, 4, '', 0, 'C');
 
             // === STUDENT INFO ===
             $pdf->SetFont('Arial', '', 7);
-            $pdf->SetXY($x + 8, $y + 34);
+            $pdf->SetXY($x + 8, $y + 30);
             $pdf->MultiCell(
                 $cardWidth - 16,
                 3,
@@ -168,10 +168,13 @@ class SeatCardGenerateJob implements ShouldQueue
                 'L'
             );
 
-            // === ROLL NUMBER (bottom centered, bigger font) ===
+            // === ROLL NUMBER (right after header, centered, bold) ===
             $pdf->SetFont('Arial', 'B', 8);
-            $pdf->SetXY($x, $y + $cardHeight - 13);
-            $pdf->Cell($cardWidth, 7, "Roll No: " . (string) $student->assigned_roll, 0, 0, 'C');
+
+            // Place it about 2–3 mm below the header area
+            $pdf->SetXY($x, $y + 29); // was at bottom, now just below header
+            $pdf->Cell($cardWidth, 6, "Roll No: " . (string) $student->assigned_roll, 0, 0, 'C');
+
 
             // === Move to next position ===
             if (($index + 1) % $columns === 0) {
