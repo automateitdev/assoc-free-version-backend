@@ -207,27 +207,26 @@ class SeatCardGenerateJob implements ShouldQueue
             );
 
             // === ROLL NUMBER BOX (right side, aligned with student info) ===
-            $pdf->SetFont('Arial', 'B', 7); // Header font
+            $rollX = $x + 10;         // keep your existing horizontal position
+            $rollWidth = $cardWidth - 16; // keep your existing width
+            $rollY = $y + 30;         // existing vertical position
 
-            // Box dimensions
-            $boxX = $x + 10;              // same horizontal as before
-            $boxY = $y + 30;              // same vertical as before
-            $boxWidth = $cardWidth - 16;
-            $headerHeight = 6;            // height for "Roll No." row
-            $valueHeight = 6;             // height for roll number row
+            $headerHeight = 6;
+            $valueHeight = 6;
             $boxHeight = $headerHeight + $valueHeight;
 
-            // Draw the outer box
-            $pdf->Rect($boxX, $boxY, $boxWidth, $boxHeight);
+            // Draw the outer box (same position/width as before)
+            $pdf->Rect($rollX, $rollY, $rollWidth, $boxHeight);
 
             // Row 1: header
-            $pdf->SetXY($boxX, $boxY);
-            $pdf->Cell($boxWidth, $headerHeight, "Roll No.", 0, 1, 'C');
+            $pdf->SetFont('Arial', 'B', 7);
+            $pdf->SetXY($rollX, $rollY);
+            $pdf->Cell($rollWidth, $headerHeight, "Roll No.", 0, 1, 'C');
 
             // Row 2: value
-            $pdf->SetFont('Arial', 'B', 8); // bigger font for the roll number
-            $pdf->SetXY($boxX, $boxY + $headerHeight);
-            $pdf->Cell($boxWidth, $valueHeight, (string)$student->assigned_roll, 0, 1, 'C');
+            $pdf->SetFont('Arial', 'B', 8);
+            $pdf->SetXY($rollX, $rollY + $headerHeight);
+            $pdf->Cell($rollWidth, $valueHeight, (string)$student->assigned_roll, 0, 1, 'C');
 
 
             // === Move to next position ===
