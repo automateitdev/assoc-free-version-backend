@@ -131,7 +131,7 @@ class SeatCardGenerateJob implements ShouldQueue
 
             // Header center text
             $pdf->SetFont('Arial', 'B', 7);
-            $pdf->SetXY($x + 25, $y + 6);
+            $pdf->SetXY($x + 25, $y + 5);
             $pdf->Cell($cardWidth - 50, 5, $this->associationName ?? 'Association Name', 0, 1, 'C');
 
             $pdf->SetFont('Arial', '', 7);
@@ -155,7 +155,7 @@ class SeatCardGenerateJob implements ShouldQueue
 
             // === STUDENT INFO ===
             $pdf->SetFont('Arial', '', 7);
-            $pdf->SetXY($x + 8, $y + 30);
+            $pdf->SetXY($x + 8, $y + 28);
             $pdf->MultiCell(
                 $cardWidth - 16,
                 3,
@@ -172,7 +172,7 @@ class SeatCardGenerateJob implements ShouldQueue
             $pdf->SetFont('Arial', 'B', 8);
 
             // Place it about 2–3 mm below the header area
-            $pdf->SetXY($x, $y + 29); // was at bottom, now just below header
+            $pdf->SetXY($x, $y + 25); // was at bottom, now just below header
             $pdf->Cell($cardWidth, 6, "Roll No: " . (string) $student->assigned_roll, 0, 0, 'C');
 
 
