@@ -124,26 +124,26 @@ class SeatCardGenerateJob implements ShouldQueue
 
             // === HEADER ===
             // Logo box
-            $pdf->Rect($x + 5, $y + 8, 15, 15);
-            $pdf->SetXY($x + 5, $y + 24);
+            $pdf->Rect($x + 5, $y + 10, 15, 15);
+            $pdf->SetXY($x + 5, $y + 29);
             $pdf->SetFont('Arial', '', 7);
-            $pdf->Cell(15, 4, 'Logo', 0, 0, 'C');
+            $pdf->Cell(15, 4, 0, 0, 'C');
 
             // Header center text
-            $pdf->SetFont('Arial', 'B', 9);
+            $pdf->SetFont('Arial', 'B', 7);
             $pdf->SetXY($x + 25, $y + 6);
             $pdf->Cell($cardWidth - 50, 5, $this->associationName ?? 'Association Name', 0, 1, 'C');
 
-            $pdf->SetFont('Arial', '', 8);
+            $pdf->SetFont('Arial', '', 7);
             $pdf->SetX($x + 25);
             $pdf->Cell($cardWidth - 50, 4, $this->associationAddress ?? 'Association Address', 0, 1, 'C');
 
-            $pdf->SetFont('Arial', 'B', 8);
+            $pdf->SetFont('Arial', 'B', 7);
             $pdf->SetFillColor(200, 200, 200);
             $pdf->SetX($x + 25);
             $pdf->Cell($cardWidth - 50, 5, 'Seat Card', 0, 1, 'C', true);
 
-            $pdf->SetFont('Arial', '', 8);
+            $pdf->SetFont('Arial', '', 7);
             $pdf->SetX($x + 25);
             $pdf->Cell($cardWidth - 50, 4, $this->examName ?? 'Scholarship', 0, 1, 'C');
 
@@ -151,10 +151,10 @@ class SeatCardGenerateJob implements ShouldQueue
             $pdf->Rect($x + $cardWidth - 22, $y + 10, 15, 18);
             $pdf->SetXY($x + $cardWidth - 22, $y + 29);
             $pdf->SetFont('Arial', '', 7);
-            $pdf->Cell(15, 4, 'Photo', 0, 0, 'C');
+            $pdf->Cell(15, 4, 0, 0, 'C');
 
             // === STUDENT INFO ===
-            $pdf->SetFont('Arial', '', 8);
+            $pdf->SetFont('Arial', '', 7);
             $pdf->SetXY($x + 8, $y + 34);
             $pdf->MultiCell(
                 $cardWidth - 16,
@@ -169,7 +169,7 @@ class SeatCardGenerateJob implements ShouldQueue
             );
 
             // === ROLL NUMBER (bottom centered, bigger font) ===
-            $pdf->SetFont('Arial', 'B', 11);
+            $pdf->SetFont('Arial', 'B', 8);
             $pdf->SetXY($x, $y + $cardHeight - 13);
             $pdf->Cell($cardWidth, 7, "Roll No: " . (string) $student->assigned_roll, 0, 0, 'C');
 
