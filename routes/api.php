@@ -286,6 +286,9 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::post('admission/exam-save', [AdmissionController::class, 'admissionExamSave']);
     Route::delete('admission/remove/center/{center_id}', [AdmissionController::class, 'removeExamCenter']);
     Route::delete('admission/remove/exam/{exam_id}', [AdmissionController::class, 'removeExam']);
+
+    Route::post('seat-card/export', [AdmissionController::class, 'startSeatCardExport']);
+    Route::get('seat-card/export-progress', [AdmissionController::class, 'exportProgress']);
 });
 
 //admission api
