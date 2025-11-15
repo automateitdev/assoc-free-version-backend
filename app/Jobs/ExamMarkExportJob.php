@@ -47,7 +47,10 @@ class ExamMarkExportJob implements ShouldQueue
     public function handle()
     {
         $progressKey = "export_progress_{$this->userId}_{$this->exportId}";
-        $readyKey = "export_ready_{$this->userId}_{$this->exportId}";
+        $readyKey    = "export_ready_{$this->userId}_{$this->exportId}";
+
+        $total = 0;
+        $index = 0;
 
         try {
             $query = AdmissionApplied::query()
@@ -76,6 +79,7 @@ class ExamMarkExportJob implements ShouldQueue
                 }
             }
 
+            // Sorting
             if (!empty($this->dtParams['sortField'])) {
                 $query->orderBy(
                     $this->dtParams['sortField'],
@@ -86,7 +90,7 @@ class ExamMarkExportJob implements ShouldQueue
             $rows = $query->get();
             $total = $rows->count();
 
-            // Initialize progress in cache
+            // Initialize progress
             Cache::put($progressKey, [
                 'status' => 'processing',
                 'total' => $total,
@@ -123,9 +127,10 @@ class ExamMarkExportJob implements ShouldQueue
                     optional($mark)->grade_point,
                 ]);
 
-                // Update progress
+                // Update progress safely
                 $processed = $index + 1;
                 $percentage = intval(($processed / max(1, $total)) * 100);
+
                 Cache::put($progressKey, [
                     'status' => 'processing',
                     'total' => $total,
@@ -151,11 +156,11 @@ class ExamMarkExportJob implements ShouldQueue
 
             Log::channel('exports_log')->info("✅ CSV Export Completed: {$relativePath}");
         } catch (Throwable $e) {
-            // Mark as failed
+            // Mark as failed safely
             Cache::put($progressKey, [
                 'status' => 'failed',
-                'total' => $total ?? 0,
-                'processed' => $index ?? 0,
+                'total' => $total,
+                'processed' => $index,
                 'percentage' => -1,
                 'error' => $e->getMessage()
             ], now()->addHours(1));
