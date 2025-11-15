@@ -89,6 +89,8 @@ class ExamMarkExportJob implements ShouldQueue
             $rows = $query->get();
             $total = $rows->count();
 
+            Log::channel('exports_log')->info("QUERY: ", ['data' => $rows]);
+
             // Initialize progress
             Cache::put($progressKey, 0, now()->addHours(1));
 
