@@ -36,4 +36,9 @@ class Exam extends Model
     {
         return $this->hasMany(CenterExam::class, 'exam_id');
     }
+
+    public function examMarks()
+    {
+        return $this->hasMany(ExamMark::class);
+    }
 }
