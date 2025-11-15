@@ -56,6 +56,7 @@ class ExamMarkExportJob implements ShouldQueue
                 ->with(['examMark' => function ($q) {
                     $q->where('exam_id', $this->exam_id);
                 }])
+                ->whereNotNull('assigned_roll')
                 ->select(
                     'id',
                     'unique_number',
