@@ -45,8 +45,8 @@ class ExamMarkImport implements ToCollection, WithHeadingRow
                 [
                     'total_mark' => $exam->total_marks,
                     'obtained_mark' => $obtainedMark,
-                    'grade' => $gradeInfo['grade'],
-                    'grade_point' => $gradeInfo['grade_point'],
+                    'obtained_grade' => $gradeInfo['grade'],
+                    'obtained_grade_point' => $gradeInfo['grade_point'],
                 ]
             );
         }
