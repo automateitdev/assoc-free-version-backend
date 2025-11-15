@@ -32,7 +32,8 @@ class ExamMarkExportJob implements ShouldQueue
         int $exam_id,
         string $fileName,
         array $dtParams = [],
-        array $searchableColumns = []
+        array $searchableColumns = [],
+        ?string $exportId = null,
     ) {
         $this->userId = $userId;
         $this->exam_id = $exam_id;
