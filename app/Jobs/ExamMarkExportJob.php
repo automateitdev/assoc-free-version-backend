@@ -111,8 +111,8 @@ class ExamMarkExportJob implements ShouldQueue
                 "Assigned Roll",
                 "Total Mark",
                 "Obtained Mark",
-                "Grade",
-                "Grade Point"
+                // "Grade",
+                // "Grade Point"
             ]);
 
             foreach ($rows as $index => $row) {
@@ -125,10 +125,10 @@ class ExamMarkExportJob implements ShouldQueue
                     $row->class_name,
                     $row->institute_name,
                     $row->assigned_roll,
-                    optional($exam)->total_mark,
+                    optional($exam)->total_marks,
                     optional($row->examMark)->obtained_mark,
-                    optional($row->examMark)->grade,
-                    optional($row->examMark)->grade_point,
+                    // optional($row->examMark)->grade,
+                    // optional($row->examMark)->grade_point,
                 ]);
 
                 // ✅ Update integer progress (matching SeatCardGenerateJob)
