@@ -580,13 +580,14 @@ class AdmissionController extends Controller
             'approval_status',
             'status',
             'assigned_roll'
-        )
+        )->with('examMark')
             ->where('institute_details_id', Auth::user()->institute_details_id) // 3
             ->whereIn('center_id', $centers) //
             ->where('academic_year_id', $exam->academic_year_id)
             ->where('class_id', $exam->class_id)
             ->whereNotNull('assigned_roll')
             ->where('approval_status', 'Success');
+
 
         $list = PrimevueDatatables::of($query)->make();
 
