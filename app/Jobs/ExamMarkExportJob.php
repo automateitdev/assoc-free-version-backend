@@ -39,7 +39,7 @@ class ExamMarkExportJob implements ShouldQueue
         $this->fileName = $fileName;
         $this->dtParams = $dtParams;
         $this->searchableColumns = $searchableColumns;
-        $this->exportId = (string) Str::uuid();
+        $this->exportId = $exportId ?? (string) Str::uuid();
 
         Log::channel('exports_log')->info("📄 Starting Exam CSV Export [{$this->exportId}] exam_id={$this->exam_id}");
     }
