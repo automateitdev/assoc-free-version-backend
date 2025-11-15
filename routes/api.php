@@ -288,7 +288,12 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::delete('admission/remove/exam/{exam_id}', [AdmissionController::class, 'removeExam']);
 
     Route::post('seat-card/export', [AdmissionController::class, 'startSeatCardExport']);
-    Route::get('seat-card/export-progress', [AdmissionController::class, 'exportProgress']);
+    Route::post('certificate/export', [AdmissionController::class, 'startCerificateExport']);
+
+    Route::post('mark-sheet/export', [AdmissionController::class, 'markSheetExport']);
+    Route::post('mark-sheet/import', [AdmissionController::class, 'markSheetImport']);
+
+    Route::get('export-progress', [AdmissionController::class, 'exportProgress']);
 });
 
 //admission api

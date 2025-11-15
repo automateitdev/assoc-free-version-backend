@@ -87,4 +87,9 @@ class AdmissionApplied extends Model
     {
         return $this->belongsTo(InstituteDetail::class, 'institute_details_id');
     }
+
+    public function examMark()
+    {
+        return $this->hasOne(ExamMark::class);
+    }
 }
