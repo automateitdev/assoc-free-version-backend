@@ -810,7 +810,7 @@ class AdmissionController extends Controller
     public function markSheetImport(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'file' => ['required', 'file', 'mimes:xlsx,csv'],
+            'file' => 'required|file|mimes:csv,xlsx,txt', // allow txt for CSV
             'exam_id' => 'required|integer|exists:exams,id',
         ]);
         if ($validator->fails()) {
