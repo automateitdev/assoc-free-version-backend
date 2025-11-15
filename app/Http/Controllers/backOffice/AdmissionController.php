@@ -809,10 +809,20 @@ class AdmissionController extends Controller
 
     public function markSheetImport(Request $request)
     {
-        $request->validate([
-            'file' => 'required|file|mimes:xlsx,csv',
+        $validator = Validator::make($request->all(), [
+            'file' => ['required', 'file', 'mimes:xlsx,csv'],
             'exam_id' => 'required|integer|exists:exams,id',
         ]);
+        if ($validator->fails()) {
+            $formattedErrors = ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, $validator->errors()->toArray());
+            return response()->json(
+                [
+                    'errors' => $formattedErrors,
+                    'payload' => null,
+                ],
+                422
+            );
+        }
 
         $file = $request->file('file');
         $examId = $request->exam_id;
