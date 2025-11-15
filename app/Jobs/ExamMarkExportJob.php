@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\AdmissionApplied;
+use App\Models\Exam;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -52,10 +53,15 @@ class ExamMarkExportJob implements ShouldQueue
         $errorKey = "export_error_{$this->userId}_{$this->exportId}";
 
         try {
+
+            $exam = Exam::findOrFail($this->exam_id);
+
             $query = AdmissionApplied::query()
-                ->with(['examMark' => function ($q) {
-                    $q->where('exam_id', $this->exam_id);
-                }])
+                ->with('examMark')
+                ->where('institute_details_id', $exam->institute_details_id)
+                ->where('academic_year_id', $exam->academic_year_id)
+                ->where('class_id', $exam->class_id)
+                ->where('approval_status', 'Success')
                 ->whereNotNull('assigned_roll')
                 ->select(
                     'id',
@@ -90,7 +96,7 @@ class ExamMarkExportJob implements ShouldQueue
             $rows = $query->get();
             $total = $rows->count();
 
-            Log::channel('exports_log')->info("QUERY: ", ['data' => $rows]);
+            // Log::channel('exports_log')->info("QUERY: ", ['data' => $rows]);
 
             // Initialize progress
             Cache::put($progressKey, 0, now()->addHours(1));
