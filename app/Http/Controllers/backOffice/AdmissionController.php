@@ -14,6 +14,7 @@ use App\Models\AdmissionInstruction;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\AdmissionFeeResource;
+use App\Imports\ExamMarkImport;
 use App\Jobs\ExamMarkExportJob;
 use App\Jobs\SeatCardGenerateJob;
 use App\Models\AcademicDetail;
@@ -27,6 +28,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Excel;
 use Savannabits\PrimevueDatatables\PrimevueDatatables;
 
 class AdmissionController extends Controller
@@ -802,5 +804,31 @@ class AdmissionController extends Controller
             'message' => 'Export started',
             'exportId' => $exportId,
         ]);
+    }
+
+
+    public function markSheetImport(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,csv',
+            'exam_id' => 'required|integer|exists:exams,id',
+        ]);
+
+        $file = $request->file('file');
+        $examId = $request->exam_id;
+
+        try {
+            Excel::import(new ExamMarkImport($examId), $file);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Marks imported successfully.'
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }
