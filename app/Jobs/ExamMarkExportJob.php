@@ -47,10 +47,8 @@ class ExamMarkExportJob implements ShouldQueue
     public function handle()
     {
         $progressKey = "export_progress_{$this->userId}_{$this->exportId}";
-        $readyKey    = "export_ready_{$this->userId}_{$this->exportId}";
-
-        $total = 0;
-        $index = 0;
+        $readyKey = "export_ready_{$this->userId}_{$this->exportId}";
+        $errorKey = "export_error_{$this->userId}_{$this->exportId}";
 
         try {
             $query = AdmissionApplied::query()
@@ -66,7 +64,7 @@ class ExamMarkExportJob implements ShouldQueue
                     'assigned_roll'
                 );
 
-            // Apply filters if needed
+            // Apply PrimeVue filters if available
             if (!empty($this->dtParams)) {
                 try {
                     $datatable = new PrimevueDatatables();
@@ -91,14 +89,9 @@ class ExamMarkExportJob implements ShouldQueue
             $total = $rows->count();
 
             // Initialize progress
-            Cache::put($progressKey, [
-                'status' => 'processing',
-                'total' => $total,
-                'processed' => 0,
-                'percentage' => 0
-            ], now()->addMinutes(30));
+            Cache::put($progressKey, 0, now()->addHours(1));
 
-            // CSV setup
+            // Prepare CSV
             $csv = fopen('php://temp', 'r+');
             fputcsv($csv, [
                 "Applicant ID",
@@ -113,6 +106,7 @@ class ExamMarkExportJob implements ShouldQueue
             ]);
 
             foreach ($rows as $index => $row) {
+
                 $mark = $row->examMark;
 
                 fputcsv($csv, [
@@ -127,16 +121,9 @@ class ExamMarkExportJob implements ShouldQueue
                     optional($mark)->grade_point,
                 ]);
 
-                // Update progress safely
-                $processed = $index + 1;
-                $percentage = intval(($processed / max(1, $total)) * 100);
-
-                Cache::put($progressKey, [
-                    'status' => 'processing',
-                    'total' => $total,
-                    'processed' => $processed,
-                    'percentage' => $percentage
-                ], now()->addMinutes(30));
+                // ✅ Update integer progress (matching SeatCardGenerateJob)
+                $progress = intval((($index + 1) / max(1, $total)) * 100);
+                Cache::put($progressKey, $progress, now()->addHours(1));
             }
 
             // Save CSV
@@ -145,27 +132,18 @@ class ExamMarkExportJob implements ShouldQueue
             $relativePath = "exports/exam-csv/{$this->userId}/{$this->exportId}/{$this->fileName}.csv";
             Storage::disk('public')->put($relativePath, $csvContent);
 
-            // Mark as completed
+            // Completed
             Cache::put($readyKey, $relativePath, now()->addHours(1));
-            Cache::put($progressKey, [
-                'status' => 'completed',
-                'total' => $total,
-                'processed' => $total,
-                'percentage' => 100
-            ], now()->addHours(1));
+            Cache::put($progressKey, 100, now()->addHours(1));
 
             Log::channel('exports_log')->info("✅ CSV Export Completed: {$relativePath}");
         } catch (Throwable $e) {
-            // Mark as failed safely
-            Cache::put($progressKey, [
-                'status' => 'failed',
-                'total' => $total,
-                'processed' => $index,
-                'percentage' => -1,
-                'error' => $e->getMessage()
-            ], now()->addHours(1));
+
+            Cache::put($progressKey, -1, now()->addHours(1));
+            Cache::put($errorKey, $e->getMessage(), now()->addHours(1));
 
             Log::channel('exports_log')->error("❌ CSV export failed: " . $e->getMessage());
+
             throw $e;
         }
     }
