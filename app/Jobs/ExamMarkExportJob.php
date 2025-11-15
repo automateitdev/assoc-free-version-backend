@@ -41,7 +41,7 @@ class ExamMarkExportJob implements ShouldQueue
         $this->searchableColumns = $searchableColumns;
         $this->exportId = (string) Str::uuid();
 
-        Log::info("📄 Starting Exam CSV Export [{$this->exportId}] exam_id={$this->exam_id}");
+        Log::channel('exports_log')->info("📄 Starting Exam CSV Export [{$this->exportId}] exam_id={$this->exam_id}");
     }
 
     public function handle()
@@ -82,7 +82,7 @@ class ExamMarkExportJob implements ShouldQueue
                         ->query($query)
                         ->make();
                 } catch (Throwable $e) {
-                    Log::warning("⚠ PrimeVue filter error: " . $e->getMessage());
+                    Log::channel('exports_log')->warning("⚠ PrimeVue filter error: " . $e->getMessage());
                 }
             }
 
@@ -166,11 +166,11 @@ class ExamMarkExportJob implements ShouldQueue
             Cache::put($readyKey, $relativePath, now()->addHours(1));
             Cache::put($progressKey, 100, now()->addHours(1));
 
-            Log::info("✅ CSV Export Completed: {$relativePath}");
+            Log::channel('exports_log')->info("✅ CSV Export Completed: {$relativePath}");
         } catch (Throwable $e) {
 
             Cache::put($progressKey, -1, now()->addHours(1));
-            Log::error("❌ CSV export failed: " . $e->getMessage());
+            Log::channel('exports_log')->error("❌ CSV export failed: " . $e->getMessage());
             throw $e;
         }
     }

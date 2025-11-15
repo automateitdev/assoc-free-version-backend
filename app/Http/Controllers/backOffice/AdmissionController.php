@@ -711,9 +711,10 @@ class AdmissionController extends Controller
 
     public function markSheetExport(Request $request)
     {
+        // 1️⃣ Validation
         $rules = [
-            "exam"          => 'required|integer',
-            "academic_year" => 'required|integer',
+            "exam" => 'required|integer',
+            // "academic_year" => 'required|integer', // removed because not used
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -724,8 +725,13 @@ class AdmissionController extends Controller
             ], 422);
         }
 
-        $exam = Exam::where('institute_details_id', Auth::user()->institute_details_id)
-            ->find($request->exam);
+        $user = Auth::user();
+        $instituteDetailsId = $user?->institute_details_id;
+
+        // 2️⃣ Retrieve exam and ensure it belongs to the institute
+        $exam = Exam::where('institute_details_id', $instituteDetailsId)
+            ->where('id', $request->exam)
+            ->first();
 
         if (!$exam) {
             $formattedErrors = ApiResponseHelper::formatErrors(
@@ -738,13 +744,11 @@ class AdmissionController extends Controller
             ], 400);
         }
 
-        // ✅ Get all center IDs linked to this exam
+        // 3️⃣ Get all center IDs linked to this exam
         $centers = $exam->centerExams->pluck('center_id')->toArray();
 
-        $user = Auth::user();
-        $instituteDetailsId = $user?->institute_details_id;
+        // 4️⃣ Retrieve institute details
         $instituteDetail = InstituteDetail::find($instituteDetailsId);
-
         if (!$instituteDetailsId || !$instituteDetail) {
             $formattedErrors = ApiResponseHelper::formatErrors(
                 ApiResponseHelper::INVALID_REQUEST,
@@ -756,28 +760,33 @@ class AdmissionController extends Controller
             ], 400);
         }
 
-        $countExaminee = AdmissionApplied::where('institute_details_id', $instituteDetailsId)
+        // 5️⃣ Check if examinees exist
+        $hasExaminees = AdmissionApplied::where('institute_details_id', $instituteDetailsId)
             ->whereIn('center_id', $centers)
             ->where('academic_year_id', $exam->academic_year_id)
             ->where('class_id', $exam->class_id)
             ->whereNotNull('assigned_roll')
-            ->where('approval_status', 'Success')->count();
+            ->where('approval_status', 'Success')
+            ->exists();
 
-        if ($countExaminee <= 0) {
+        if (!$hasExaminees) {
             return response()->json([
-                'errors'  => ApiResponseHelper::formatErrors(ApiResponseHelper::INVALID_REQUEST, ['No valid examinee found!']),
+                'errors' => ApiResponseHelper::formatErrors(ApiResponseHelper::INVALID_REQUEST, ['No valid examinee found!']),
+                'payload' => null,
             ], 400);
         }
 
+        // 6️⃣ Generate file name
         $instituteId = $instituteDetail->institute_id;
-        $instituteNameSlug = preg_replace('/[^A-Za-z0-9]+/', '_', $instituteDetail->institute_name);
+        $instituteNameSlug = strtolower(preg_replace('/[^A-Za-z0-9]+/', '_', $instituteDetail->institute_name));
         $fileName = "{$instituteId}_{$instituteNameSlug}_seatcard";
 
-        // Generate a unique export ID for this export
+        // 7️⃣ Generate unique export ID
         $exportId = (string) Str::uuid();
         $dtParams = $request->dt_params ?? [];
         $searchableColumns = $request->searchable_columns ?? [];
 
+        // 8️⃣ Dispatch export job
         ExamMarkExportJob::dispatch(
             $user->id,
             $exam->id,
@@ -787,7 +796,7 @@ class AdmissionController extends Controller
             $exportId
         );
 
-        // Return exportId so frontend can poll progress
+        // 9️⃣ Return exportId for frontend polling
         return response()->json([
             'status' => 'success',
             'message' => 'Export started',
