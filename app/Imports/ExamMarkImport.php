@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\AdmissionApplied;
+use App\Models\Exam;
 use App\Models\ExamMark;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -33,6 +34,8 @@ class ExamMarkImport implements ToCollection, WithHeadingRow
             $obtainedMark = isset($row['obtained_mark']) ? floatval($row['obtained_mark']) : null;
             $gradeInfo = $this->getGradeInfo($obtainedMark);
 
+            $exam = Exam::findOrFail($this->exam_id);
+
             // Update or create exam mark
             ExamMark::updateOrCreate(
                 [
@@ -40,7 +43,7 @@ class ExamMarkImport implements ToCollection, WithHeadingRow
                     'exam_id' => $this->exam_id,
                 ],
                 [
-                    'total_mark' => 100, // Or $exam->total_marks if you have it
+                    'total_mark' => $exam->total_marks,
                     'obtained_mark' => $obtainedMark,
                     'grade' => $gradeInfo['grade'],
                     'grade_point' => $gradeInfo['grade_point'],
