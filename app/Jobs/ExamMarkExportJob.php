@@ -125,10 +125,10 @@ class ExamMarkExportJob implements ShouldQueue
                     $row->class_name,
                     $row->institute_name,
                     $row->assigned_roll,
-                    optional($mark)->total_mark,
-                    optional($mark)->obtained_mark,
-                    optional($mark)->grade,
-                    optional($mark)->grade_point,
+                    optional($exam)->total_mark,
+                    optional($row->examMark)->obtained_mark,
+                    optional($row->examMark)->grade,
+                    optional($row->examMark)->grade_point,
                 ]);
 
                 // ✅ Update integer progress (matching SeatCardGenerateJob)
