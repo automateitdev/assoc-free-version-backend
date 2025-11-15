@@ -590,7 +590,8 @@ class AdmissionController extends Controller
         return response()->json([
             'status'  => 'success',
             'message' => 'Examinee list fetched successfully.',
-            'list'   => $list,
+            'list'    => $list,
+            'examConf'    => $exam
         ]);
     }
 
