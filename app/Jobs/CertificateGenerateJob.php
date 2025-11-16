@@ -135,13 +135,13 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetXY($sessionX, $sessionY);
             $pdf->Cell(100, 6, "Session: {$session}", 0, 0, 'L');
 
-            // --- Logo aligned with session ---
+            // --- Logo above session ---
             $logoW = 20;
             $logoH = 20;
-            $logoX = $sessionX - ($logoW + 5); // place logo 5mm left of session text
-            $logoY = $sessionY - 2;            // small vertical adjustment
+            $logoX = $sessionX;                          // same X as session
+            $logoY = $sessionY - ($logoH + 5);           // 5mm gap above session
 
-            $pdf->Rect($logoX, $logoY, $logoW, $logoH); // optional border
+            $pdf->Rect($logoX, $logoY, $logoW, $logoH);  // optional border
 
             if (!empty($this->associationLogo)) {
                 $logoPath = Storage::disk('public')->path("{$this->associationLogo}");
@@ -149,6 +149,7 @@ class CertificateGenerateJob implements ShouldQueue
                     $pdf->Image($logoPath, $logoX, $logoY, $logoW, $logoH);
                 }
             }
+
 
 
             $pdf->SetFont("Times", "B", 20);
