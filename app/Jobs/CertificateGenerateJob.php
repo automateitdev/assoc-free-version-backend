@@ -172,7 +172,7 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->Cell(257, 6, "{$this->associationAddress}", 0, 0, 'C');
 
             // --- Main Content ---
-            $pdf->SetXY(20, 90); // anchor once at top of content
+            $pdf->SetXY(20, 85); // anchor once at top of content
 
             // Line 1: Intro text
             $pdf->SetFont("Times", "", 14);
@@ -180,7 +180,7 @@ class CertificateGenerateJob implements ShouldQueue
 
             // Line 2: Student name in Sunshine font
             $pdf->AddFont('Sunshine', '', 'Sunshine.php');
-            $pdf->SetFont('Sunshine', '', 24);
+            $pdf->SetFont('Sunshine', '', 28);
             $pdf->Cell(257, 10, "{$studentName}", 0, 1, 'C');
 
             // --- Dotted underline under name ---
