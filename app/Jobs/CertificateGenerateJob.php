@@ -116,15 +116,15 @@ class CertificateGenerateJob implements ShouldQueue
             $app = $s->applicant ?? null;
 
             $studentName = $app->student_name_english ?? ($s->student_name_english ?? '---');
-            $fatherName = $app->father_name_english ?? ($s->father_name ?? '---');
-            $motherName = $app->mother_name_english ?? ($s->mother_name ?? '---');
-            $className = $app->class_name ?? ($s->class_name ?? '---');
-            $regNo = $app->unique_number ?? ($s->unique_number ?? '---');
-            $instituteName = $app->institute_name ?? ($s->institute_name);
-            $examName = $s->exam->name ?? '';
-            $session = $app->academic_year ?? '---';
-            $obtainedMark = $s->obtained_mark ?? '---';
-            $obtainedGrade = $s->obtained_grade ?? '---';
+            $fatherName = trim($app->father_name_english ?? ($s->father_name ?? '---'));
+            $motherName = trim($app->mother_name_english ?? ($s->mother_name ?? '---'));
+            $className = trim($app->class_name ?? ($s->class_name ?? '---'));
+            $regNo = trim($app->unique_number ?? ($s->unique_number ?? '---'));
+            $instituteName = trim($app->institute_name ?? ($s->institute_name));
+            $examName = trim($s->exam->name ?? '');
+            $session = trim($app->academic_year ?? '---');
+            $obtainedMark = trim($s->obtained_mark ?? '---');
+            $obtainedGrade = trim($s->obtained_grade ?? '---');
 
             // --- Header Section ---
             $pdf->SetFont("Times", "", 12);
@@ -150,7 +150,7 @@ class CertificateGenerateJob implements ShouldQueue
 
 
             $pdf->AddFont('OldEnglishFive', '', 'OldEnglishFive.php');
-            $pdf->SetFont('OldEnglishFive', '', 24);
+            $pdf->SetFont('OldEnglishFive', '', 28);
 
             // Set professional font color (dark blue)
             $pdf->SetTextColor(0, 51, 102);
@@ -181,7 +181,7 @@ class CertificateGenerateJob implements ShouldQueue
             // Line 2: Student name in Sunshine font
             // --- Line 2: Student name in Sunshine font ---
             $pdf->AddFont('Sunshine', '', 'Sunshine.php');
-            $pdf->SetFont('Sunshine', '', 24);
+            $pdf->SetFont('Sunshine', '', 26);
             $studentName = trim($studentName);
 
             // Always center using full page width
@@ -210,7 +210,7 @@ class CertificateGenerateJob implements ShouldQueue
             // Line 3: Parent info
             $pdf->SetFont("Times", "", 14);
             $pdf->Ln(2);
-            $pdf->Cell($contentWidth, 6, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 1, 'C');
+            $pdf->Cell(0, 6, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 1, 'C');
 
             // Line 4: Class and Registration
             $pdf->Ln(2);
