@@ -127,7 +127,7 @@ class CertificateGenerateJob implements ShouldQueue
             // 📌 START DRAWING (Compact layout inside ornate border)
 
             // --- Header Section ---
-            $pdf->SetFont("Times", "", 12);
+            $pdf->SetFont("Times", "", 16);
             $pdf->SetXY(40, 45);
             $pdf->Cell(100, 6, "Session: {$session}", 0, 0, 'L');
 
@@ -135,16 +135,16 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetXY(20, 38);
             $pdf->Cell(257, 8, "{$examName}", 0, 0, 'C');
 
-            $pdf->SetFont("Times", "", 14);
+            $pdf->SetFont("Times", "", 16);
             $pdf->SetXY(20, 48);
             $pdf->Cell(257, 6, "{$this->associationName}", 0, 0, 'C');
 
-            $pdf->SetFont("Times", "", 12);
+            $pdf->SetFont("Times", "", 16);
             $pdf->SetXY(20, 54);
             $pdf->Cell(257, 6, "{$this->associationAddress}", 0, 0, 'C');
 
             // --- Main Content ---
-            $pdf->SetFont("Times", "", 14);
+            $pdf->SetFont("Times", "", 16);
             $pdf->SetXY(20, 90);
             $pdf->MultiCell(257, 5, "This is to certify that {$studentName}", 0, 'C');
 
@@ -160,7 +160,7 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetXY(20, 114);
             $pdf->MultiCell(257, 5, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 'C');
 
-            $pdf->SetFont("Times", "I", 12);
+            $pdf->SetFont("Times", "I", 16);
             $pdf->SetXY(20, 125);
             $pdf->MultiCell(257, 5, "We wish him/her all the success and well-being in life.", 0, 'C');
 
