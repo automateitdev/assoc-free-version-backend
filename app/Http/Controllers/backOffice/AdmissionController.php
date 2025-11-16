@@ -694,7 +694,7 @@ class AdmissionController extends Controller
     }
 
 
-    public function certificateExport(Request $request)
+    public function startCerificateExport(Request $request)
     {
         $rules = [
             "exam"          => 'required|integer',
