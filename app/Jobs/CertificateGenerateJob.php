@@ -153,8 +153,15 @@ class CertificateGenerateJob implements ShouldQueue
 
             $pdf->AddFont('OldEnglishFive', '', 'OldEnglishFive.php');
             $pdf->SetFont('OldEnglishFive', '', 24);
-            $pdf->SetXY(20, 40);
+
+            // Set professional font color (dark blue)
+            $pdf->SetTextColor(0, 51, 102);
+
+            $pdf->SetXY(20, 38);
             $pdf->Cell(257, 12, "{$examName}", 0, 0, 'C');
+
+            // Reset to black for other text if needed
+            $pdf->SetTextColor(0, 0, 0);
 
             $pdf->SetFont("Times", "", 18);
             $pdf->SetXY(20, 50);
@@ -165,9 +172,32 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->Cell(257, 6, "{$this->associationAddress}", 0, 0, 'C');
 
             // --- Main Content ---
+            // Line 1: Intro text
             $pdf->SetFont("Times", "", 14);
             $pdf->SetXY(20, 90);
-            $pdf->MultiCell(257, 5, "This is to certify that {$studentName} son/daughter of", 0, 'C');
+            $pdf->Cell(257, 6, "This is to certify that", 0, 1, 'C');
+
+            // Line 2: Student name in Sunshine font
+            $pdf->SetFont("Sunshine", "", 20);
+            $pdf->Cell(257, 8, "{$studentName}", 0, 1, 'C');
+
+            // --- Draw dotted underline under the name ---
+            $nameWidth = $pdf->GetStringWidth($studentName); // width of the name text
+            $nameX = (297 - $nameWidth) / 2;                 // center align on A4 landscape (297mm wide)
+            $nameY = $pdf->GetY();                           // current Y after writing name
+
+            $pdf->SetDrawColor(0, 0, 0);                     // black underline
+            $pdf->SetLineWidth(0.3);
+
+            // If your FPDF version supports SetDash:
+            $pdf->SetDash(1, 2); // 1mm dot, 2mm gap
+            $pdf->Line($nameX, $nameY, $nameX + $nameWidth, $nameY);
+            $pdf->SetDash(); // reset to solid
+
+            // Line 3: Continue with Times
+            $pdf->SetFont("Times", "", 14);
+            $pdf->Cell(257, 6, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 1, 'C');
+
 
             $pdf->SetXY(20, 98);
             $pdf->MultiCell(257, 5, "Mr. {$fatherName} and Mrs. {$motherName}", 0, 'C');
