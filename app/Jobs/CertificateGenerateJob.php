@@ -138,7 +138,7 @@ class CertificateGenerateJob implements ShouldQueue
             // --- Logo above session ---
             $logoW = 20;
             $logoH = 20;
-            $logoX = $sessionX + 5;                          // same X as session
+            $logoX = $sessionX + 3;                          // same X as session
             $logoY = $sessionY - ($logoH + 5);           // 5mm gap above session
 
             $pdf->Rect($logoX, $logoY, $logoW, $logoH);  // optional border
@@ -152,7 +152,7 @@ class CertificateGenerateJob implements ShouldQueue
 
 
 
-            $pdf->SetFont("Times", "B", 20);
+            $pdf->SetFont("Times", "B", 24);
             $pdf->SetXY(20, 40);
             $pdf->Cell(257, 8, "{$examName}", 0, 0, 'C');
 
