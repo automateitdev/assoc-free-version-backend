@@ -179,27 +179,27 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->Cell($contentWidth, 6, "This is to certify that", 0, 1, 'C');
 
             // Line 2: Student name in Sunshine font
-            $pdf->AddFont('Sunshine', '', 'Sunshine.php');
-            $pdf->SetFont('Sunshine', '', 28);
-            $studentName = trim($studentName);
-            $pdf->Cell($contentWidth, 10, $studentName, 0, 1, 'C');
+            // $pdf->AddFont('Sunshine', '', 'Sunshine.php');
+            // $pdf->SetFont('Sunshine', '', 28);
+            // $studentName = trim($studentName);
+            // $pdf->Cell($contentWidth, 10, $studentName, 0, 1, 'C');
 
-            // --- Dotted underline under name ---
-            $nameWidth = $pdf->GetStringWidth($studentName);
-            $nameX = $leftMargin + (($contentWidth - $nameWidth) / 2);
-            $nameY = $pdf->GetY() - 1.5;
+            // // --- Dotted underline under name ---
+            // $nameWidth = $pdf->GetStringWidth($studentName);
+            // $nameX = $leftMargin + (($contentWidth - $nameWidth) / 2);
+            // $nameY = $pdf->GetY() - 1.5;
 
-            $pdf->SetDrawColor(0, 0, 0);
-            $pdf->SetLineWidth(0.3);
+            // $pdf->SetDrawColor(0, 0, 0);
+            // $pdf->SetLineWidth(0.3);
 
-            $dotLength = 1;
-            $gapLength = 1;
-            $currentX = $nameX;
+            // $dotLength = 1;
+            // $gapLength = 1;
+            // $currentX = $nameX;
 
-            while ($currentX < $nameX + $nameWidth) {
-                $pdf->Line($currentX, $nameY, $currentX + $dotLength, $nameY);
-                $currentX += ($dotLength + $gapLength);
-            }
+            // while ($currentX < $nameX + $nameWidth) {
+            //     $pdf->Line($currentX, $nameY, $currentX + $dotLength, $nameY);
+            //     $currentX += ($dotLength + $gapLength);
+            // }
 
             // Line 3: Parent info
             $pdf->SetFont("Times", "", 14);
