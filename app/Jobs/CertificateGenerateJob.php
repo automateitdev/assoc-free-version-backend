@@ -135,29 +135,29 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetXY(20, 35);
             $pdf->Cell(257, 8, "{$examName}", 0, 0, 'C');
 
-            $pdf->SetFont("Times", "", 16);
+            $pdf->SetFont("Times", "", 18);
             $pdf->SetXY(20, 48);
             $pdf->Cell(257, 6, "{$this->associationName}", 0, 0, 'C');
 
-            $pdf->SetFont("Times", "", 16);
+            $pdf->SetFont("Times", "", 14);
             $pdf->SetXY(20, 54);
             $pdf->Cell(257, 6, "{$this->associationAddress}", 0, 0, 'C');
 
             // --- Main Content ---
-            $pdf->SetFont("Times", "", 16);
+            $pdf->SetFont("Times", "", 14);
             $pdf->SetXY(20, 90);
             $pdf->MultiCell(257, 5, "This is to certify that {$studentName}", 0, 'C');
 
-            $pdf->SetXY(20, 98);
+            $pdf->SetXY(20, 100);
             $pdf->MultiCell(257, 5, "Mr. {$fatherName} and Mrs. {$motherName}", 0, 'C');
 
-            $pdf->SetXY(20, 104);
+            $pdf->SetXY(20, 110);
             $pdf->MultiCell(257, 5, "Class: {$className}      |      Registration No.: {$regNo}", 0, 'C');
 
-            $pdf->SetXY(20, 110);
+            $pdf->SetXY(20, 120);
             $pdf->MultiCell(257, 5, "is a student of {$instituteName}", 0, 'C');
 
-            $pdf->SetXY(20, 116);
+            $pdf->SetXY(20, 130);
             $pdf->MultiCell(257, 5, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 'C');
 
             $pdf->SetFont("Times", "I", 16);
@@ -169,24 +169,22 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetFont("Times", "", 10);
 
             // Left
-            $pdf->SetXY(30, 185);
+            $pdf->SetXY(30, 170);
             $pdf->Cell(80, 5, "Controller of Examination", 0, 0, 'C');
-            $pdf->SetXY(30, 192);
+            $pdf->SetXY(30, 172);
             $pdf->Cell(80, 5, "{$this->associationName}", 0, 0, 'C');
 
             // Middle
-            $pdf->SetXY(108.5, 190);
+            $pdf->SetXY(108.5, 170);
             $pdf->Cell(80, 5, "General Secretary", 0, 0, 'C');
-            $pdf->SetXY(108.5, 192);
+            $pdf->SetXY(108.5, 172);
             $pdf->Cell(80, 5, "{$this->associationName}", 0, 0, 'C');
 
             // Right
-            $pdf->SetXY(187, 185);
+            $pdf->SetXY(187, 170);
             $pdf->Cell(80, 5, "Chairman", 0, 0, 'C');
-            $pdf->SetXY(187, 192);
+            $pdf->SetXY(187, 172);
             $pdf->Cell(80, 5, "{$this->associationName}", 0, 0, 'C');
-
-
 
             // Progress update
             $progress = (int)((($index + 1) / $total) * 100);
