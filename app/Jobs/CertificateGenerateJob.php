@@ -91,7 +91,7 @@ class CertificateGenerateJob implements ShouldQueue
         $total = max(1, count($students));
 
         // Use new certificate background
-        $bgPath = public_path("certificates/new_certificate.png");
+        $bgPath = public_path("certificates/pssb_certificate.png");
 
         $pdf = new Fpdi('L', 'mm', 'A4');
         $pdf->SetAutoPageBreak(false);
