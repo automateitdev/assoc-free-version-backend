@@ -151,10 +151,10 @@ class CertificateGenerateJob implements ShouldQueue
             }
 
 
-
-            $pdf->SetFont("Times", "B", 24);
+            $pdf->AddFont('Sunshine', '', 'Sunshine.php');
+            $pdf->SetFont('Sunshine', '', 28);
             $pdf->SetXY(20, 40);
-            $pdf->Cell(257, 8, "{$examName}", 0, 0, 'C');
+            $pdf->Cell(257, 12, "{$examName}", 0, 0, 'C');
 
             $pdf->SetFont("Times", "", 18);
             $pdf->SetXY(20, 50);
