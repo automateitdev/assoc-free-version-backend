@@ -170,8 +170,8 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->Cell(257, 6, "{$this->associationAddress}", 0, 0, 'C');
 
 
-            $pdf->AddFont('Sunshine', '', 'Sunshine.php');
-            $pdf->SetFont('Sunshine', '', 23);
+            $pdf->AddFont('Rye-Regular', '', 'Rye-Regular.php');
+            $pdf->SetFont('Rye-Regular', '', 23);
             $pdf->SetXY(20, 65);
             $pdf->Cell(0, 6, "CERTFICATE", 0, 1, 'C');
 
