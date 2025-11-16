@@ -32,7 +32,7 @@ class CertificateGenerateJob implements ShouldQueue
     public ?array $dtParams;
     public ?array $searchableColumns;
 
-    public int $timeout = 7200; // 2 hours
+    public int $timeout = 7200;
     public int $tries = 2;
 
     public function __construct(
@@ -75,8 +75,6 @@ class CertificateGenerateJob implements ShouldQueue
                 Log::channel('exports_log')->info("✅ Certificate PDF export completed [{$this->exportId}]: {$finalFile}");
 
                 $lock->release();
-            } else {
-                Log::channel('exports_log')->warning("⚠️ Could not acquire lock for Certificate export [{$this->exportId}] user {$this->userId}");
             }
         } catch (Throwable $e) {
             if (isset($lock) && $lock->owner()) {
@@ -92,11 +90,13 @@ class CertificateGenerateJob implements ShouldQueue
         $students = $this->getStudents();
         $total = max(1, count($students));
 
+        // Use new certificate background
+        $bgPath = public_path("certificates/new_certificate.png");
+
         $pdf = new Fpdi('L', 'mm', 'A4');
         $pdf->SetAutoPageBreak(false);
 
-        $bgPath = public_path("certificates/pssb_certificate.png");
-
+        // Load association info
         $assoc = InstituteDetail::find($this->instituteDetailsId);
         if ($assoc) {
             $this->associationName = $assoc->institute_name ?? '';
@@ -104,6 +104,7 @@ class CertificateGenerateJob implements ShouldQueue
         }
 
         foreach ($students as $index => $s) {
+
             $pdf->AddPage();
 
             if (file_exists($bgPath)) {
@@ -111,103 +112,97 @@ class CertificateGenerateJob implements ShouldQueue
             }
 
             $app = $s->applicant ?? null;
+
             $studentName = $app->student_name_english ?? ($s->student_name_english ?? '---');
             $fatherName = $app->father_name ?? ($s->father_name ?? '---');
             $motherName = $app->mother_name ?? ($s->mother_name ?? '---');
             $className = $app->class_name ?? ($s->class_name ?? '---');
             $regNo = $app->unique_number ?? ($s->unique_number ?? '---');
-            $instituteName = $app->institute_name ?? ($s->institute_name ?? $this->associationName ?? '---');
-            $examName = $s->exam_name ?? ($this->associationName ?? 'Talent');
-            $session = $app->academic_year ?? ($s->academic_year ?? '2024');
-            $obtainedMark = $s->obtained_mark ?? ($s->mark ?? '---');
-            $grade = $s->grade ?? ($s->obtained_grade ?? '---');
+            $instituteName = $app->institute_name ?? ($s->institute_name ?? $this->associationName);
+            $examName = "Talent Scholarship";
+            $session = $app->academic_year ?? '2024';
+            $obtainedMark = $s->obtained_mark ?? '---';
+            $grade = $s->grade ?? '---';
 
-            // Draw certificate text
-            $pdf->SetFont("Times", "", 12);
-            $pdf->SetTextColor(30, 30, 30);
-            $pdf->SetXY(24, 82);
-            $pdf->Cell(120, 6, "This is to certify that", 0, 0, 'L');
+            // 📌 START DRAWING (New coordinates matching new design)
 
-            $pdf->SetFont("Times", "B", 14);
-            $pdf->SetXY(70, 82);
-            $pdf->Cell(155, 6, $studentName, 0, 0, 'C');
-
-            $pdf->SetFont("Times", "", 12);
-            $pdf->SetXY(232, 82);
-            $pdf->Cell(50, 6, "son/daughter of", 0, 0, 'L');
-
-            $pdf->SetXY(24, 95);
-            $pdf->Cell(260, 6, "Mr. {$fatherName} and {$motherName}", 0, 0, 'L');
-
-            $pdf->SetXY(24, 108);
-            $pdf->Cell(40, 6, "Class:", 0, 0, 'L');
-
-            $pdf->SetFont("Times", "B", 12);
-            $pdf->SetXY(40, 108);
-            $pdf->Cell(80, 6, $className, 0, 0, 'L');
-
-            $pdf->SetFont("Times", "", 12);
-            $pdf->SetXY(135, 108);
-            $pdf->Cell(60, 6, "Registration. No.:", 0, 0, 'L');
-
-            $pdf->SetFont("Times", "B", 12);
-            $pdf->SetXY(170, 108);
-            $pdf->Cell(60, 6, $regNo, 0, 0, 'L');
-
-            $pdf->SetXY(24, 121);
-            $pdf->Cell(260, 6, "is a student of {$instituteName}", 0, 0, 'L');
-
-            $pdf->SetXY(24, 134);
-            $examLine = "He/She appeared at the Talent Scholarship Examination {$examName} and obtained {$obtainedMark}";
-            if (!empty($grade) && $grade !== '---') {
-                $examLine .= " (Grade: {$grade})";
-            }
-            $pdf->Cell(260, 6, $examLine, 0, 0, 'L');
-
-            $pdf->SetFont("Times", "I", 11);
-            $pdf->SetXY(24, 152);
-            $pdf->Cell(260, 6, "We wish him/her all the success and well being in life.", 0, 0, 'L');
-
-            $pdf->SetFont("Times", "", 10);
-            $pdf->SetXY(24, 46);
-            $pdf->Cell(60, 5, "Session: {$session}", 0, 0, 'L');
+            // --- Session + Serial ---
+            $pdf->SetFont("Times", "", 16);
+            $pdf->SetXY(22, 38);
+            $pdf->Cell(60, 8, "Session: {$session}", 0, 0, 'L');
 
             $serial = $index + 1;
-            $pdf->SetXY(260, 46);
-            $pdf->Cell(30, 5, "Sl. No. {$serial}", 0, 0, 'R');
+            $pdf->SetXY(240, 38);
+            $pdf->Cell(40, 8, "Sl. No.: {$serial}", 0, 0, 'R');
 
-            // Signatures
-            $pdf->SetFont("Times", "", 9);
-            $pdf->SetXY(36, 174);
-            $pdf->Cell(80, 5, "Controller of Examination", 0, 0, 'C');
-            $pdf->SetXY(36, 179);
-            $pdf->Cell(80, 5, "Private School Society of Bangladesh", 0, 0, 'C');
 
-            $pdf->SetXY(140, 174);
-            $pdf->Cell(80, 5, "General Secretary", 0, 0, 'C');
-            $pdf->SetXY(140, 179);
-            $pdf->Cell(80, 5, "Private School Society of Bangladesh", 0, 0, 'C');
+            // ===== MAIN CONTENT AREA (centered nicely) =====
 
-            $pdf->SetXY(244, 174);
-            $pdf->Cell(80, 5, "Chairman", 0, 0, 'C');
-            $pdf->SetXY(244, 179);
-            $pdf->Cell(80, 5, "Private School Society of Bangladesh", 0, 0, 'C');
+            $pdf->SetFont("Times", "", 18);
+            $pdf->SetXY(30, 80);
+            $pdf->Cell(240, 10, "This is to certify that", 0, 0, 'C');
 
-            // Update progress
+            $pdf->SetFont("Times", "B", 26);
+            $pdf->SetXY(30, 95);
+            $pdf->Cell(240, 12, $studentName, 0, 0, 'C');
+
+            $pdf->SetFont("Times", "", 18);
+            $pdf->SetXY(30, 112);
+            $pdf->Cell(240, 10, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 0, 'C');
+
+            $pdf->SetXY(30, 128);
+            $pdf->Cell(240, 10, "Class: {$className}      |      Registration No.: {$regNo}", 0, 0, 'C');
+
+            $pdf->SetXY(30, 145);
+            $pdf->Cell(240, 10, "is a student of {$instituteName}", 0, 0, 'C');
+
+            $line = "He/She appeared at the {$examName} Examination and obtained {$obtainedMark}";
+            if ($grade !== '---') {
+                $line .= " (Grade: {$grade})";
+            }
+
+            $pdf->SetXY(30, 160);
+            $pdf->Cell(240, 10, $line, 0, 0, 'C');
+
+            $pdf->SetFont("Times", "I", 16);
+            $pdf->SetXY(30, 178);
+            $pdf->Cell(240, 10, "We wish him/her all the success and well-being in life.", 0, 0, 'C');
+
+
+            // --- Signatures Row ---
+            $pdf->SetFont("Times", "", 14);
+
+            // Left
+            $pdf->SetXY(40, 190);
+            $pdf->Cell(80, 6, "Controller of Examination", 0, 0, 'C');
+            $pdf->SetXY(40, 197);
+            $pdf->Cell(80, 6, "Private School Society of Bangladesh", 0, 0, 'C');
+
+            // Middle
+            $pdf->SetXY(130, 190);
+            $pdf->Cell(80, 6, "General Secretary", 0, 0, 'C');
+            $pdf->SetXY(130, 197);
+            $pdf->Cell(80, 6, "Private School Society of Bangladesh", 0, 0, 'C');
+
+            // Right
+            $pdf->SetXY(220, 190);
+            $pdf->Cell(80, 6, "Chairman", 0, 0, 'C');
+            $pdf->SetXY(220, 197);
+            $pdf->Cell(80, 6, "Private School Society of Bangladesh", 0, 0, 'C');
+
+
+            // Progress update
             $progress = (int)((($index + 1) / $total) * 100);
-            Cache::store('redis')->put($progressKey, $progress, now()->addHours(1));
-            $progressText = ($index + 1) . '/' . $total;
-            Log::channel('exports_log')->info("Progress: {$progress}% ({$progressText})");
-
-            usleep(500); // tiny sleep to allow cache flush in heavy PDF generation
+            Cache::put($progressKey, $progress, now()->addHours(1));
         }
 
-        // Save PDF
+        // Save generated PDF
         $dir = "exports/user_{$this->userId}/certificates/{$this->exportId}";
         Storage::disk('public')->makeDirectory($dir);
+
         $file = "{$dir}/{$this->fileName}.pdf";
-        $absPath = Storage::disk('public')->path($file);
-        $pdf->Output($absPath, 'F');
+        $abs = Storage::disk('public')->path($file);
+        $pdf->Output($abs, 'F');
 
         return $file;
     }
