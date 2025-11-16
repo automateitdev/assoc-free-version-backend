@@ -124,43 +124,43 @@ class CertificateGenerateJob implements ShouldQueue
             $obtainedMark = $s->obtained_mark ?? '---';
             $obtainedGrade = $s->obtained_grade ?? '---';
 
-            // 📌 START DRAWING (Adjusted coordinates to stay inside ornate border)
+            // 📌 START DRAWING (Safe layout inside ornate border)
 
             // --- Header Section ---
             $pdf->SetFont("Times", "", 14);
             $pdf->SetXY(20, 22);
             $pdf->Cell(100, 8, "Session: {$session}", 0, 0, 'L');
 
-            $pdf->SetFont("Times", "B", 24);
+            $pdf->SetFont("Times", "B", 22);
             $pdf->SetXY(20, 32);
-            $pdf->Cell(257, 12, "{$examName}", 0, 0, 'C');
+            $pdf->Cell(257, 10, "{$examName}", 0, 0, 'C');
 
             $pdf->SetFont("Times", "", 16);
-            $pdf->SetXY(20, 48);
+            $pdf->SetXY(20, 45);
             $pdf->Cell(257, 8, "{$this->associationName}", 0, 0, 'C');
-            $pdf->SetXY(20, 56);
+            $pdf->SetXY(20, 53);
             $pdf->Cell(257, 8, "{$this->associationAddress}", 0, 0, 'C');
 
-            // ===== MAIN CONTENT AREA =====
+            // --- Main Content ---
             $pdf->SetFont("Times", "", 18);
-            $pdf->SetXY(20, 78);
-            $pdf->Cell(257, 10, "This is to certify that {$studentName}", 0, 0, 'C');
+            $pdf->SetXY(20, 75);
+            $pdf->MultiCell(257, 10, "This is to certify that {$studentName}", 0, 'C');
 
-            $pdf->SetXY(20, 93);
-            $pdf->Cell(257, 10, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 0, 'C');
+            $pdf->SetXY(20, 90);
+            $pdf->MultiCell(257, 10, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 'C');
 
-            $pdf->SetXY(20, 108);
-            $pdf->Cell(257, 10, "Class: {$className}      |      Registration No.: {$regNo}", 0, 0, 'C');
+            $pdf->SetXY(20, 105);
+            $pdf->MultiCell(257, 10, "Class: {$className}      |      Registration No.: {$regNo}", 0, 'C');
 
-            $pdf->SetXY(20, 123);
-            $pdf->Cell(257, 10, "is a student of {$instituteName}", 0, 0, 'C');
+            $pdf->SetXY(20, 120);
+            $pdf->MultiCell(257, 10, "is a student of {$instituteName}", 0, 'C');
 
-            $pdf->SetXY(20, 138);
-            $pdf->Cell(257, 10, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 0, 'C');
+            $pdf->SetXY(20, 135);
+            $pdf->MultiCell(257, 10, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 'C');
 
             $pdf->SetFont("Times", "I", 16);
-            $pdf->SetXY(20, 153);
-            $pdf->Cell(257, 10, "We wish him/her all the success and well-being in life.", 0, 0, 'C');
+            $pdf->SetXY(20, 150);
+            $pdf->MultiCell(257, 10, "We wish him/her all the success and well-being in life.", 0, 'C');
 
             // --- Signatures Row ---
             $pdf->SetFont("Times", "", 14);
@@ -182,8 +182,6 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->Cell(80, 6, "Chairman", 0, 0, 'C');
             $pdf->SetXY(187, 182);
             $pdf->Cell(80, 6, "Private School Society of Bangladesh", 0, 0, 'C');
-
-
 
             // Progress update
             $progress = (int)((($index + 1) / $total) * 100);
