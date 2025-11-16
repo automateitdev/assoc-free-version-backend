@@ -182,18 +182,22 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetFont('Sunshine', '', 24);
             $pdf->Cell(257, 8, "{$studentName}", 0, 1, 'C');
 
-            // --- Draw dotted underline under the name ---
-            $nameWidth = $pdf->GetStringWidth($studentName); // width of the name text
-            $nameX = (297 - $nameWidth) / 2;                 // center align on A4 landscape (297mm wide)
-            $nameY = $pdf->GetY();                           // current Y after writing name
+            // --- Draw dotted underline manually ---
+            $nameWidth = $pdf->GetStringWidth($studentName);
+            $nameX = (297 - $nameWidth) / 2;   // center horizontally (A4 landscape width = 297mm)
+            $nameY = $pdf->GetY();             // current Y after writing name
 
-            $pdf->SetDrawColor(0, 0, 0);                     // black underline
+            $pdf->SetDrawColor(0, 0, 0);       // underline color
             $pdf->SetLineWidth(0.3);
 
-            // If your FPDF version supports SetDash:
-            $pdf->SetDash(1, 2); // 1mm dot, 2mm gap
-            $pdf->Line($nameX, $nameY, $nameX + $nameWidth, $nameY);
-            $pdf->SetDash(); // reset to solid
+            $dotLength = 1;  // length of each dot
+            $gapLength = 1;  // gap between dots
+            $currentX = $nameX;
+
+            while ($currentX < $nameX + $nameWidth) {
+                $pdf->Line($currentX, $nameY, $currentX + $dotLength, $nameY);
+                $currentX += ($dotLength + $gapLength);
+            }
 
             // Line 3: Continue with Times
             $pdf->SetFont("Times", "", 14);
