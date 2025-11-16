@@ -127,8 +127,8 @@ class CertificateGenerateJob implements ShouldQueue
             // 📌 START DRAWING (Compact layout inside ornate border)
 
             // --- Header Section ---
-            $pdf->SetFont("Times", "", 16);
-            $pdf->SetXY(40, 35);
+            $pdf->SetFont("Times", "", 14);
+            $pdf->SetXY(20, 35);
             $pdf->Cell(100, 6, "Session: {$session}", 0, 0, 'L');
 
             $pdf->SetFont("Times", "B", 20);
@@ -154,13 +154,13 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetXY(20, 96);
             $pdf->MultiCell(257, 5, "Class: {$className}      |      Registration No.: {$regNo}", 0, 'C');
 
-            $pdf->SetXY(20, 114);
+            $pdf->SetXY(20, 104);
             $pdf->MultiCell(257, 5, "is a student of {$instituteName}", 0, 'C');
 
             $pdf->SetXY(20, 122);
             $pdf->MultiCell(257, 5, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 'C');
 
-            $pdf->SetFont("Times", "I", 16);
+            $pdf->SetFont("Times", "I", 14);
             $pdf->SetXY(20, 135);
             $pdf->MultiCell(257, 5, "We wish him/her all the success and well-being in life.", 0, 'C');
 
@@ -169,21 +169,21 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetFont("Times", "", 10);
 
             // Left
-            $pdf->SetXY(30, 150);
+            $pdf->SetXY(30, 165);
             $pdf->Cell(80, 5, "Controller of Examination", 0, 0, 'C');
-            $pdf->SetXY(30, 155);
+            $pdf->SetXY(30, 170);
             $pdf->Cell(80, 5, "{$this->associationName}", 0, 0, 'C');
 
             // Middle
-            $pdf->SetXY(108.5, 150);
+            $pdf->SetXY(108.5, 165);
             $pdf->Cell(80, 5, "General Secretary", 0, 0, 'C');
-            $pdf->SetXY(108.5, 155);
+            $pdf->SetXY(108.5, 170);
             $pdf->Cell(80, 5, "{$this->associationName}", 0, 0, 'C');
 
             // Right
-            $pdf->SetXY(187, 150);
+            $pdf->SetXY(187, 165);
             $pdf->Cell(80, 5, "Chairman", 0, 0, 'C');
-            $pdf->SetXY(187, 155);
+            $pdf->SetXY(187, 170);
             $pdf->Cell(80, 5, "{$this->associationName}", 0, 0, 'C');
 
             // Progress update
