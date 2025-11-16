@@ -127,8 +127,8 @@ class CertificateGenerateJob implements ShouldQueue
             // 📌 START DRAWING (Compact layout inside ornate border)
 
             // --- Header Section ---
-            $pdf->SetFont("Times", "", 14);
-            $pdf->SetXY(30, 45);
+            $pdf->SetFont("Times", "", 13);
+            $pdf->SetXY(35, 50);
             $pdf->Cell(100, 6, "Session: {$session}", 0, 0, 'L');
 
             $pdf->SetFont("Times", "B", 20);
