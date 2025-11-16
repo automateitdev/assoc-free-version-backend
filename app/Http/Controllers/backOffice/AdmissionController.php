@@ -847,7 +847,7 @@ class AdmissionController extends Controller
     public function ranking(Request $request)
     {
         $rules = [
-            "exam" => 'required|exam:exists:exams,id',
+            "exam" => 'required|exists:exams,id',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -865,7 +865,7 @@ class AdmissionController extends Controller
         return response()->json(
             [
                 'status'  => 'success',
-                'message' => 'fethed successfully!',
+                'message' => 'fetched successfully!',
                 'list'   => $list
             ]
         );
