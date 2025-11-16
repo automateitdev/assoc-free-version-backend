@@ -178,7 +178,8 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->Cell(257, 6, "This is to certify that", 0, 1, 'C');
 
             // Line 2: Student name in Sunshine font
-            $pdf->SetFont("Sunshine", "", 20);
+            $pdf->AddFont('Sunshine', '', 'Sunshine.php');
+            $pdf->SetFont('Sunshine', '', 24);
             $pdf->Cell(257, 8, "{$studentName}", 0, 1, 'C');
 
             // --- Draw dotted underline under the name ---
