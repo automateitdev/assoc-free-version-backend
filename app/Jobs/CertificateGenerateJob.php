@@ -178,16 +178,21 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetFont("Times", "", 14);
             $pdf->Cell($contentWidth, 6, "This is to certify that", 0, 1, 'C');
 
-            // Line 2: Student name in OldEnglishFive font
-            $pdf->AddFont('OldEnglishFive', '', 'OldEnglishFive.php');
-            $pdf->SetFont('OldEnglishFive', '', 28);
+            // Line 2: Student name in Sunshine font
+            // --- Line 2: Student name in Sunshine font ---
+            $pdf->AddFont('Sunshine', '', 'Sunshine.php');
+            $pdf->SetFont('Sunshine', '', 24);
             $studentName = trim($studentName);
-            $pdf->Cell($contentWidth, 10, $studentName, 0, 1, 'C');
 
-            // --- Dotted underline under name ---
+            // Always center using full page width
+            $pdf->Cell(0, 10, $studentName, 0, 1, 'C');
+
+            // --- Corrected Dotted underline under name ---
             $nameWidth = $pdf->GetStringWidth($studentName);
-            // $nameX = $leftMargin + (($contentWidth - $nameWidth) / 2);
-            $nameX = $leftMargin + (($contentWidth - $nameWidth) / 2);
+            $pageWidth = $pdf->GetPageWidth();
+
+            // Proper center calculation
+            $nameX = ($pageWidth - $nameWidth) / 2;
             $nameY = $pdf->GetY() - 1.5;
 
             $pdf->SetDrawColor(0, 0, 0);
