@@ -169,6 +169,13 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetXY(20, 56);
             $pdf->Cell(257, 6, "{$this->associationAddress}", 0, 0, 'C');
 
+
+            $pdf->AddFont('OldEnglishFive', '', 'OldEnglishFive.php');
+            $pdf->SetFont('OldEnglishFive', '', 23);
+            $pdf->SetXY(20, 60);
+            $pdf->Cell(0, 6, "CERTFICATE", 0, 1, 'C');
+
+
             // --- Main Content ---
             $leftMargin   = 20;
             $contentWidth = 257;
@@ -181,31 +188,40 @@ class CertificateGenerateJob implements ShouldQueue
             // Line 2: Student name in Sunshine font
             // --- Line 2: Student name in Sunshine font ---
             $pdf->AddFont('Sunshine', '', 'Sunshine.php');
-            $pdf->SetFont('Sunshine', '', 26);
+            $pdf->SetFont('Sunshine', '', 28);
             $studentName = trim($studentName);
 
             // Always center using full page width
             $pdf->Cell(0, 10, $studentName, 0, 1, 'C');
 
-            // --- Corrected Dotted underline under name ---
+            // --- Dotted underline under name ---
             $nameWidth = $pdf->GetStringWidth($studentName);
             $pageWidth = $pdf->GetPageWidth();
 
-            // Proper center calculation
-            $nameX = ($pageWidth - $nameWidth) / 2;
+            // Extend underline 6mm (3mm left + 3mm right)
+            $extra = 6;
+            $underlineWidth = $nameWidth + $extra;
+
+            // Correct new X starting point
+            $nameX = ($pageWidth - $underlineWidth) / 2;
             $nameY = $pdf->GetY() - 1.5;
 
-            $pdf->SetDrawColor(0, 0, 0);
+            // Gray line color
+            $pdf->SetDrawColor(150, 150, 150); // light gray
+
             $pdf->SetLineWidth(0.3);
 
             $dotLength = 1;
             $gapLength = 1;
+
             $currentX = $nameX;
 
-            while ($currentX < $nameX + $nameWidth) {
+            // Draw dotted underline
+            while ($currentX < $nameX + $underlineWidth) {
                 $pdf->Line($currentX, $nameY, $currentX + $dotLength, $nameY);
                 $currentX += ($dotLength + $gapLength);
             }
+
 
             // Line 3: Parent info
             $pdf->SetFont("Times", "", 14);
