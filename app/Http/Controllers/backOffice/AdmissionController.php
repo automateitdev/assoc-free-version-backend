@@ -22,6 +22,7 @@ use App\Models\AdmissionApplied;
 use App\Models\AdmissionPayment;
 use App\Models\CenterExam;
 use App\Models\Exam;
+use App\Models\ExamMark;
 use App\Models\InstituteDetail;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -841,5 +842,32 @@ class AdmissionController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function ranking(Request $request)
+    {
+        $rules = [
+            "exam" => 'required|exam:exists:exams,id',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([
+                'errors'  => ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, $validator->errors()->toArray()),
+                'payload' => null,
+            ], 422);
+        }
+
+        $query = ExamMark::with('applicant')->where('exam_id', $request->exam)->orderBy('obtained_mark');
+
+        $list = PrimevueDatatables::of($query)->make();
+
+        return response()->json(
+            [
+                'status'  => 'success',
+                'message' => 'fethed successfully!',
+                'list'   => $list
+            ]
+        );
     }
 }

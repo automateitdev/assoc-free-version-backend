@@ -293,6 +293,8 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::post('mark-sheet/export', [AdmissionController::class, 'markSheetExport']);
     Route::post('mark-sheet/import', [AdmissionController::class, 'markSheetImport']);
 
+    Route::post('exam/ranking', [AdmissionController::class, 'ranking']);
+
     Route::get('export-progress', [AdmissionController::class, 'exportProgress']);
 });
 
