@@ -126,15 +126,23 @@ class CertificateGenerateJob implements ShouldQueue
             $obtainedMark = $s->obtained_mark ?? '---';
             $obtainedGrade = $s->obtained_grade ?? '---';
 
-            // Logo box at top-left corner
-            $logoX = 40; // Left margin
-            $logoY = 50; // Top margin
-            $logoW = 20; // Slightly larger for visibility
+            // 📌 START DRAWING (Compact layout inside ornate border)
+
+            // --- Header Section ---
+            $pdf->SetFont("Times", "", 12);
+            $sessionX = 40;   // X position for session text
+            $sessionY = 60;   // Y position for session text
+            $pdf->SetXY($sessionX, $sessionY);
+            $pdf->Cell(100, 6, "Session: {$session}", 0, 0, 'L');
+
+            // --- Logo aligned with session ---
+            $logoW = 20;
             $logoH = 20;
+            $logoX = $sessionX - ($logoW + 5); // place logo 5mm left of session text
+            $logoY = $sessionY - 2;            // small vertical adjustment
 
-            $pdf->Rect($logoX, $logoY, $logoW, $logoH); // Optional: draw border box
+            $pdf->Rect($logoX, $logoY, $logoW, $logoH); // optional border
 
-            // Insert logo if exists
             if (!empty($this->associationLogo)) {
                 $logoPath = Storage::disk('public')->path("{$this->associationLogo}");
                 if (file_exists($logoPath)) {
@@ -142,10 +150,6 @@ class CertificateGenerateJob implements ShouldQueue
                 }
             }
 
-            // --- Header Section ---
-            $pdf->SetFont("Times", "", 12);
-            $pdf->SetXY(40, 60);
-            $pdf->Cell(100, 6, "Session: {$session}", 0, 0, 'L');
 
             $pdf->SetFont("Times", "B", 20);
             $pdf->SetXY(20, 35);
