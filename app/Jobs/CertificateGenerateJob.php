@@ -114,37 +114,43 @@ class CertificateGenerateJob implements ShouldQueue
             $app = $s->applicant ?? null;
 
             $studentName = $app->student_name_english ?? ($s->student_name_english ?? '---');
-            $fatherName = $app->father_name ?? ($s->father_name ?? '---');
-            $motherName = $app->mother_name ?? ($s->mother_name ?? '---');
+            $fatherName = $app->father_name_english ?? ($s->father_name ?? '---');
+            $motherName = $app->mother_name_english ?? ($s->mother_name ?? '---');
             $className = $app->class_name ?? ($s->class_name ?? '---');
             $regNo = $app->unique_number ?? ($s->unique_number ?? '---');
-            $instituteName = $app->institute_name ?? ($s->institute_name ?? $this->associationName);
-            $examName = "Talent Scholarship";
-            $session = $app->academic_year ?? '2024';
+            $instituteName = $app->institute_name ?? ($s->institute_name);
+            $examName = $s->exam->name ?? '';
+            $session = $app->academic_year ?? '---';
             $obtainedMark = $s->obtained_mark ?? '---';
-            $grade = $s->grade ?? '---';
+            $obtainedGrade = $s->obtained_grade ?? '---';
 
             // 📌 START DRAWING (New coordinates matching new design)
 
             // --- Session + Serial ---
-            $pdf->SetFont("Times", "", 16);
-            $pdf->SetXY(22, 38);
+            $pdf->SetFont("Times", "", 14);
+            $pdf->SetXY(22, 30);
             $pdf->Cell(60, 8, "Session: {$session}", 0, 0, 'L');
 
-            $serial = $index + 1;
-            $pdf->SetXY(240, 38);
-            $pdf->Cell(40, 8, "Sl. No.: {$serial}", 0, 0, 'R');
+            $pdf->SetFont("Times", "", 26);
+            $pdf->SetXY(22, 30);
+            $pdf->Cell(60, 8, "{$examName}", 0, 0, 'L');
+
+            $pdf->SetFont("Times", "", 18);
+            $pdf->SetXY(50, 30);
+            $pdf->Cell(60, 16, "{$this->associationName}", 0, 0, 'L');
+            $pdf->Cell(60, 18, "{$this->associationAddress}", 0, 0, 'L');
+
+            // $serial = $index + 1;
+            // $pdf->SetXY(240, 38);
+            // $pdf->Cell(40, 8, "Sl. No.: {$serial}", 0, 0, 'R');
 
 
             // ===== MAIN CONTENT AREA (centered nicely) =====
 
             $pdf->SetFont("Times", "", 18);
             $pdf->SetXY(30, 80);
-            $pdf->Cell(240, 10, "This is to certify that", 0, 0, 'C');
+            $pdf->Cell(240, 10, "This is to certify that {$studentName}", 0, 0, 'C');
 
-            $pdf->SetFont("Times", "B", 26);
-            $pdf->SetXY(30, 95);
-            $pdf->Cell(240, 12, $studentName, 0, 0, 'C');
 
             $pdf->SetFont("Times", "", 18);
             $pdf->SetXY(30, 112);
@@ -156,10 +162,10 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetXY(30, 145);
             $pdf->Cell(240, 10, "is a student of {$instituteName}", 0, 0, 'C');
 
-            $line = "He/She appeared at the {$examName} Examination and obtained {$obtainedMark}";
-            if ($grade !== '---') {
-                $line .= " (Grade: {$grade})";
-            }
+            $line = "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade";
+            // if ($obtainedGrade !== '---') {
+            //     $line .= " (Grade: {$obtainedGrade})";
+            // }
 
             $pdf->SetXY(30, 160);
             $pdf->Cell(240, 10, $line, 0, 0, 'C');
@@ -209,7 +215,7 @@ class CertificateGenerateJob implements ShouldQueue
 
     private function getStudents()
     {
-        return ExamMark::with('applicant')
+        return ExamMark::with('applicant', 'exam')
             ->where('exam_id', $this->exam_id)
             ->orderByDesc('obtained_mark')
             ->get();
