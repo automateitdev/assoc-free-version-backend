@@ -186,7 +186,8 @@ class CertificateGenerateJob implements ShouldQueue
 
             // --- Dotted underline under name ---
             $nameWidth = $pdf->GetStringWidth($studentName);
-            $nameX = $leftMargin + (($contentWidth - $nameWidth) / 2);
+            // $nameX = $leftMargin + (($contentWidth - $nameWidth) / 2);
+            $nameX = $leftMargin;
             $nameY = $pdf->GetY() - 1.5;
 
             $pdf->SetDrawColor(0, 0, 0);
@@ -203,7 +204,7 @@ class CertificateGenerateJob implements ShouldQueue
 
             // Line 3: Parent info
             $pdf->SetFont("Times", "", 14);
-            $pdf->Ln(4);
+            $pdf->Ln(2);
             $pdf->Cell($contentWidth, 6, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 1, 'C');
 
             // Line 4: Class and Registration
