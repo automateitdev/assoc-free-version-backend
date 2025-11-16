@@ -172,26 +172,27 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->Cell(257, 6, "{$this->associationAddress}", 0, 0, 'C');
 
             // --- Main Content ---
+            $pdf->SetXY(20, 90); // anchor once at top of content
+
             // Line 1: Intro text
             $pdf->SetFont("Times", "", 14);
-            $pdf->SetXY(20, 90);
             $pdf->Cell(257, 6, "This is to certify that", 0, 1, 'C');
 
             // Line 2: Student name in Sunshine font
             $pdf->AddFont('Sunshine', '', 'Sunshine.php');
             $pdf->SetFont('Sunshine', '', 24);
-            $pdf->Cell(257, 8, "{$studentName}", 0, 1, 'C');
+            $pdf->Cell(257, 10, "{$studentName}", 0, 1, 'C');
 
-            // --- Draw dotted underline manually ---
+            // --- Dotted underline under name ---
             $nameWidth = $pdf->GetStringWidth($studentName);
             $nameX = (297 - $nameWidth) / 2;   // center horizontally (A4 landscape width = 297mm)
             $nameY = $pdf->GetY();             // current Y after writing name
 
-            $pdf->SetDrawColor(0, 0, 0);       // underline color
+            $pdf->SetDrawColor(0, 0, 0);
             $pdf->SetLineWidth(0.3);
 
-            $dotLength = 1;  // length of each dot
-            $gapLength = 1;  // gap between dots
+            $dotLength = 1;
+            $gapLength = 1;
             $currentX = $nameX;
 
             while ($currentX < $nameX + $nameWidth) {
@@ -201,24 +202,22 @@ class CertificateGenerateJob implements ShouldQueue
 
             // Line 3: Continue with Times
             $pdf->SetFont("Times", "", 14);
+            $pdf->Ln(4); // move down a bit
             $pdf->Cell(257, 6, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 1, 'C');
 
+            // Next lines: use MultiCell with consistent line height
+            $pdf->Ln(2);
+            $pdf->MultiCell(257, 6, "Class: {$className}      |      Registration No.: {$regNo}", 0, 'C');
 
-            $pdf->SetXY(20, 98);
-            $pdf->MultiCell(257, 5, "Mr. {$fatherName} and Mrs. {$motherName}", 0, 'C');
+            $pdf->Ln(2);
+            $pdf->MultiCell(257, 6, "is a student of {$instituteName}", 0, 'C');
 
-            $pdf->SetXY(20, 106);
-            $pdf->MultiCell(257, 5, "Class: {$className}      |      Registration No.: {$regNo}", 0, 'C');
-
-            $pdf->SetXY(20, 114);
-            $pdf->MultiCell(257, 5, "is a student of {$instituteName}", 0, 'C');
-
-            $pdf->SetXY(20, 122);
-            $pdf->MultiCell(257, 5, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 'C');
+            $pdf->Ln(2);
+            $pdf->MultiCell(257, 6, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 'C');
 
             $pdf->SetFont("Times", "I", 14);
-            $pdf->SetXY(20, 132);
-            $pdf->MultiCell(257, 5, "We wish him/her all the success and well-being in life.", 0, 'C');
+            $pdf->Ln(2);
+            $pdf->MultiCell(257, 6, "We wish him/her all the success and well-being in life.", 0, 'C');
 
 
             // --- Signatures Row ---
