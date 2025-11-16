@@ -171,9 +171,13 @@ class CertificateGenerateJob implements ShouldQueue
 
 
             $pdf->AddFont('Rye-Regular', '', 'Rye-Regular.php');
-            $pdf->SetFont('Rye-Regular', '', 23);
-            $pdf->SetXY(20, 65);
-            $pdf->Cell(0, 6, "CERTFICATE", 0, 1, 'C');
+            $pdf->SetFont('Rye-Regular', '', 25);
+            $pdf->SetTextColor(163, 0, 22);
+            $pdf->SetXY(20, 70);
+            $pdf->Cell(257, 6, "CERTFICATE", 0, 0, 'C');
+
+            // Reset to black for other text if needed
+            $pdf->SetTextColor(0, 0, 0);
 
 
             // --- Main Content ---
