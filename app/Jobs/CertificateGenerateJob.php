@@ -178,24 +178,22 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetFont("Times", "", 14);
             $pdf->Cell(257, 6, "This is to certify that", 0, 1, 'C');
 
-            /// Anchor the content box once
-            $leftMargin   = 20;   // same as SetXY X
-            $contentWidth = 257;  // same as Cell width
+            // Set content box dimensions
+            $leftMargin   = 20;
+            $contentWidth = 257;
 
             // Line 2: Student name in Sunshine font
             $pdf->AddFont('Sunshine', '', 'Sunshine.php');
             $pdf->SetFont('Sunshine', '', 28);
             $pdf->Cell($contentWidth, 10, trim($studentName), 0, 1, 'C');
 
-            // --- Dotted underline under name (centered within the content box) ---
+            // --- Dotted underline under name ---
             $nameText  = trim($studentName);
             $nameWidth = $pdf->GetStringWidth($nameText);
 
-            // Center within [leftMargin .. leftMargin + contentWidth]
+            // Center within content box
             $nameX = $leftMargin + (($contentWidth - $nameWidth) / 2);
-
-            // Place the underline slightly below the name baseline
-            $underlineY = $pdf->GetY() - 1.5; // small upward tweak so it sits right under the text
+            $nameY = $pdf->GetY() - 1.5; // slight upward tweak
 
             $pdf->SetDrawColor(0, 0, 0);
             $pdf->SetLineWidth(0.3);
@@ -205,7 +203,7 @@ class CertificateGenerateJob implements ShouldQueue
             $currentX  = $nameX;
 
             while ($currentX < $nameX + $nameWidth) {
-                $pdf->Line($currentX, $underlineY, $currentX + $dotLength, $underlineY);
+                $pdf->Line($currentX, $nameY, $currentX + $dotLength, $nameY);
                 $currentX += ($dotLength + $gapLength);
             }
 
