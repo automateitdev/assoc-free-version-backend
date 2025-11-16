@@ -15,6 +15,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\AdmissionFeeResource;
 use App\Imports\ExamMarkImport;
+use App\Jobs\CertificateGenerateJob;
 use App\Jobs\ExamMarkExportJob;
 use App\Jobs\SeatCardGenerateJob;
 use App\Models\AcademicDetail;
@@ -678,6 +679,99 @@ class AdmissionController extends Controller
             $exam->class_id,
             $centers,
             $exam->name,
+            $fileName,
+            $exportId,
+            $dtParams,
+            $searchableColumns
+        );
+
+        // Return exportId so frontend can poll progress
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Export started',
+            'exportId' => $exportId,
+        ]);
+    }
+
+
+    public function certificateExport(Request $request)
+    {
+        $rules = [
+            "exam"          => 'required|integer',
+            "academic_year" => 'required|integer',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([
+                'errors'  => ApiResponseHelper::formatErrors(ApiResponseHelper::VALIDATION_ERROR, $validator->errors()->toArray()),
+                'payload' => null,
+            ], 422);
+        }
+
+        $exam = Exam::where('institute_details_id', Auth::user()->institute_details_id)
+            ->find($request->exam);
+
+        if (!$exam) {
+            $formattedErrors = ApiResponseHelper::formatErrors(
+                ApiResponseHelper::INVALID_REQUEST,
+                ['Requested exam not found or does not belong to this institute!']
+            );
+            return response()->json([
+                'errors' => $formattedErrors,
+                'payload' => null,
+            ], 400);
+        }
+
+        $user = Auth::user();
+        $instituteDetailsId = $user?->institute_details_id;
+        $instituteDetail = InstituteDetail::find($instituteDetailsId);
+
+        if (!$instituteDetailsId || !$instituteDetail) {
+            $formattedErrors = ApiResponseHelper::formatErrors(
+                ApiResponseHelper::INVALID_REQUEST,
+                ['Invalid Institute Details!']
+            );
+            return response()->json([
+                'errors' => $formattedErrors,
+                'payload' => null,
+            ], 400);
+        }
+
+
+        $countRanking = ExamMark::where('exam_id', $request->exam)->count();
+
+        if ($countRanking <= 0) {
+            return response()->json([
+                'errors'  => ApiResponseHelper::formatErrors(ApiResponseHelper::INVALID_REQUEST, ['No ranking found!']),
+            ], 400);
+        }
+
+        $instituteId = $instituteDetail->institute_id;
+        $instituteNameSlug = preg_replace('/[^A-Za-z0-9]+/', '_', $instituteDetail->institute_name);
+        $fileName = "{$instituteId}_{$instituteNameSlug}_seatcard";
+
+        // Generate a unique export ID for this export
+        $exportId = (string) Str::uuid();
+        $dtParams = $request->dt_params ?? [];
+        $searchableColumns = $request->searchable_columns ?? [];
+
+        // $this->userId = $userId;
+        // $this->instituteDetailsId = $instituteDetailsId;
+        // $this->academic_year_id = $academic_year_id;
+        // $this->class_id = $class_id;
+        // $this->fileName = $fileName;
+        // $this->exportId = $exportId ?? (string) Str::uuid();
+        // $this->dtParams = $dtParams;
+        // $this->searchableColumns = $searchableColumns;
+
+        // Dispatch the job with the exportId
+        CertificateGenerateJob::dispatch(
+            $user->id,
+            $instituteDetailsId,
+            $exam->academic_year_id,
+            $exam->class_id,
+            $exam->id,
             $fileName,
             $exportId,
             $dtParams,
