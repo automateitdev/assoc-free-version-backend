@@ -132,12 +132,14 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->Cell(100, 6, "Session: {$session}", 0, 0, 'L');
 
             $pdf->SetFont("Times", "B", 20);
-            $pdf->SetXY(40, 48);
+            $pdf->SetXY(20, 28);
             $pdf->Cell(257, 8, "{$examName}", 0, 0, 'C');
 
-            $pdf->SetFont("Times", "", 16);
-            $pdf->SetXY(20, 38);
+            $pdf->SetFont("Times", "", 14);
+            $pdf->SetXY(20, 48);
             $pdf->Cell(257, 6, "{$this->associationName}", 0, 0, 'C');
+
+            $pdf->SetFont("Times", "", 12);
             $pdf->SetXY(20, 44);
             $pdf->Cell(257, 6, "{$this->associationAddress}", 0, 0, 'C');
 
@@ -163,22 +165,22 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->MultiCell(257, 6, "We wish him/her all the success and well-being in life.", 0, 'C');
 
             // --- Signatures Row ---
-            $pdf->SetFont("Times", "", 12);
+            $pdf->SetFont("Times", "", 10);
 
             // Left
-            $pdf->SetXY(30, 140);
+            $pdf->SetXY(30, 150);
             $pdf->Cell(80, 5, "Controller of Examination", 0, 0, 'C');
             $pdf->SetXY(30, 146);
             $pdf->Cell(80, 5, "{$this->associationName}", 0, 0, 'C');
 
             // Middle
-            $pdf->SetXY(108.5, 140);
+            $pdf->SetXY(108.5, 150);
             $pdf->Cell(80, 5, "General Secretary", 0, 0, 'C');
             $pdf->SetXY(108.5, 146);
             $pdf->Cell(80, 5, "{$this->associationName}", 0, 0, 'C');
 
             // Right
-            $pdf->SetXY(187, 140);
+            $pdf->SetXY(187, 150);
             $pdf->Cell(80, 5, "Chairman", 0, 0, 'C');
             $pdf->SetXY(187, 146);
             $pdf->Cell(80, 5, "{$this->associationName}", 0, 0, 'C');
