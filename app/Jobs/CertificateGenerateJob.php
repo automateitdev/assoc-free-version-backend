@@ -107,10 +107,22 @@ class CertificateGenerateJob implements ShouldQueue
 
             $pdf->AddPage();
 
-            // Background image
             if (file_exists($bgPath)) {
-                $pdf->Image($bgPath, 0, 0, 297, 210); // Full A4 landscape
+                $pdf->Image($bgPath, 0, 0, 297, 210);
             }
+
+            $app = $s->applicant ?? null;
+
+            $studentName = $app->student_name_english ?? ($s->student_name_english ?? '---');
+            $fatherName = $app->father_name_english ?? ($s->father_name ?? '---');
+            $motherName = $app->mother_name_english ?? ($s->mother_name ?? '---');
+            $className = $app->class_name ?? ($s->class_name ?? '---');
+            $regNo = $app->unique_number ?? ($s->unique_number ?? '---');
+            $instituteName = $app->institute_name ?? ($s->institute_name);
+            $examName = $s->exam->name ?? '';
+            $session = $app->academic_year ?? '---';
+            $obtainedMark = $s->obtained_mark ?? '---';
+            $obtainedGrade = $s->obtained_grade ?? '---';
 
             // 📌 START DRAWING (Adjusted coordinates to stay inside ornate border)
 
@@ -170,6 +182,8 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->Cell(80, 6, "Chairman", 0, 0, 'C');
             $pdf->SetXY(187, 182);
             $pdf->Cell(80, 6, "Private School Society of Bangladesh", 0, 0, 'C');
+
+
 
             // Progress update
             $progress = (int)((($index + 1) / $total) * 100);
