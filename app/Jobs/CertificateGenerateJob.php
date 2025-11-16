@@ -107,93 +107,66 @@ class CertificateGenerateJob implements ShouldQueue
 
             $pdf->AddPage();
 
+            // Background image
             if (file_exists($bgPath)) {
-                $pdf->Image($bgPath, 0, 0, 297, 210);
+                $pdf->Image($bgPath, 0, 0, 297, 210); // Full A4 landscape
             }
 
-            $app = $s->applicant ?? null;
-
-            $studentName = $app->student_name_english ?? ($s->student_name_english ?? '---');
-            $fatherName = $app->father_name_english ?? ($s->father_name ?? '---');
-            $motherName = $app->mother_name_english ?? ($s->mother_name ?? '---');
-            $className = $app->class_name ?? ($s->class_name ?? '---');
-            $regNo = $app->unique_number ?? ($s->unique_number ?? '---');
-            $instituteName = $app->institute_name ?? ($s->institute_name);
-            $examName = $s->exam->name ?? '';
-            $session = $app->academic_year ?? '---';
-            $obtainedMark = $s->obtained_mark ?? '---';
-            $obtainedGrade = $s->obtained_grade ?? '---';
-
-            // 📌 START DRAWING (New coordinates matching new design)
-
-            // --- Session + Serial ---
+            // --- Header Section ---
             $pdf->SetFont("Times", "", 14);
-            $pdf->SetXY(22, 30);
-            $pdf->Cell(60, 8, "Session: {$session}", 0, 0, 'L');
+            $pdf->SetXY(20, 20);
+            $pdf->Cell(100, 8, "Session: {$session}", 0, 0, 'L');
 
-            $pdf->SetFont("Times", "", 26);
-            $pdf->SetXY(22, 30);
-            $pdf->Cell(60, 8, "{$examName}", 0, 0, 'L');
+            $pdf->SetFont("Times", "B", 24);
+            $pdf->SetXY(20, 30);
+            $pdf->Cell(257, 12, "{$examName}", 0, 0, 'C');
 
+            $pdf->SetFont("Times", "", 16);
+            $pdf->SetXY(20, 45);
+            $pdf->Cell(257, 8, "{$this->associationName}", 0, 0, 'C');
+            $pdf->SetXY(20, 53);
+            $pdf->Cell(257, 8, "{$this->associationAddress}", 0, 0, 'C');
+
+            // --- Main Content ---
             $pdf->SetFont("Times", "", 18);
-            $pdf->SetXY(50, 30);
-            $pdf->Cell(60, 16, "{$this->associationName}", 0, 0, 'L');
-            $pdf->Cell(60, 18, "{$this->associationAddress}", 0, 0, 'L');
+            $pdf->SetXY(20, 75);
+            $pdf->Cell(257, 10, "This is to certify that {$studentName}", 0, 0, 'C');
 
-            // $serial = $index + 1;
-            // $pdf->SetXY(240, 38);
-            // $pdf->Cell(40, 8, "Sl. No.: {$serial}", 0, 0, 'R');
+            $pdf->SetXY(20, 90);
+            $pdf->Cell(257, 10, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 0, 'C');
 
+            $pdf->SetXY(20, 105);
+            $pdf->Cell(257, 10, "Class: {$className}      |      Registration No.: {$regNo}", 0, 0, 'C');
 
-            // ===== MAIN CONTENT AREA (centered nicely) =====
+            $pdf->SetXY(20, 120);
+            $pdf->Cell(257, 10, "is a student of {$instituteName}", 0, 0, 'C');
 
-            $pdf->SetFont("Times", "", 18);
-            $pdf->SetXY(30, 80);
-            $pdf->Cell(240, 10, "This is to certify that {$studentName}", 0, 0, 'C');
-
-
-            $pdf->SetFont("Times", "", 18);
-            $pdf->SetXY(30, 112);
-            $pdf->Cell(240, 10, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 0, 'C');
-
-            $pdf->SetXY(30, 128);
-            $pdf->Cell(240, 10, "Class: {$className}      |      Registration No.: {$regNo}", 0, 0, 'C');
-
-            $pdf->SetXY(30, 145);
-            $pdf->Cell(240, 10, "is a student of {$instituteName}", 0, 0, 'C');
-
-            $line = "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade";
-            // if ($obtainedGrade !== '---') {
-            //     $line .= " (Grade: {$obtainedGrade})";
-            // }
-
-            $pdf->SetXY(30, 160);
-            $pdf->Cell(240, 10, $line, 0, 0, 'C');
+            $pdf->SetXY(20, 135);
+            $pdf->Cell(257, 10, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 0, 'C');
 
             $pdf->SetFont("Times", "I", 16);
-            $pdf->SetXY(30, 178);
-            $pdf->Cell(240, 10, "We wish him/her all the success and well-being in life.", 0, 0, 'C');
+            $pdf->SetXY(20, 150);
+            $pdf->Cell(257, 10, "We wish him/her all the success and well-being in life.", 0, 0, 'C');
 
-
-            // --- Signatures Row ---
+            // --- Signatures ---
             $pdf->SetFont("Times", "", 14);
 
             // Left
-            $pdf->SetXY(40, 190);
+            $pdf->SetXY(30, 170);
             $pdf->Cell(80, 6, "Controller of Examination", 0, 0, 'C');
-            $pdf->SetXY(40, 197);
+            $pdf->SetXY(30, 177);
             $pdf->Cell(80, 6, "Private School Society of Bangladesh", 0, 0, 'C');
 
             // Middle
-            $pdf->SetXY(130, 190);
+            $pdf->SetXY(108.5, 170);
             $pdf->Cell(80, 6, "General Secretary", 0, 0, 'C');
-            $pdf->SetXY(130, 197);
+            $pdf->SetXY(108.5, 177);
             $pdf->Cell(80, 6, "Private School Society of Bangladesh", 0, 0, 'C');
 
             // Right
-            $pdf->SetXY(220, 190);
+            $pdf->SetXY(187, 170);
             $pdf->Cell(80, 6, "Chairman", 0, 0, 'C');
-            $pdf->SetXY(220, 197);
+            $pdf->SetXY(187, 177);
             $pdf->Cell(80, 6, "Private School Society of Bangladesh", 0, 0, 'C');
 
 
