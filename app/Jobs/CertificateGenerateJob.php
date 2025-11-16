@@ -126,8 +126,6 @@ class CertificateGenerateJob implements ShouldQueue
             $obtainedMark = $s->obtained_mark ?? '---';
             $obtainedGrade = $s->obtained_grade ?? '---';
 
-            // 📌 START DRAWING (Compact layout inside ornate border)
-
             // --- Header Section ---
             $pdf->SetFont("Times", "", 12);
             $sessionX = 40;   // X position for session text
@@ -173,20 +171,23 @@ class CertificateGenerateJob implements ShouldQueue
 
             // --- Main Content ---
             $pdf->SetXY(20, 85); // anchor once at top of content
+            $leftMargin   = 20;
+            $contentWidth = 257;
 
             // Line 1: Intro text
             $pdf->SetFont("Times", "", 14);
-            $pdf->Cell(257, 6, "This is to certify that", 0, 1, 'C');
+            $pdf->Cell($contentWidth, 6, "This is to certify that", 0, 1, 'C');
 
             // Line 2: Student name in Sunshine font
             $pdf->AddFont('Sunshine', '', 'Sunshine.php');
             $pdf->SetFont('Sunshine', '', 28);
-            $pdf->Cell(257, 10, "{$studentName}", 0, 1, 'C');
+            $studentName = trim($studentName);
+            $pdf->Cell($contentWidth, 10, $studentName, 0, 1, 'C');
 
             // --- Dotted underline under name ---
             $nameWidth = $pdf->GetStringWidth($studentName);
-            $nameX = (297 - $nameWidth) / 2;   // center horizontally (A4 landscape width = 297mm)
-            $nameY = $pdf->GetY();             // current Y after writing name
+            $nameX = $leftMargin + (($contentWidth - $nameWidth) / 2);
+            $nameY = $pdf->GetY() - 1.5;
 
             $pdf->SetDrawColor(0, 0, 0);
             $pdf->SetLineWidth(0.3);
@@ -200,24 +201,28 @@ class CertificateGenerateJob implements ShouldQueue
                 $currentX += ($dotLength + $gapLength);
             }
 
-            // Line 3: Continue with Times
+            // Line 3: Parent info
             $pdf->SetFont("Times", "", 14);
-            $pdf->Ln(4); // move down a bit
-            $pdf->Cell(257, 6, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 1, 'C');
+            $pdf->Ln(4);
+            $pdf->Cell($contentWidth, 6, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 1, 'C');
 
-            // Next lines: use MultiCell with consistent line height
+            // Line 4: Class and Registration
             $pdf->Ln(2);
-            $pdf->MultiCell(257, 6, "Class: {$className}      |      Registration No.: {$regNo}", 0, 'C');
+            $pdf->MultiCell($contentWidth, 6, "Class: {$className}      |      Registration No.: {$regNo}", 0, 'C');
 
+            // Line 5: Institute name
             $pdf->Ln(2);
-            $pdf->MultiCell(257, 6, "is a student of {$instituteName}", 0, 'C');
+            $pdf->MultiCell($contentWidth, 6, "is a student of {$instituteName}", 0, 'C');
 
+            // Line 6: Exam result
             $pdf->Ln(2);
-            $pdf->MultiCell(257, 6, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 'C');
+            $pdf->MultiCell($contentWidth, 6, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 'C');
 
+            // Line 7: Closing wish
             $pdf->SetFont("Times", "I", 14);
             $pdf->Ln(2);
-            $pdf->MultiCell(257, 6, "We wish him/her all the success and well-being in life.", 0, 'C');
+            $pdf->MultiCell($contentWidth, 6, "We wish him/her all the success and well-being in life.", 0, 'C');
+
 
 
             // --- Signatures Row ---
