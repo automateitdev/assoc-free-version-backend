@@ -144,43 +144,44 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->Cell(257, 6, "{$this->associationAddress}", 0, 0, 'C');
 
             // --- Main Content ---
-            $pdf->SetFont("Times", "", 14);
-            $pdf->SetXY(20, 62);
-            $pdf->MultiCell(257, 6, "This is to certify that {$studentName}", 0, 'C');
+            $pdf->SetFont("Times", "", 12);
+            $pdf->SetXY(20, 60);
+            $pdf->MultiCell(257, 5, "This is to certify that {$studentName}", 0, 'C');
 
-            $pdf->SetXY(20, 74);
-            $pdf->MultiCell(257, 6, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 'C');
+            $pdf->SetXY(20, 68);
+            $pdf->MultiCell(257, 5, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 'C');
 
-            $pdf->SetXY(20, 86);
-            $pdf->MultiCell(257, 6, "Class: {$className}      |      Registration No.: {$regNo}", 0, 'C');
+            $pdf->SetXY(20, 76);
+            $pdf->MultiCell(257, 5, "Class: {$className}      |      Registration No.: {$regNo}", 0, 'C');
 
-            $pdf->SetXY(20, 98);
-            $pdf->MultiCell(257, 6, "is a student of {$instituteName}", 0, 'C');
+            $pdf->SetXY(20, 84);
+            $pdf->MultiCell(257, 5, "is a student of {$instituteName}", 0, 'C');
 
-            $pdf->SetXY(20, 110);
-            $pdf->MultiCell(257, 6, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 'C');
+            $pdf->SetXY(20, 92);
+            $pdf->MultiCell(257, 5, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 'C');
 
-            $pdf->SetFont("Times", "I", 14);
-            $pdf->SetXY(20, 122);
-            $pdf->MultiCell(257, 6, "We wish him/her all the success and well-being in life.", 0, 'C');
+            $pdf->SetFont("Times", "I", 12);
+            $pdf->SetXY(20, 100);
+            $pdf->MultiCell(257, 5, "We wish him/her all the success and well-being in life.", 0, 'C');
+
 
             // --- Signatures Row ---
             $pdf->SetFont("Times", "", 10);
 
             // Left
-            $pdf->SetXY(30, 150);
+            $pdf->SetXY(30, 180);
             $pdf->Cell(80, 5, "Controller of Examination", 0, 0, 'C');
             $pdf->SetXY(30, 146);
             $pdf->Cell(80, 5, "{$this->associationName}", 0, 0, 'C');
 
             // Middle
-            $pdf->SetXY(108.5, 150);
+            $pdf->SetXY(108.5, 180);
             $pdf->Cell(80, 5, "General Secretary", 0, 0, 'C');
             $pdf->SetXY(108.5, 146);
             $pdf->Cell(80, 5, "{$this->associationName}", 0, 0, 'C');
 
             // Right
-            $pdf->SetXY(187, 150);
+            $pdf->SetXY(187, 180);
             $pdf->Cell(80, 5, "Chairman", 0, 0, 'C');
             $pdf->SetXY(187, 146);
             $pdf->Cell(80, 5, "{$this->associationName}", 0, 0, 'C');
