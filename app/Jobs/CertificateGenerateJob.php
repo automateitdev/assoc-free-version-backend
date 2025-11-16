@@ -170,9 +170,9 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->Cell(257, 6, "{$this->associationAddress}", 0, 0, 'C');
 
             // --- Main Content ---
-            $pdf->SetXY(20, 85); // anchor once at top of content
             $leftMargin   = 20;
             $contentWidth = 257;
+            $pdf->SetXY($leftMargin, 85); // anchor once at top of content
 
             // Line 1: Intro text
             $pdf->SetFont("Times", "", 14);
@@ -222,8 +222,6 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetFont("Times", "I", 14);
             $pdf->Ln(2);
             $pdf->MultiCell($contentWidth, 6, "We wish him/her all the success and well-being in life.", 0, 'C');
-
-
 
             // --- Signatures Row ---
             $pdf->SetFont("Times", "", 10);
