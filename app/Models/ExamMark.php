@@ -18,7 +18,7 @@ class ExamMark extends Model
     ];
 
 
-    public function applicant()
+public function applicant()
     {
         return $this->belongsTo(AdmissionApplied::class, 'admission_applied_id', 'id');
     }
