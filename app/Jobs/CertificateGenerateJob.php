@@ -53,6 +53,7 @@ class CertificateGenerateJob implements ShouldQueue
         $this->instituteDetailsId = $instituteDetailsId;
         $this->academic_year_id = $academic_year_id;
         $this->class_id = $class_id;
+        $this->exam_id  = $exam_id;
         $this->fileName = $fileName;
         $this->exportId = $exportId ?? (string) Str::uuid();
         $this->dtParams = $dtParams;
