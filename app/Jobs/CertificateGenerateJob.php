@@ -27,6 +27,7 @@ class CertificateGenerateJob implements ShouldQueue
     public string $exportId;
 
     public string $associationName;
+    public string $associationLogo;
     public string $associationAddress;
 
     public ?array $dtParams;
@@ -101,6 +102,7 @@ class CertificateGenerateJob implements ShouldQueue
         if ($assoc) {
             $this->associationName = $assoc->institute_name ?? '';
             $this->associationAddress = $assoc->institute_address ?? '';
+            $this->associationLogo = $assoc->logo ?? '';
         }
 
         foreach ($students as $index => $s) {
@@ -124,7 +126,21 @@ class CertificateGenerateJob implements ShouldQueue
             $obtainedMark = $s->obtained_mark ?? '---';
             $obtainedGrade = $s->obtained_grade ?? '---';
 
-            // 📌 START DRAWING (Compact layout inside ornate border)
+            // Logo box at top-left corner
+            $logoX = 20; // Left margin
+            $logoY = 20; // Top margin
+            $logoW = 20; // Slightly larger for visibility
+            $logoH = 20;
+
+            $pdf->Rect($logoX, $logoY, $logoW, $logoH); // Optional: draw border box
+
+            // Insert logo if exists
+            if (!empty($this->associationLogo)) {
+                $logoPath = Storage::disk('public')->path("{$this->associationLogo}");
+                if (file_exists($logoPath)) {
+                    $pdf->Image($logoPath, $logoX, $logoY, $logoW, $logoH);
+                }
+            }
 
             // --- Header Section ---
             $pdf->SetFont("Times", "", 12);
