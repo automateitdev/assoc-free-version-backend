@@ -756,23 +756,12 @@ class AdmissionController extends Controller
         $dtParams = $request->dt_params ?? [];
         $searchableColumns = $request->searchable_columns ?? [];
 
-        // $this->userId = $userId;
-        // $this->instituteDetailsId = $instituteDetailsId;
-        // $this->academic_year_id = $academic_year_id;
-        // $this->class_id = $class_id;
-        // $this->fileName = $fileName;
-        // $this->exportId = $exportId ?? (string) Str::uuid();
-        // $this->dtParams = $dtParams;
-        // $this->searchableColumns = $searchableColumns;
-
-        // Dispatch the job with the exportId
         CertificateGenerateJob::dispatch(
             $user->id,
             $instituteDetailsId,
-            $exam->class_id,
             $exam->id,
-            $fileName,
             $exportId,
+            $fileName,
             $dtParams,
             $searchableColumns
         );
