@@ -127,8 +127,8 @@ class CertificateGenerateJob implements ShouldQueue
             $obtainedGrade = $s->obtained_grade ?? '---';
 
             // Logo box at top-left corner
-            $logoX = 20; // Left margin
-            $logoY = 20; // Top margin
+            $logoX = 40; // Left margin
+            $logoY = 50; // Top margin
             $logoW = 20; // Slightly larger for visibility
             $logoH = 20;
 
