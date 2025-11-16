@@ -759,8 +759,8 @@ class AdmissionController extends Controller
         CertificateGenerateJob::dispatch(
             $user->id,
             $instituteDetailsId,
-            $fileName,
             $exam->id,
+            $fileName,
             $exportId,
             $dtParams,
             $searchableColumns
