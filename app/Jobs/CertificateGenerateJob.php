@@ -128,11 +128,11 @@ class CertificateGenerateJob implements ShouldQueue
 
             // --- Header Section ---
             $pdf->SetFont("Times", "", 16);
-            $pdf->SetXY(40, 45);
+            $pdf->SetXY(40, 35);
             $pdf->Cell(100, 6, "Session: {$session}", 0, 0, 'L');
 
             $pdf->SetFont("Times", "B", 20);
-            $pdf->SetXY(20, 38);
+            $pdf->SetXY(20, 35);
             $pdf->Cell(257, 8, "{$examName}", 0, 0, 'C');
 
             $pdf->SetFont("Times", "", 16);
@@ -148,20 +148,20 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetXY(20, 90);
             $pdf->MultiCell(257, 5, "This is to certify that {$studentName}", 0, 'C');
 
-            $pdf->SetXY(20, 96);
+            $pdf->SetXY(20, 98);
             $pdf->MultiCell(257, 5, "Mr. {$fatherName} and Mrs. {$motherName}", 0, 'C');
 
-            $pdf->SetXY(20, 102);
+            $pdf->SetXY(20, 104);
             $pdf->MultiCell(257, 5, "Class: {$className}      |      Registration No.: {$regNo}", 0, 'C');
 
-            $pdf->SetXY(20, 108);
+            $pdf->SetXY(20, 110);
             $pdf->MultiCell(257, 5, "is a student of {$instituteName}", 0, 'C');
 
-            $pdf->SetXY(20, 114);
+            $pdf->SetXY(20, 116);
             $pdf->MultiCell(257, 5, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 'C');
 
             $pdf->SetFont("Times", "I", 16);
-            $pdf->SetXY(20, 125);
+            $pdf->SetXY(20, 127);
             $pdf->MultiCell(257, 5, "We wish him/her all the success and well-being in life.", 0, 'C');
 
 
@@ -175,7 +175,7 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->Cell(80, 5, "{$this->associationName}", 0, 0, 'C');
 
             // Middle
-            $pdf->SetXY(108.5, 185);
+            $pdf->SetXY(108.5, 190);
             $pdf->Cell(80, 5, "General Secretary", 0, 0, 'C');
             $pdf->SetXY(108.5, 192);
             $pdf->Cell(80, 5, "{$this->associationName}", 0, 0, 'C');
