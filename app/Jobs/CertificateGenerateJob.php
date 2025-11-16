@@ -148,20 +148,20 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetXY(20, 100);
             $pdf->MultiCell(257, 5, "This is to certify that {$studentName}", 0, 'C');
 
-            $pdf->SetXY(20, 108);
-            $pdf->MultiCell(257, 5, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 'C');
+            $pdf->SetXY(20, 106);
+            $pdf->MultiCell(257, 5, "Mr. {$fatherName} and Mrs. {$motherName}", 0, 'C');
 
             $pdf->SetXY(20, 112);
             $pdf->MultiCell(257, 5, "Class: {$className}      |      Registration No.: {$regNo}", 0, 'C');
 
-            $pdf->SetXY(20, 116);
+            $pdf->SetXY(20, 118);
             $pdf->MultiCell(257, 5, "is a student of {$instituteName}", 0, 'C');
 
-            $pdf->SetXY(20, 120);
+            $pdf->SetXY(20, 124);
             $pdf->MultiCell(257, 5, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 'C');
 
             $pdf->SetFont("Times", "I", 12);
-            $pdf->SetXY(20, 125);
+            $pdf->SetXY(20, 135);
             $pdf->MultiCell(257, 5, "We wish him/her all the success and well-being in life.", 0, 'C');
 
 
@@ -169,19 +169,19 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetFont("Times", "", 10);
 
             // Left
-            $pdf->SetXY(30, 200);
+            $pdf->SetXY(30, 300);
             $pdf->Cell(80, 5, "Controller of Examination", 0, 0, 'C');
             $pdf->SetXY(30, 146);
             $pdf->Cell(80, 5, "{$this->associationName}", 0, 0, 'C');
 
             // Middle
-            $pdf->SetXY(108.5, 200);
+            $pdf->SetXY(108.5, 300);
             $pdf->Cell(80, 5, "General Secretary", 0, 0, 'C');
             $pdf->SetXY(108.5, 146);
             $pdf->Cell(80, 5, "{$this->associationName}", 0, 0, 'C');
 
             // Right
-            $pdf->SetXY(187, 200);
+            $pdf->SetXY(187, 300);
             $pdf->Cell(80, 5, "Chairman", 0, 0, 'C');
             $pdf->SetXY(187, 146);
             $pdf->Cell(80, 5, "{$this->associationName}", 0, 0, 'C');
