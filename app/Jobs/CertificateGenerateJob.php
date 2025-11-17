@@ -217,7 +217,7 @@ class CertificateGenerateJob implements ShouldQueue
             // Intro
             $pdf->SetFont("Times", "", 14);
 
-            $introText   = "This is to certify that,    ";
+            $introText   = "This is to certify that,  ";
             $studentName = trim($studentName);
 
             // Calculate widths
@@ -271,7 +271,7 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->Ln(2);
 
             // Build full line for centering
-            $line  = "Mr. " . $fatherName . " and Mrs. " . $motherName . ".";
+            $line  = "son/daughter of Mr. " . $fatherName . " and Mrs. " . $motherName . ".";
 
             // Centering calculation
             $fullWidth = $pdf->GetStringWidth($line);
@@ -304,7 +304,7 @@ class CertificateGenerateJob implements ShouldQueue
 
             // Build full line
             $line  = "Class: " . $className;
-            $line .= ", Registration No: " . $regNo;
+            $line .= ", Reg. No: " . $regNo;
             $line .= ", is a student of: ";
 
             // Centering
