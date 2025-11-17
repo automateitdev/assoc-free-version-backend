@@ -211,34 +211,36 @@ class CertificateGenerateJob implements ShouldQueue
     |--------------------------------------------------------------------------
     */
 
-            $leftMargin   = 20;
             $contentWidth = 270;
+            $leftMargin   = 20;
+            $y = 80;
 
-            // Line 1: Intro + student name
-            $pdf->SetFont("Helvetica", "", 14);
+            // Intro + Name (centered)
             $introText = "This is to certify that ";
-            $pdf->SetXY($leftMargin, 80);
+            $studentName = trim($studentName);
 
-            // Calculate widths for centering
+            // Widths for centering
+            $pdf->SetFont("Helvetica", "", 14);
             $introWidth = $pdf->GetStringWidth($introText);
-            $pdf->SetFont('Sunshine', '', 28); // bold font for student name
+            $pdf->SetFont("Sunshine", "B", 28);
             $nameWidth = $pdf->GetStringWidth($studentName);
             $totalWidth = $introWidth + $nameWidth;
+
             $pageWidth = $pdf->GetPageWidth();
             $startX = ($pageWidth - $totalWidth) / 2;
 
-            // Draw intro text
-            $pdf->SetXY($startX, 80);
+            // Draw intro (same X/Y as before)
+            $pdf->SetXY($startX, $y);
             $pdf->SetFont("Helvetica", "", 14);
             $pdf->Cell($introWidth, 10, $introText, 0, 0, 'L');
 
-            // Draw student name bold
-            $pdf->SetFont('Sunshine', '', 28);
-            $pdf->Cell($nameWidth, 10, $studentName, 0, 1, 'L');
+            // Draw student name bold (keeps same line)
+            $pdf->SetFont("Sunshine", "B", 28);
+            $pdf->Cell($nameWidth, 10, $studentName, 0, 1, 'L'); // line break after name
 
-            // Dotted underline under student name
+            // Dotted underline (same as your previous code)
             $nameX = $startX + $introWidth - 3;
-            $nameY = 80 + 8;
+            $nameY = $y + 8;
             $pdf->SetDrawColor(150, 150, 150);
             $pdf->SetLineWidth(0.3);
             $dotLength = 1;
@@ -251,56 +253,6 @@ class CertificateGenerateJob implements ShouldQueue
                 $currentX += ($dotLength + $gapLength);
             }
 
-            // Parents
-            $pdf->Ln(2);
-            $pdf->SetFont("Helvetica", "", 14);
-            $pdf->SetX($leftMargin);
-            $pdf->Write(6, "son/daughter of Mr. ");
-            $pdf->SetFont("Helvetica", "B", 14);
-            $pdf->Write(6, $fatherName);
-            $pdf->SetFont("Helvetica", "", 14);
-            $pdf->Write(6, " and Mrs. ");
-            $pdf->SetFont("Helvetica", "B", 14);
-            $pdf->Write(6, $motherName);
-            $pdf->Ln(10);
-
-            // Class + Reg
-            $pdf->SetFont("Helvetica", "", 14);
-            $pdf->SetX($leftMargin);
-            $pdf->Write(6, "Class: ");
-            $pdf->SetFont("Helvetica", "B", 14);
-            $pdf->Write(6, $className);
-            $pdf->SetFont("Helvetica", "", 14);
-            $pdf->Write(6, ", Reg. No: ");
-            $pdf->SetFont("Helvetica", "B", 14);
-            $pdf->Write(6, $regNo);
-            $pdf->SetFont("Helvetica", "", 14);
-            $pdf->Write(6, ", is a student of: ");
-            $pdf->Ln(10);
-
-            // Institute
-            $pdf->SetFont("Helvetica", "B", 14);
-            $pdf->MultiCell($contentWidth, 6, $instituteName, 0, 'C');
-
-            // Result
-            $pdf->SetFont("Helvetica", "", 14);
-            $pdf->Ln(2);
-            $pdf->SetX($leftMargin);
-            $pdf->Write(6, "He/She appeared at the ");
-            $pdf->SetFont("Helvetica", "B", 14);
-            $pdf->Write(6, $examName);
-            $pdf->SetFont("Helvetica", "", 14);
-            $pdf->Write(6, " Examination and obtained ");
-            $pdf->SetFont("Helvetica", "B", 14);
-            $pdf->Write(6, $obtainedGrade);
-            $pdf->SetFont("Helvetica", "", 14);
-            $pdf->Write(6, " Grade.");
-            $pdf->Ln(10);
-
-            // Closing wish
-            $pdf->SetFont("Helvetica", "", 14);
-            $pdf->SetX($leftMargin);
-            $pdf->MultiCell($contentWidth, 6, "We wish him/her all the success and well-being in life.", 0, 'C');
 
 
             /*
