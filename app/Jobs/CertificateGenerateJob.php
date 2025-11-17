@@ -210,6 +210,7 @@ class CertificateGenerateJob implements ShouldQueue
     |--------------------------------------------------------------------------
     */
 
+            $contentWidth = 257;
             $leftMargin = 20;
             $pdf->SetFont("Helvetica", "", 14);
 
