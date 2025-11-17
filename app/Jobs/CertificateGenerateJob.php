@@ -212,47 +212,78 @@ class CertificateGenerateJob implements ShouldQueue
     */
 
             $contentWidth = 270;
-            $leftMargin   = 20;
-            $y = 80;
+            $leftMargin = 20;
+            $pdf->SetFont("Helvetica", "", 14);
 
-            // Intro + Name (centered)
             $introText = "This is to certify that ";
             $studentName = trim($studentName);
 
-            // Widths for centering
-            $pdf->SetFont("Helvetica", "", 14);
+            // Widths
             $introWidth = $pdf->GetStringWidth($introText);
-            $pdf->SetFont("Sunshine", "B", 28);
+            $pdf->SetFont('Sunshine', '', 28);
             $nameWidth = $pdf->GetStringWidth($studentName);
+            $extra = 6; // for underline
+            $underlineWidth = $nameWidth + $extra;
+
+            // Total width of the line
             $totalWidth = $introWidth + $nameWidth;
 
+            // Center calculation
             $pageWidth = $pdf->GetPageWidth();
             $startX = ($pageWidth - $totalWidth) / 2;
+            $y = 80; // starting Y position
 
-            // Draw intro (same X/Y as before)
+            // Draw intro text
             $pdf->SetXY($startX, $y);
             $pdf->SetFont("Helvetica", "", 14);
-            $pdf->Cell($introWidth, 10, $introText, 0, 0, 'L');
+            $pdf->Cell($introWidth, 10, $introText, 0, 0, 'L'); // no line break
 
-            // Draw student name bold (keeps same line)
-            $pdf->SetFont("Sunshine", "B", 28);
-            $pdf->Cell($nameWidth, 10, $studentName, 0, 1, 'L'); // line break after name
+            // Draw student name
+            $pdf->SetFont('Sunshine', '', 28);
+            $pdf->Cell($nameWidth, 10, $studentName, 0, 1, 'L'); // move to next line after this
 
-            // Dotted underline (same as your previous code)
-            $nameX = $startX + $introWidth - 3;
-            $nameY = $y + 8;
+            // Dotted underline under student name
+            $nameX = $startX + $introWidth - 3; // small adjustment for padding
+            $nameY = $y + 8; // adjust under text
+
             $pdf->SetDrawColor(150, 150, 150);
             $pdf->SetLineWidth(0.3);
+
             $dotLength = 1;
             $gapLength = 1;
             $currentX = $nameX;
-            $underlineWidth = $nameWidth + 6;
 
             while ($currentX < $nameX + $underlineWidth) {
                 $pdf->Line($currentX, $nameY, $currentX + $dotLength, $nameY);
                 $currentX += ($dotLength + $gapLength);
             }
 
+
+            // Parents
+            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->Ln(2);
+            $pdf->Cell(0, 6, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}.", 0, 1, 'C');
+
+            // Class + Reg
+            $pdf->Ln(2);
+            $pdf->SetX($leftMargin);
+            $pdf->MultiCell($contentWidth, 6, "Class: {$className}, Reg. No: {$regNo}, is a student of: ", 0, 'C');
+
+            // Institute
+            $pdf->Ln(2);
+            $pdf->SetX($leftMargin);
+            $pdf->MultiCell($contentWidth, 6, "{$instituteName}", 0, 'C');
+
+            // Result
+            $pdf->Ln(2);
+            $pdf->SetX($leftMargin);
+            $pdf->MultiCell($contentWidth, 6, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 'C');
+
+            // Closing wish
+            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->Ln(2);
+            $pdf->SetX($leftMargin);
+            $pdf->MultiCell($contentWidth, 6, "We wish him/her all the success and well-being in life.", 0, 'C');
 
 
             /*
