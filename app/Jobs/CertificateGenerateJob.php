@@ -212,26 +212,24 @@ class CertificateGenerateJob implements ShouldQueue
 
             $leftMargin   = 20;
             $contentWidth = 257;
-
             $pdf->SetXY($leftMargin, 75);
 
-            // Line 1 - intro
+            // Line 1 - same line: intro + student name
             $pdf->SetFont("Helvetica", "", 14);
-            $pdf->Cell($contentWidth, 6, "This is to certify that", 0, 1, 'C');
+            $introText = "This is to certify that ";
+            $pdf->Write(6, $introText); // intro text
 
-            // Line 2 - student name
             $pdf->SetFont('Sunshine', '', 28);
             $studentName = trim($studentName);
-            $pdf->Cell(0, 10, $studentName, 0, 1, 'C');
+            $pdf->Write(6, $studentName); // student name in different font
 
-            // Dotted underline
-            $nameWidth = $pdf->GetStringWidth($studentName);
-            $pageWidth = $pdf->GetPageWidth();
+            // Dotted underline for the student name
+            $nameWidth = $pdf->GetStringWidth($studentName); // width in Sunshine font
             $extra     = 6;
             $underlineWidth = $nameWidth + $extra;
 
-            $nameX = ($pageWidth - $underlineWidth) / 2;
-            $nameY = $pdf->GetY() - 1.5;
+            $currentX = $pdf->GetX() - $nameWidth; // start under the name
+            $nameY = $pdf->GetY() + 2; // adjust vertical position
 
             $pdf->SetDrawColor(150, 150, 150);
             $pdf->SetLineWidth(0.3);
@@ -239,9 +237,7 @@ class CertificateGenerateJob implements ShouldQueue
             $dotLength = 1;
             $gapLength = 1;
 
-            $currentX = $nameX;
-
-            while ($currentX < $nameX + $underlineWidth) {
+            while ($currentX < $pdf->GetX() + $extra / 2) {
                 $pdf->Line($currentX, $nameY, $currentX + $dotLength, $nameY);
                 $currentX += ($dotLength + $gapLength);
             }
