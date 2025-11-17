@@ -106,41 +106,52 @@ class CertificateGenerateJob implements ShouldQueue
         }
 
         foreach ($students as $index => $s) {
-
             $pdf->AddPage();
+            // ✔ Register all required custom fonts BEFORE any SetFont() calls
+            $pdf->AddFont('CutiveMono-Regular', '', 'CutiveMono-Regular.php');
+            $pdf->AddFont('OldEnglishFive', '', 'OldEnglishFive.php');
+            $pdf->AddFont('Rye-Regular', '', 'Rye-Regular.php');
+            $pdf->AddFont('Sunshine', '', 'Sunshine.php');
 
+            // Background
             if (file_exists($bgPath)) {
                 $pdf->Image($bgPath, 0, 0, 297, 210);
             }
 
             $app = $s->applicant ?? null;
 
-            $studentName = $app->student_name_english ?? ($s->student_name_english ?? '---');
-            $fatherName = trim($app->father_name_english ?? ($s->father_name ?? '---'));
-            $motherName = trim($app->mother_name_english ?? ($s->mother_name ?? '---'));
-            $className = trim($app->class_name ?? ($s->class_name ?? '---'));
-            $regNo = trim($app->assigned_roll ?? ($s->assigned_roll ?? '---'));
+            $studentName   = $app->student_name_english ?? ($s->student_name_english ?? '---');
+            $fatherName    = trim($app->father_name_english ?? ($s->father_name ?? '---'));
+            $motherName    = trim($app->mother_name_english ?? ($s->mother_name ?? '---'));
+            $className     = trim($app->class_name ?? ($s->class_name ?? '---'));
+            $regNo         = trim($app->assigned_roll ?? ($s->assigned_roll ?? '---'));
             $instituteName = trim($app->institute_name ?? ($s->institute_name));
-            $examName = trim($s->exam->name ?? '');
-            $session = trim($app->academic_year ?? '---');
-            $obtainedMark = trim($s->obtained_mark ?? '---');
+            $examName      = trim($s->exam->name ?? '');
+            $session       = trim($app->academic_year ?? '---');
+            $obtainedMark  = trim($s->obtained_mark ?? '---');
             $obtainedGrade = trim($s->obtained_grade ?? '---');
 
-            // --- Header Section ---
-            $pdf->AddFont('CutiveMono-Regular', '', 'CutiveMono-Regular.php');
+
+            /*
+    |--------------------------------------------------------------------------
+    | Header Section
+    |--------------------------------------------------------------------------
+    */
+
             $pdf->SetFont("CutiveMono-Regular", "", 12);
-            $sessionX = 40;   // X position for session text
-            $sessionY = 60;   // Y position for session text
+            $sessionX = 40;
+            $sessionY = 60;
+
             $pdf->SetXY($sessionX, $sessionY);
             $pdf->Cell(100, 6, "Session: {$session}", 0, 0, 'L');
 
-            // --- Logo above session ---
+            // Logo above session
             $logoW = 20;
             $logoH = 20;
-            $logoX = $sessionX + 3;                          // same X as session
-            $logoY = $sessionY - ($logoH + 5);           // 5mm gap above session
+            $logoX = $sessionX + 3;
+            $logoY = $sessionY - ($logoH + 5);
 
-            $pdf->Rect($logoX, $logoY, $logoW, $logoH);  // optional border
+            $pdf->Rect($logoX, $logoY, $logoW, $logoH);
 
             if (!empty($this->associationLogo)) {
                 $logoPath = Storage::disk('public')->path("{$this->associationLogo}");
@@ -149,17 +160,13 @@ class CertificateGenerateJob implements ShouldQueue
                 }
             }
 
-
-            $pdf->AddFont('OldEnglishFive', '', 'OldEnglishFive.php');
+            // Exam title
             $pdf->SetFont('OldEnglishFive', '', 28);
-
-            // Set professional font color (dark blue)
             $pdf->SetTextColor(0, 51, 102);
 
             $pdf->SetXY(20, 38);
             $pdf->Cell(257, 12, "{$examName}", 0, 0, 'C');
 
-            // Reset to black for other text if needed
             $pdf->SetTextColor(0, 0, 0);
 
             $pdf->SetFont("CutiveMono-Regular", "", 18);
@@ -171,49 +178,52 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->Cell(257, 6, "{$this->associationAddress}", 0, 0, 'C');
 
 
-            $pdf->AddFont('Rye-Regular', '', 'Rye-Regular.php');
+            /*
+    |--------------------------------------------------------------------------
+    | Certificate Title
+    |--------------------------------------------------------------------------
+    */
+
             $pdf->SetFont('Rye-Regular', '', 28);
             $pdf->SetTextColor(163, 0, 22);
+
             $pdf->SetXY(20, 73);
             $pdf->Cell(257, 6, "CERTFICATE", 0, 0, 'C');
 
-            // Reset to black for other text if needed
             $pdf->SetTextColor(0, 0, 0);
 
 
-            // --- Main Content ---
+            /*
+    |--------------------------------------------------------------------------
+    | Main Content
+    |--------------------------------------------------------------------------
+    */
+
             $leftMargin   = 20;
             $contentWidth = 257;
-            $pdf->SetXY($leftMargin, 85); // anchor once at top of content
 
-            // Line 1: Intro text
+            $pdf->SetXY($leftMargin, 85);
+
+            // Line 1 - intro
             $pdf->SetFont("CutiveMono-Regular", "", 14);
             $pdf->Cell($contentWidth, 6, "This is to certify that", 0, 1, 'C');
 
-            // Line 2: Student name in Sunshine font
-            // --- Line 2: Student name in Sunshine font ---
-            $pdf->AddFont('Sunshine', '', 'Sunshine.php');
+            // Line 2 - student name
             $pdf->SetFont('Sunshine', '', 28);
-            $studentName = trim($studentName);
 
-            // Always center using full page width
+            $studentName = trim($studentName);
             $pdf->Cell(0, 10, $studentName, 0, 1, 'C');
 
-            // --- Dotted underline under name ---
+            // Dotted underline
             $nameWidth = $pdf->GetStringWidth($studentName);
             $pageWidth = $pdf->GetPageWidth();
-
-            // Extend underline 6mm (3mm left + 3mm right)
-            $extra = 6;
+            $extra     = 6;
             $underlineWidth = $nameWidth + $extra;
 
-            // Correct new X starting point
             $nameX = ($pageWidth - $underlineWidth) / 2;
             $nameY = $pdf->GetY() - 1.5;
 
-            // Gray line color
-            $pdf->SetDrawColor(150, 150, 150); // light gray
-
+            $pdf->SetDrawColor(150, 150, 150);
             $pdf->SetLineWidth(0.3);
 
             $dotLength = 1;
@@ -221,41 +231,44 @@ class CertificateGenerateJob implements ShouldQueue
 
             $currentX = $nameX;
 
-            // Draw dotted underline
             while ($currentX < $nameX + $underlineWidth) {
                 $pdf->Line($currentX, $nameY, $currentX + $dotLength, $nameY);
                 $currentX += ($dotLength + $gapLength);
             }
 
-
-            // Line 3: Parent info
+            // Parents
             $pdf->SetFont("CutiveMono-Regular", "", 14);
             $pdf->Ln(2);
             $pdf->Cell(0, 6, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 1, 'C');
 
-            // Line 4: Class and Registration
+            // Class + Reg
             $pdf->Ln(2);
             $pdf->SetX($leftMargin);
             $pdf->MultiCell($contentWidth, 6, "Class: {$className}      |      Registration No.: {$regNo}", 0, 'C');
 
-            // Line 5: Institute name
+            // Institute
             $pdf->Ln(2);
             $pdf->SetX($leftMargin);
             $pdf->MultiCell($contentWidth, 6, "is a student of {$instituteName}", 0, 'C');
 
-            // Line 6: Exam result
+            // Result
             $pdf->Ln(2);
             $pdf->SetX($leftMargin);
             $pdf->MultiCell($contentWidth, 6, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 'C');
 
-            // Line 7: Closing wish
+            // Closing wish
             $pdf->SetFont("CutiveMono-Regular", "I", 14);
             $pdf->Ln(2);
             $pdf->SetX($leftMargin);
             $pdf->MultiCell($contentWidth, 6, "We wish him/her all the success and well-being in life.", 0, 'C');
 
 
-            // --- Signatures Row ---
+            /*
+    |--------------------------------------------------------------------------
+    | Signature Row
+    |--------------------------------------------------------------------------
+    */
+
             $pdf->SetFont("CutiveMono-Regular", "", 10);
 
             // Left
@@ -276,10 +289,16 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetXY(187, 165);
             $pdf->Cell(80, 5, "{$this->associationName}", 0, 0, 'C');
 
-            // Progress update
+            /*
+    |--------------------------------------------------------------------------
+    | Progress Updating
+    |--------------------------------------------------------------------------
+    */
+
             $progress = (int)((($index + 1) / $total) * 100);
             Cache::put($progressKey, $progress, now()->addHours(1));
         }
+
 
         // Save generated PDF
         $dir = "exports/user_{$this->userId}/certificates/{$this->exportId}";
