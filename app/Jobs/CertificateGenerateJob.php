@@ -145,8 +145,16 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetXY($sessionX, $sessionY);
             $pdf->Cell(100, 6, "Session: {$session}", 0, 0, 'L');
 
-            $pdf->SetXY($sessionX, $sessionY + 3);
-            $pdf->Cell(100, 6, "Serial: {$session}", 0, 0, 'L');
+            // Get current date in YYYY-MM-DD format
+            $slNo = $index + 1;
+            $today = date('Y-m-d');
+
+            // Combine date with session serial
+            $serial = "{$today}-{$slNo}";
+
+            // Set the PDF cell
+            $pdf->SetXY($sessionX, $sessionY + 5);
+            $pdf->Cell(100, 6, "Serial: {$serial}", 0, 0, 'L');
 
             // Logo above session
             $logoW = 20;
