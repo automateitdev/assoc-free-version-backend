@@ -145,6 +145,9 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetXY($sessionX, $sessionY);
             $pdf->Cell(100, 6, "Session: {$session}", 0, 0, 'L');
 
+            $pdf->SetXY($sessionX, $sessionY + 3);
+            $pdf->Cell(100, 6, "Serial: {$session}", 0, 0, 'L');
+
             // Logo above session
             $logoW = 20;
             $logoH = 20;
@@ -187,7 +190,7 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetFont('Rye-Regular', '', 28);
             $pdf->SetTextColor(163, 0, 22);
 
-            $pdf->SetXY(20, 73);
+            $pdf->SetXY(20, 70);
             $pdf->Cell(257, 6, "CERTFICATE", 0, 0, 'C');
 
             $pdf->SetTextColor(0, 0, 0);
@@ -202,7 +205,7 @@ class CertificateGenerateJob implements ShouldQueue
             $leftMargin   = 20;
             $contentWidth = 257;
 
-            $pdf->SetXY($leftMargin, 85);
+            $pdf->SetXY($leftMargin, 80);
 
             // Line 1 - intro
             $pdf->SetFont("Helvetica", "", 14);
@@ -210,7 +213,6 @@ class CertificateGenerateJob implements ShouldQueue
 
             // Line 2 - student name
             $pdf->SetFont('Sunshine', '', 28);
-
             $studentName = trim($studentName);
             $pdf->Cell(0, 10, $studentName, 0, 1, 'C');
 
