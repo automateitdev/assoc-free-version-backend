@@ -127,7 +127,7 @@ class CertificateGenerateJob implements ShouldQueue
             $obtainedGrade = trim($s->obtained_grade ?? '---');
 
             // --- Header Section ---
-            $pdf->SetFont("Helvetica", "", 12);
+            $pdf->SetFont("CutiveMono-Regular", "", 12);
             $sessionX = 40;   // X position for session text
             $sessionY = 60;   // Y position for session text
             $pdf->SetXY($sessionX, $sessionY);
@@ -161,11 +161,11 @@ class CertificateGenerateJob implements ShouldQueue
             // Reset to black for other text if needed
             $pdf->SetTextColor(0, 0, 0);
 
-            $pdf->SetFont("Helvetica", "", 18);
+            $pdf->SetFont("CutiveMono-Regular", "", 18);
             $pdf->SetXY(20, 50);
             $pdf->Cell(257, 6, "{$this->associationName}", 0, 0, 'C');
 
-            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->SetFont("CutiveMono-Regular", "", 14);
             $pdf->SetXY(20, 56);
             $pdf->Cell(257, 6, "{$this->associationAddress}", 0, 0, 'C');
 
@@ -186,7 +186,7 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetXY($leftMargin, 85); // anchor once at top of content
 
             // Line 1: Intro text
-            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->SetFont("CutiveMono-Regular", "", 14);
             $pdf->Cell($contentWidth, 6, "This is to certify that", 0, 1, 'C');
 
             // Line 2: Student name in Sunshine font
@@ -228,7 +228,7 @@ class CertificateGenerateJob implements ShouldQueue
 
 
             // Line 3: Parent info
-            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->SetFont("CutiveMono-Regular", "", 14);
             $pdf->Ln(2);
             $pdf->Cell(0, 6, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 1, 'C');
 
@@ -248,14 +248,14 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->MultiCell($contentWidth, 6, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 'C');
 
             // Line 7: Closing wish
-            $pdf->SetFont("Helvetica", "I", 14);
+            $pdf->SetFont("CutiveMono-Regular", "I", 14);
             $pdf->Ln(2);
             $pdf->SetX($leftMargin);
             $pdf->MultiCell($contentWidth, 6, "We wish him/her all the success and well-being in life.", 0, 'C');
 
 
             // --- Signatures Row ---
-            $pdf->SetFont("Helvetica", "", 10);
+            $pdf->SetFont("CutiveMono-Regular", "", 10);
 
             // Left
             $pdf->SetXY(30, 160);
