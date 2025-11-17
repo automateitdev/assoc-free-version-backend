@@ -127,6 +127,7 @@ class CertificateGenerateJob implements ShouldQueue
             $obtainedGrade = trim($s->obtained_grade ?? '---');
 
             // --- Header Section ---
+            $pdf->AddFont('OldEnglishFive', '', 'OldEnglishFive.php');
             $pdf->SetFont("CutiveMono-Regular", "", 12);
             $sessionX = 40;   // X position for session text
             $sessionY = 60;   // Y position for session text
