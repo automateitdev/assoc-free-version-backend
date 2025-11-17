@@ -388,9 +388,9 @@ class CertificateGenerateJob implements ShouldQueue
             |--------------------------------------------------------------------------
             */
 
-            $pdf->SetFont("Times", "I", 12);
+            $pdf->SetFont("Sushine", "", 12);
             $pdf->Ln(2);
-            $pdf->SetX($leftMargin);
+            $pdf->SetX($centerX);
             $pdf->MultiCell($contentWidth, 6, "We wish him/her all the success and well-being in life.", 0, 'C');
 
 
