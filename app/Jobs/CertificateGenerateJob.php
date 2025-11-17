@@ -190,7 +190,7 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetFont('Rye-Regular', '', 28);
             $pdf->SetTextColor(163, 0, 22);
 
-            $pdf->SetXY(20, 65);
+            $pdf->SetXY(20, 68);
             $pdf->Cell(257, 6, "CERTFICATE", 0, 0, 'C');
 
             $pdf->SetTextColor(0, 0, 0);
@@ -205,10 +205,10 @@ class CertificateGenerateJob implements ShouldQueue
             $leftMargin   = 20;
             $contentWidth = 257;
 
-            $pdf->SetXY($leftMargin, 80);
+            $pdf->SetXY($leftMargin, 75);
 
             // Line 1 - intro
-            $pdf->SetFont("CutiveMono-Regular", "", 14);
+            $pdf->SetFont("Helvetica", "", 14);
             $pdf->Cell($contentWidth, 6, "This is to certify that", 0, 1, 'C');
 
             // Line 2 - student name
@@ -239,19 +239,19 @@ class CertificateGenerateJob implements ShouldQueue
             }
 
             // Parents
-            $pdf->SetFont("CutiveMono-Regular", "", 14);
+            $pdf->SetFont("Helvetica", "", 14);
             $pdf->Ln(2);
             $pdf->Cell(0, 6, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 1, 'C');
 
             // Class + Reg
             $pdf->Ln(2);
             $pdf->SetX($leftMargin);
-            $pdf->MultiCell($contentWidth, 6, "Class: {$className} | Registration No.: {$regNo}, is a student of {$instituteName}", 0, 'C');
+            $pdf->MultiCell($contentWidth, 6, "Class: {$className} | Registration No.: {$regNo}, is a student of ", 0, 'C');
 
             // Institute
-            // $pdf->Ln(2);
-            // $pdf->SetX($leftMargin);
-            // $pdf->MultiCell($contentWidth, 6, "is a student of {$instituteName}", 0, 'C');
+            $pdf->Ln(2);
+            $pdf->SetX($leftMargin);
+            $pdf->MultiCell($contentWidth, 6, "{$instituteName}", 0, 'C');
 
             // Result
             $pdf->Ln(2);
