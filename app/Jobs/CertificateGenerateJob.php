@@ -210,37 +210,52 @@ class CertificateGenerateJob implements ShouldQueue
     |--------------------------------------------------------------------------
     */
 
-            $leftMargin   = 20;
-            $contentWidth = 257;
-            $pdf->SetXY($leftMargin, 75);
-
-            // Line 1 - same line: intro + student name
+            $leftMargin = 20;
             $pdf->SetFont("Helvetica", "", 14);
+
             $introText = "This is to certify that ";
-            $pdf->Write(6, $introText); // intro text
-
-            $pdf->SetFont('Sunshine', '', 28);
             $studentName = trim($studentName);
-            $pdf->Write(6, $studentName); // student name in different font
 
-            // Dotted underline for the student name
-            $nameWidth = $pdf->GetStringWidth($studentName); // width in Sunshine font
-            $extra     = 6;
+            // Widths
+            $introWidth = $pdf->GetStringWidth($introText);
+            $pdf->SetFont('Sunshine', '', 28);
+            $nameWidth = $pdf->GetStringWidth($studentName);
+            $extra = 6; // for underline
             $underlineWidth = $nameWidth + $extra;
 
-            $currentX = $pdf->GetX() - $nameWidth; // start under the name
-            $nameY = $pdf->GetY() + 2; // adjust vertical position
+            // Total width of the line
+            $totalWidth = $introWidth + $nameWidth;
+
+            // Center calculation
+            $pageWidth = $pdf->GetPageWidth();
+            $startX = ($pageWidth - $totalWidth) / 2;
+            $y = 75; // starting Y position
+
+            // Draw intro text
+            $pdf->SetXY($startX, $y);
+            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->Cell($introWidth, 10, $introText, 0, 0, 'L'); // no line break
+
+            // Draw student name
+            $pdf->SetFont('Sunshine', '', 28);
+            $pdf->Cell($nameWidth, 10, $studentName, 0, 1, 'L'); // move to next line after this
+
+            // Dotted underline under student name
+            $nameX = $startX + $introWidth - 3; // small adjustment for padding
+            $nameY = $y + 8; // adjust under text
 
             $pdf->SetDrawColor(150, 150, 150);
             $pdf->SetLineWidth(0.3);
 
             $dotLength = 1;
             $gapLength = 1;
+            $currentX = $nameX;
 
-            while ($currentX < $pdf->GetX() + $extra / 2) {
+            while ($currentX < $nameX + $underlineWidth) {
                 $pdf->Line($currentX, $nameY, $currentX + $dotLength, $nameY);
                 $currentX += ($dotLength + $gapLength);
             }
+
 
             // Parents
             $pdf->SetFont("Helvetica", "", 14);
