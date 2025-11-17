@@ -246,12 +246,12 @@ class CertificateGenerateJob implements ShouldQueue
             // Class + Reg
             $pdf->Ln(2);
             $pdf->SetX($leftMargin);
-            $pdf->MultiCell($contentWidth, 6, "Class: {$className}      |      Registration No.: {$regNo}", 0, 'C');
+            $pdf->MultiCell($contentWidth, 6, "Class: {$className} | Registration No.: {$regNo}, is a student of {$instituteName}", 0, 'C');
 
             // Institute
-            $pdf->Ln(2);
-            $pdf->SetX($leftMargin);
-            $pdf->MultiCell($contentWidth, 6, "is a student of {$instituteName}", 0, 'C');
+            // $pdf->Ln(2);
+            // $pdf->SetX($leftMargin);
+            // $pdf->MultiCell($contentWidth, 6, "is a student of {$instituteName}", 0, 'C');
 
             // Result
             $pdf->Ln(2);
