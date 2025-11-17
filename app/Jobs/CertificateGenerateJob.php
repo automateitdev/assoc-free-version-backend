@@ -389,10 +389,23 @@ class CertificateGenerateJob implements ShouldQueue
             */
 
             $pdf->SetFont("Sunshine", "", 12);
+
+            $closingText = "We Wish Him/Her All The Success And Well-being In Life";
+
+            // measure width in this font
+            $textWidth = $pdf->GetStringWidth($closingText);
+
+            // page width (Landscape A4)
+            $pageWidth = $pdf->GetPageWidth();
+
+            // correct centered X
+            $centerX = ($pageWidth - $textWidth) / 2;
+
+            // place cursor + write
             $pdf->Ln(2);
             $pdf->SetX($centerX);
-            $pdf->Write(6, "we wish him/her all the success and well-being in life");
-            // $pdf->MultiCell($contentWidth, 6, "we wish him/her all the success and well-being in life.", 0, 'C');
+            $pdf->Write(6, $closingText);
+
 
 
 
