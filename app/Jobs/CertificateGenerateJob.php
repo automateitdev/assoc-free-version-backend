@@ -120,13 +120,14 @@ class CertificateGenerateJob implements ShouldQueue
 
             $app = $s->applicant ?? null;
 
-            $studentName   = trim($app->student_name_english ?? ($s->student_name_english ?? '---'));
-            $fatherName    = trim($app->father_name_english ?? ($s->father_name ?? '---'));
-            $motherName    = trim($app->mother_name_english ?? ($s->mother_name ?? '---'));
-            $className     = trim($app->class_name ?? ($s->class_name ?? '---'));
-            $regNo         = trim($app->assigned_roll ?? ($s->assigned_roll ?? '---'));
-            $instituteName = trim($app->institute_name ?? ($s->institute_name));
-            $examName      = trim($s->exam->name ?? '');
+            $studentName   = ucwords(trim($app->student_name_english ?? ($s->student_name_english ?? '---')));
+            $fatherName    = ucwords(trim($app->father_name_english ?? ($s->father_name ?? '---')));
+            $motherName    = ucwords(trim($app->mother_name_english ?? ($s->mother_name ?? '---')));
+            $className     = ucwords(trim($app->class_name ?? ($s->class_name ?? '---')));
+            $regNo         = strtoupper(trim($app->assigned_roll ?? ($s->assigned_roll ?? '---'))); // usually roll numbers are uppercase
+            $instituteName = ucwords(trim($app->institute_name ?? ($s->institute_name ?? '---')));
+            $examName      = ucwords(trim($s->exam->name ?? ''));
+
             $session       = trim($app->academic_year ?? '---');
             $obtainedMark  = trim($s->obtained_mark ?? '---');
             $obtainedGrade = trim($s->obtained_grade ?? '---');
@@ -210,77 +211,94 @@ class CertificateGenerateJob implements ShouldQueue
     |--------------------------------------------------------------------------
     */
 
-            $contentWidth = 257;
-            $leftMargin = 20;
+            $leftMargin   = 20;
+            $contentWidth = 270;
+
+            // Line 1: Intro + student name
             $pdf->SetFont("Helvetica", "", 14);
-
             $introText = "This is to certify that ";
-            $studentName = trim($studentName);
+            $pdf->SetXY($leftMargin, 80);
 
-            // Widths
+            // Calculate widths for centering
             $introWidth = $pdf->GetStringWidth($introText);
-            $pdf->SetFont('Sunshine', '', 28);
+            $pdf->SetFont('Sunshine', 'B', 28); // bold font for student name
             $nameWidth = $pdf->GetStringWidth($studentName);
-            $extra = 6; // for underline
-            $underlineWidth = $nameWidth + $extra;
-
-            // Total width of the line
             $totalWidth = $introWidth + $nameWidth;
-
-            // Center calculation
             $pageWidth = $pdf->GetPageWidth();
             $startX = ($pageWidth - $totalWidth) / 2;
-            $y = 75; // starting Y position
 
             // Draw intro text
-            $pdf->SetXY($startX, $y);
+            $pdf->SetXY($startX, 80);
             $pdf->SetFont("Helvetica", "", 14);
-            $pdf->Cell($introWidth, 10, $introText, 0, 0, 'L'); // no line break
+            $pdf->Cell($introWidth, 10, $introText, 0, 0, 'L');
 
-            // Draw student name
-            $pdf->SetFont('Sunshine', '', 28);
-            $pdf->Cell($nameWidth, 10, $studentName, 0, 1, 'L'); // move to next line after this
+            // Draw student name bold
+            $pdf->SetFont('Sunshine', 'B', 28);
+            $pdf->Cell($nameWidth, 10, $studentName, 0, 1, 'L');
 
             // Dotted underline under student name
-            $nameX = $startX + $introWidth - 3; // small adjustment for padding
-            $nameY = $y + 8; // adjust under text
-
+            $nameX = $startX + $introWidth - 3;
+            $nameY = 80 + 8;
             $pdf->SetDrawColor(150, 150, 150);
             $pdf->SetLineWidth(0.3);
-
             $dotLength = 1;
             $gapLength = 1;
             $currentX = $nameX;
+            $underlineWidth = $nameWidth + 6;
 
             while ($currentX < $nameX + $underlineWidth) {
                 $pdf->Line($currentX, $nameY, $currentX + $dotLength, $nameY);
                 $currentX += ($dotLength + $gapLength);
             }
 
-
             // Parents
-            $pdf->SetFont("Helvetica", "", 14);
             $pdf->Ln(2);
-            $pdf->Cell(0, 6, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}.", 0, 1, 'C');
+            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->SetX($leftMargin);
+            $pdf->Write(6, "son/daughter of Mr. ");
+            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->Write(6, $fatherName);
+            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->Write(6, " and Mrs. ");
+            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->Write(6, $motherName);
+            $pdf->Ln(10);
 
             // Class + Reg
-            $pdf->Ln(2);
+            $pdf->SetFont("Helvetica", "", 14);
             $pdf->SetX($leftMargin);
-            $pdf->MultiCell($contentWidth, 6, "Class: {$className}, Reg. No: {$regNo}, is a student of: ", 0, 'C');
+            $pdf->Write(6, "Class: ");
+            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->Write(6, $className);
+            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->Write(6, ", Reg. No: ");
+            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->Write(6, $regNo);
+            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->Write(6, ", is a student of: ");
+            $pdf->Ln(10);
 
             // Institute
-            $pdf->Ln(2);
-            $pdf->SetX($leftMargin);
-            $pdf->MultiCell($contentWidth, 6, "{$instituteName}", 0, 'C');
+            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->MultiCell($contentWidth, 6, $instituteName, 0, 'C');
 
             // Result
+            $pdf->SetFont("Helvetica", "", 14);
             $pdf->Ln(2);
             $pdf->SetX($leftMargin);
-            $pdf->MultiCell($contentWidth, 6, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 'C');
+            $pdf->Write(6, "He/She appeared at the ");
+            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->Write(6, $examName);
+            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->Write(6, " Examination and obtained ");
+            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->Write(6, $obtainedGrade);
+            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->Write(6, " Grade.");
+            $pdf->Ln(10);
 
             // Closing wish
             $pdf->SetFont("Helvetica", "", 14);
-            $pdf->Ln(2);
             $pdf->SetX($leftMargin);
             $pdf->MultiCell($contentWidth, 6, "We wish him/her all the success and well-being in life.", 0, 'C');
 
