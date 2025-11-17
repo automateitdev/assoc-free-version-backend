@@ -388,9 +388,10 @@ class CertificateGenerateJob implements ShouldQueue
             |--------------------------------------------------------------------------
             */
 
-            $pdf->SetFont("Sunshine", "", 12);
+            $pdf->SetFont("OldEnglishFive", "", 15);
 
-            $closingText = "We wish him / her all the success & well-being in life";
+            // $closingText = "We wish him / her all the success & well-being in life";
+            $closingText = "we wish him / her all the success & well-being in life";
 
             // measure width in this font
             $textWidth = $pdf->GetStringWidth($closingText);
