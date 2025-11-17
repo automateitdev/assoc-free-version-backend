@@ -206,52 +206,54 @@ class CertificateGenerateJob implements ShouldQueue
 
 
             /*
-    |--------------------------------------------------------------------------
-    | Main Content
-    |--------------------------------------------------------------------------
-    */
+|--------------------------------------------------------------------------
+| Main Content
+|--------------------------------------------------------------------------
+*/
 
             $contentWidth = 270;
-            $leftMargin = 20;
+            $leftMargin   = 20;
+
+            // Intro
             $pdf->SetFont("Helvetica", "", 14);
 
-            $introText = "This is to certify that ";
+            $introText   = "This is to certify that ";
             $studentName = trim($studentName);
 
-            // Widths
+            // Calculate widths
             $introWidth = $pdf->GetStringWidth($introText);
             $pdf->SetFont('Sunshine', '', 28);
-            $nameWidth = $pdf->GetStringWidth($studentName);
-            $extra = 6; // for underline
+            $nameWidth  = $pdf->GetStringWidth($studentName);
+            $extra      = 6;
             $underlineWidth = $nameWidth + $extra;
 
-            // Total width of the line
+            // Total width of whole line
             $totalWidth = $introWidth + $nameWidth;
 
-            // Center calculation
+            // Centered X
             $pageWidth = $pdf->GetPageWidth();
-            $startX = ($pageWidth - $totalWidth) / 2;
-            $y = 80; // starting Y position
+            $startX    = ($pageWidth - $totalWidth) / 2;
+            $y         = 80;
 
             // Draw intro text
             $pdf->SetXY($startX, $y);
             $pdf->SetFont("Helvetica", "", 14);
-            $pdf->Cell($introWidth, 10, $introText, 0, 0, 'L'); // no line break
+            $pdf->Cell($introWidth, 10, $introText, 0, 0, 'L');
 
-            // Draw student name
+            // Draw student name (change to 'B' if you want bold)
             $pdf->SetFont('Sunshine', '', 28);
-            $pdf->Cell($nameWidth, 10, $studentName, 0, 1, 'L'); // move to next line after this
+            $pdf->Cell($nameWidth, 10, $studentName, 0, 1, 'L');
 
-            // Dotted underline under student name
-            $nameX = $startX + $introWidth - 3; // small adjustment for padding
-            $nameY = $y + 8; // adjust under text
+            // Underline
+            $nameX = $startX + $introWidth - 3;
+            $nameY = $y + 8;
 
             $pdf->SetDrawColor(150, 150, 150);
             $pdf->SetLineWidth(0.3);
 
             $dotLength = 1;
             $gapLength = 1;
-            $currentX = $nameX;
+            $currentX  = $nameX;
 
             while ($currentX < $nameX + $underlineWidth) {
                 $pdf->Line($currentX, $nameY, $currentX + $dotLength, $nameY);
@@ -259,38 +261,117 @@ class CertificateGenerateJob implements ShouldQueue
             }
 
 
-            // Parents
+            /*
+|--------------------------------------------------------------------------
+| Parents
+|--------------------------------------------------------------------------
+*/
+
             $pdf->SetFont("Helvetica", "", 14);
             $pdf->Ln(2);
-            $pdf->Cell(0, 6, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}.", 0, 1, 'C');
+            $pdf->SetX($leftMargin);
 
-            // Class + Reg
+            // Static text
+            $pdf->Cell(0, 6, "son/daughter of Mr. ", 0, 0, 'C');
+
+            // Father bold
+            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->Cell(0, 6, $fatherName, 0, 0, 'C');
+
+            // Static
+            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->Cell(0, 6, " and Mrs. ", 0, 0, 'C');
+
+            // Mother bold
+            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->Cell(0, 6, $motherName . ".", 0, 1, 'C');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Class + Reg
+            |--------------------------------------------------------------------------
+            */
+
             $pdf->Ln(2);
             $pdf->SetX($leftMargin);
-            $pdf->MultiCell($contentWidth, 6, "Class: {$className}, Reg. No: {$regNo}, is a student of: ", 0, 'C');
 
-            // Institute
+            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->Write(6, "Class: ");
+
+            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->Write(6, $className);
+
+            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->Write(6, ", Reg. No: ");
+
+            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->Write(6, $regNo);
+
+            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->Write(6, ", is a student of: ");
+
+            $pdf->Ln(8);
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Institute
+            |--------------------------------------------------------------------------
+            */
+
             $pdf->Ln(2);
             $pdf->SetX($leftMargin);
-            $pdf->MultiCell($contentWidth, 6, "{$instituteName}", 0, 'C');
 
-            // Result
+            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->MultiCell($contentWidth, 6, $instituteName, 0, 'C');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Result
+            |--------------------------------------------------------------------------
+            */
+
             $pdf->Ln(2);
             $pdf->SetX($leftMargin);
-            $pdf->MultiCell($contentWidth, 6, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 'C');
 
-            // Closing wish
+            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->Write(6, "He/She appeared at the ");
+
+            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->Write(6, $examName);
+
+            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->Write(6, " Examination and obtained ");
+
+            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->Write(6, $obtainedGrade);
+
+            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->Write(6, " Grade");
+
+            $pdf->Ln(10);
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Closing Wish
+            |--------------------------------------------------------------------------
+            */
+
             $pdf->SetFont("Helvetica", "", 14);
             $pdf->Ln(2);
             $pdf->SetX($leftMargin);
             $pdf->MultiCell($contentWidth, 6, "We wish him/her all the success and well-being in life.", 0, 'C');
 
 
+
             /*
-    |--------------------------------------------------------------------------
-    | Signature Row
-    |--------------------------------------------------------------------------
-    */
+            |--------------------------------------------------------------------------
+            | Signature Row
+            |--------------------------------------------------------------------------
+            */
 
             $pdf->SetFont("Helvetica", "", 10);
 
@@ -313,10 +394,10 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->Cell(80, 5, "{$this->associationName}", 0, 0, 'C');
 
             /*
-    |--------------------------------------------------------------------------
-    | Progress Updating
-    |--------------------------------------------------------------------------
-    */
+            |--------------------------------------------------------------------------
+            | Progress Updating
+            |--------------------------------------------------------------------------
+            */
 
             $progress = (int)((($index + 1) / $total) * 100);
             Cache::put($progressKey, $progress, now()->addHours(1));
