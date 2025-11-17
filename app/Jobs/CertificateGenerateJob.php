@@ -293,23 +293,23 @@ class CertificateGenerateJob implements ShouldQueue
 
             $pdf->Ln(8);
 
-
             /*
             |--------------------------------------------------------------------------
-            | Class + Reg (Centered + Bold placeholders)
+            | Class + Reg + Institute (All Centered)
             |--------------------------------------------------------------------------
             */
 
             $pdf->Ln(2);
 
-            // Build full line
+            // Build full line for centering
             $line  = "Class: " . $className;
             $line .= ", Reg. No: " . $regNo;
-            $line .= ", is a student of: ";
+            $line .= ", is a student of " . $instituteName;
 
-            // Centering
+            // Measure full line width
             $fullWidth = $pdf->GetStringWidth($line);
             $centerX   = ($pageWidth - $fullWidth) / 2;
+
             $pdf->SetX($centerX);
 
             // Write inline
@@ -326,9 +326,13 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->Write(6, $regNo);
 
             $pdf->SetFont("Times", "", 14);
-            $pdf->Write(6, ", is a student of: ");
+            $pdf->Write(6, ", is a student of ");
 
-            $pdf->Ln(8);
+            $pdf->SetFont("Times", "B", 14);
+            $pdf->Write(6, $instituteName);
+
+            $pdf->Ln(10);
+
 
 
             /*
