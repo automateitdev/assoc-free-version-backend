@@ -138,7 +138,7 @@ class CertificateGenerateJob implements ShouldQueue
     |--------------------------------------------------------------------------
     */
 
-            $pdf->SetFont("CutiveMono-Regular", "", 12);
+            $pdf->SetFont("Helvetica", "", 12);
             $sessionX = 40;
             $sessionY = 60;
 
@@ -169,11 +169,11 @@ class CertificateGenerateJob implements ShouldQueue
 
             $pdf->SetTextColor(0, 0, 0);
 
-            $pdf->SetFont("CutiveMono-Regular", "", 18);
+            $pdf->SetFont("Helvetica", "", 18);
             $pdf->SetXY(20, 50);
             $pdf->Cell(257, 6, "{$this->associationName}", 0, 0, 'C');
 
-            $pdf->SetFont("CutiveMono-Regular", "", 14);
+            $pdf->SetFont("Helvetica", "", 14);
             $pdf->SetXY(20, 56);
             $pdf->Cell(257, 6, "{$this->associationAddress}", 0, 0, 'C');
 
@@ -205,7 +205,7 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetXY($leftMargin, 85);
 
             // Line 1 - intro
-            $pdf->SetFont("CutiveMono-Regular", "", 14);
+            $pdf->SetFont("Helvetica", "", 14);
             $pdf->Cell($contentWidth, 6, "This is to certify that", 0, 1, 'C');
 
             // Line 2 - student name
@@ -237,7 +237,7 @@ class CertificateGenerateJob implements ShouldQueue
             }
 
             // Parents
-            $pdf->SetFont("CutiveMono-Regular", "", 14);
+            $pdf->SetFont("Helvetica", "", 14);
             $pdf->Ln(2);
             $pdf->Cell(0, 6, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 1, 'C');
 
@@ -257,7 +257,7 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->MultiCell($contentWidth, 6, "He/She appeared at the {$examName} Examination and obtained {$obtainedGrade} Grade", 0, 'C');
 
             // Closing wish
-            $pdf->SetFont("CutiveMono-Regular", "", 14);
+            $pdf->SetFont("Helvetica", "", 14);
             $pdf->Ln(2);
             $pdf->SetX($leftMargin);
             $pdf->MultiCell($contentWidth, 6, "We wish him/her all the success and well-being in life.", 0, 'C');
@@ -269,7 +269,7 @@ class CertificateGenerateJob implements ShouldQueue
     |--------------------------------------------------------------------------
     */
 
-            $pdf->SetFont("CutiveMono-Regular", "", 10);
+            $pdf->SetFont("Helvetica", "", 10);
 
             // Left
             $pdf->SetXY(30, 160);
