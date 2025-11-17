@@ -206,10 +206,10 @@ class CertificateGenerateJob implements ShouldQueue
 
 
             /*
-|--------------------------------------------------------------------------
-| Main Content
-|--------------------------------------------------------------------------
-*/
+            |--------------------------------------------------------------------------
+            | Main Content
+            |--------------------------------------------------------------------------
+            */
 
             $contentWidth = 270;
             $leftMargin   = 20;
@@ -240,7 +240,7 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetFont("Helvetica", "", 14);
             $pdf->Cell($introWidth, 10, $introText, 0, 0, 'L');
 
-            // Draw student name (change to 'B' if you want bold)
+            // Draw student name
             $pdf->SetFont('Sunshine', '', 28);
             $pdf->Cell($nameWidth, 10, $studentName, 0, 1, 'L');
 
@@ -262,40 +262,57 @@ class CertificateGenerateJob implements ShouldQueue
 
 
             /*
-|--------------------------------------------------------------------------
-| Parents
-|--------------------------------------------------------------------------
-*/
+            |--------------------------------------------------------------------------
+            | Parents Line (Centered + Bold placeholders)
+            |--------------------------------------------------------------------------
+            */
 
             $pdf->SetFont("Helvetica", "", 14);
             $pdf->Ln(2);
-            $pdf->SetX($leftMargin);
 
-            // Static text
-            $pdf->Cell(0, 6, "son/daughter of Mr. ", 0, 0, 'C');
+            // Build full line for centering
+            $line  = "son/daughter of Mr. " . $fatherName . " and Mrs. " . $motherName . ".";
 
-            // Father bold
-            $pdf->SetFont("Helvetica", "B", 14);
-            $pdf->Cell(0, 6, $fatherName, 0, 0, 'C');
+            // Centering calculation
+            $fullWidth = $pdf->GetStringWidth($line);
+            $centerX   = ($pageWidth - $fullWidth) / 2;
+            $pdf->SetX($centerX);
 
-            // Static
+            // Write inline with bold placeholders
             $pdf->SetFont("Helvetica", "", 14);
-            $pdf->Cell(0, 6, " and Mrs. ", 0, 0, 'C');
+            $pdf->Write(6, "son/daughter of Mr. ");
 
-            // Mother bold
             $pdf->SetFont("Helvetica", "B", 14);
-            $pdf->Cell(0, 6, $motherName . ".", 0, 1, 'C');
+            $pdf->Write(6, $fatherName);
+
+            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->Write(6, " and Mrs. ");
+
+            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->Write(6, $motherName . ".");
+
+            $pdf->Ln(8);
 
 
             /*
             |--------------------------------------------------------------------------
-            | Class + Reg
+            | Class + Reg (Centered + Bold placeholders)
             |--------------------------------------------------------------------------
             */
 
             $pdf->Ln(2);
-            $pdf->SetX($leftMargin);
 
+            // Build full line
+            $line  = "Class: " . $className;
+            $line .= ", Reg. No: " . $regNo;
+            $line .= ", is a student of: ";
+
+            // Centering
+            $fullWidth = $pdf->GetStringWidth($line);
+            $centerX   = ($pageWidth - $fullWidth) / 2;
+            $pdf->SetX($centerX);
+
+            // Write inline
             $pdf->SetFont("Helvetica", "", 14);
             $pdf->Write(6, "Class: ");
 
@@ -316,26 +333,33 @@ class CertificateGenerateJob implements ShouldQueue
 
             /*
             |--------------------------------------------------------------------------
-            | Institute
+            | Institute (Bold + Centered)
             |--------------------------------------------------------------------------
             */
 
             $pdf->Ln(2);
-            $pdf->SetX($leftMargin);
-
             $pdf->SetFont("Helvetica", "B", 14);
             $pdf->MultiCell($contentWidth, 6, $instituteName, 0, 'C');
 
 
             /*
             |--------------------------------------------------------------------------
-            | Result
+            | Result Line (Centered + Bold placeholders)
             |--------------------------------------------------------------------------
             */
 
             $pdf->Ln(2);
-            $pdf->SetX($leftMargin);
 
+            // Build line
+            $line  = "He/She appeared at the " . $examName;
+            $line .= " Examination and obtained " . $obtainedGrade . " Grade";
+
+            // Centering
+            $fullWidth = $pdf->GetStringWidth($line);
+            $centerX   = ($pageWidth - $fullWidth) / 2;
+            $pdf->SetX($centerX);
+
+            // Inline write
             $pdf->SetFont("Helvetica", "", 14);
             $pdf->Write(6, "He/She appeared at the ");
 
