@@ -208,7 +208,7 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetXY($leftMargin, 80);
 
             // Line 1 - intro
-            $pdf->SetFont("Cutive-Regular", "", 14);
+            $pdf->SetFont("CutiveMono-Regular", "", 14);
             $pdf->Cell($contentWidth, 6, "This is to certify that", 0, 1, 'C');
 
             // Line 2 - student name
@@ -239,7 +239,7 @@ class CertificateGenerateJob implements ShouldQueue
             }
 
             // Parents
-            $pdf->SetFont("Cutive-Regular", "", 14);
+            $pdf->SetFont("CutiveMono-Regular", "", 14);
             $pdf->Ln(2);
             $pdf->Cell(0, 6, "son/daughter of Mr. {$fatherName} and Mrs. {$motherName}", 0, 1, 'C');
 
