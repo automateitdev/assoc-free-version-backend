@@ -305,6 +305,7 @@ class CertificateGenerateJob implements ShouldQueue
             // Build full line
             $line  = "Class: " . $className;
             $line .= ", Registration No: " . $regNo;
+            $line .= ", is a student of: ";
 
             // Centering
             $fullWidth = $pdf->GetStringWidth($line);
