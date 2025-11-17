@@ -139,7 +139,7 @@ class CertificateGenerateJob implements ShouldQueue
     |--------------------------------------------------------------------------
     */
 
-            $pdf->SetFont("Helvetica", "", 12);
+            $pdf->SetFont("Times", "", 12);
             $sessionX = 40;
             $sessionY = 60;
 
@@ -181,11 +181,11 @@ class CertificateGenerateJob implements ShouldQueue
 
             $pdf->SetTextColor(0, 0, 0);
 
-            $pdf->SetFont("Helvetica", "", 18);
+            $pdf->SetFont("Times", "", 18);
             $pdf->SetXY(20, 50);
             $pdf->Cell(257, 6, "{$this->associationName}", 0, 0, 'C');
 
-            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->SetFont("Times", "", 14);
             $pdf->SetXY(20, 56);
             $pdf->Cell(257, 6, "{$this->associationAddress}", 0, 0, 'C');
 
@@ -215,9 +215,9 @@ class CertificateGenerateJob implements ShouldQueue
             $leftMargin   = 20;
 
             // Intro
-            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->SetFont("Times", "", 14);
 
-            $introText   = "This is to certify that ";
+            $introText   = "This is to certify that,  ";
             $studentName = trim($studentName);
 
             // Calculate widths
@@ -237,7 +237,7 @@ class CertificateGenerateJob implements ShouldQueue
 
             // Draw intro text
             $pdf->SetXY($startX, $y);
-            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->SetFont("Times", "", 14);
             $pdf->Cell($introWidth, 10, $introText, 0, 0, 'L');
 
             // Draw student name
@@ -267,7 +267,7 @@ class CertificateGenerateJob implements ShouldQueue
             |--------------------------------------------------------------------------
             */
 
-            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->SetFont("Times", "", 14);
             $pdf->Ln(2);
 
             // Build full line for centering
@@ -279,16 +279,16 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetX($centerX);
 
             // Write inline with bold placeholders
-            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->SetFont("Times", "", 14);
             $pdf->Write(6, "son/daughter of Mr. ");
 
-            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->SetFont("Times", "B", 14);
             $pdf->Write(6, $fatherName);
 
-            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->SetFont("Times", "", 14);
             $pdf->Write(6, " and Mrs. ");
 
-            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->SetFont("Times", "B", 14);
             $pdf->Write(6, $motherName . ".");
 
             $pdf->Ln(8);
@@ -313,19 +313,19 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetX($centerX);
 
             // Write inline
-            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->SetFont("Times", "", 14);
             $pdf->Write(6, "Class: ");
 
-            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->SetFont("Times", "B", 14);
             $pdf->Write(6, $className);
 
-            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->SetFont("Times", "", 14);
             $pdf->Write(6, ", Reg. No: ");
 
-            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->SetFont("Times", "B", 14);
             $pdf->Write(6, $regNo);
 
-            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->SetFont("Times", "", 14);
             $pdf->Write(6, ", is a student of: ");
 
             $pdf->Ln(8);
@@ -338,7 +338,7 @@ class CertificateGenerateJob implements ShouldQueue
             */
 
             $pdf->Ln(2);
-            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->SetFont("Times", "B", 14);
             $pdf->MultiCell($contentWidth, 6, $instituteName, 0, 'C');
 
 
@@ -360,19 +360,19 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetX($centerX);
 
             // Inline write
-            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->SetFont("Times", "", 14);
             $pdf->Write(6, "He/She appeared at the ");
 
-            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->SetFont("Times", "B", 14);
             $pdf->Write(6, $examName);
 
-            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->SetFont("Times", "", 14);
             $pdf->Write(6, " Examination and obtained ");
 
-            $pdf->SetFont("Helvetica", "B", 14);
+            $pdf->SetFont("Times", "B", 14);
             $pdf->Write(6, $obtainedGrade);
 
-            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->SetFont("Times", "", 14);
             $pdf->Write(6, " Grade");
 
             $pdf->Ln(10);
@@ -384,7 +384,7 @@ class CertificateGenerateJob implements ShouldQueue
             |--------------------------------------------------------------------------
             */
 
-            $pdf->SetFont("Helvetica", "", 14);
+            $pdf->SetFont("Times", "", 14);
             $pdf->Ln(2);
             $pdf->SetX($leftMargin);
             $pdf->MultiCell($contentWidth, 6, "We wish him/her all the success and well-being in life.", 0, 'C');
@@ -397,7 +397,7 @@ class CertificateGenerateJob implements ShouldQueue
             |--------------------------------------------------------------------------
             */
 
-            $pdf->SetFont("Helvetica", "", 10);
+            $pdf->SetFont("Times", "", 10);
 
             // Left
             $pdf->SetXY(30, 160);
