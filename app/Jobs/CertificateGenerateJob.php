@@ -328,8 +328,8 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->SetFont("Times", "", 14);
             $pdf->Write(6, ", is a student of ");
 
-            $pdf->SetFont("Times", "B", 14);
-            $pdf->Write(6, $instituteName);
+            // $pdf->SetFont("Times", "B", 14);
+            // $pdf->Write(6, $instituteName);
 
             $pdf->Ln(10);
 
@@ -388,7 +388,7 @@ class CertificateGenerateJob implements ShouldQueue
             |--------------------------------------------------------------------------
             */
 
-            $pdf->SetFont("Times", "", 14);
+            $pdf->SetFont("Times", "I", 12);
             $pdf->Ln(2);
             $pdf->SetX($leftMargin);
             $pdf->MultiCell($contentWidth, 6, "We wish him/her all the success and well-being in life.", 0, 'C');
