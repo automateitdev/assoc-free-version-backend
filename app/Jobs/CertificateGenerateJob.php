@@ -221,7 +221,7 @@ class CertificateGenerateJob implements ShouldQueue
 
             // Calculate widths for centering
             $introWidth = $pdf->GetStringWidth($introText);
-            $pdf->SetFont('Sunshine', 'B', 28); // bold font for student name
+            $pdf->SetFont('Sunshine', '', 28); // bold font for student name
             $nameWidth = $pdf->GetStringWidth($studentName);
             $totalWidth = $introWidth + $nameWidth;
             $pageWidth = $pdf->GetPageWidth();
@@ -233,7 +233,7 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->Cell($introWidth, 10, $introText, 0, 0, 'L');
 
             // Draw student name bold
-            $pdf->SetFont('Sunshine', 'B', 28);
+            $pdf->SetFont('Sunshine', '', 28);
             $pdf->Cell($nameWidth, 10, $studentName, 0, 1, 'L');
 
             // Dotted underline under student name
