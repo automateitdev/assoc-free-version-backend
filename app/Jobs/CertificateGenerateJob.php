@@ -120,7 +120,7 @@ class CertificateGenerateJob implements ShouldQueue
 
             $app = $s->applicant ?? null;
 
-            $studentName   = $app->student_name_english ?? ($s->student_name_english ?? '---');
+            $studentName   = trim($app->student_name_english ?? ($s->student_name_english ?? '---'));
             $fatherName    = trim($app->father_name_english ?? ($s->father_name ?? '---'));
             $motherName    = trim($app->mother_name_english ?? ($s->mother_name ?? '---'));
             $className     = trim($app->class_name ?? ($s->class_name ?? '---'));
