@@ -158,17 +158,33 @@ class CertificateGenerateJob implements ShouldQueue
             $pdf->Cell(100, 6, "Serial: {$serial}", 0, 0, 'L');
 
             // Logo above session
-            $logoW = 20;
-            $logoH = 20;
+            $boxW = 20; // bounding box width
+            $boxH = 20; // bounding box height
             $logoX = $sessionX + 3;
-            $logoY = $sessionY - ($logoH + 5);
+            $logoY = $sessionY - ($boxH + 5);
 
-            $pdf->Rect($logoX, $logoY, $logoW, $logoH);
+            // Draw the box
+            $pdf->Rect($logoX, $logoY, $boxW, $boxH);
 
             if (!empty($this->associationLogo)) {
                 $logoPath = Storage::disk('public')->path("{$this->associationLogo}");
                 if (file_exists($logoPath)) {
-                    $pdf->Image($logoPath, $logoX, $logoY, $logoW, $logoH);
+
+                    // Get actual image size
+                    list($imgW, $imgH) = getimagesize($logoPath);
+
+                    // Calculate scale to fit inside the box (preserving aspect ratio)
+                    $ratio = min($boxW / $imgW, $boxH / $imgH);
+
+                    $renderW = $imgW * $ratio;
+                    $renderH = $imgH * $ratio;
+
+                    // Center inside the box
+                    $offsetX = $logoX + (($boxW - $renderW) / 2);
+                    $offsetY = $logoY + (($boxH - $renderH) / 2);
+
+                    // Render
+                    $pdf->Image($logoPath, $offsetX, $offsetY, $renderW, $renderH);
                 }
             }
 
