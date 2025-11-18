@@ -181,7 +181,7 @@ class CertificateGenerateJob implements ShouldQueue
 
             $pdf->SetTextColor(0, 0, 0);
 
-            $pdf->SetFont("Times", "", 18);
+            $pdf->SetFont("Times", "B", 18);
             $pdf->SetXY(20, 50);
             $pdf->Cell(257, 6, "{$this->associationName}", 0, 0, 'C');
 
