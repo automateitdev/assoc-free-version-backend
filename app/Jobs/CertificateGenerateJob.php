@@ -185,6 +185,34 @@ class CertificateGenerateJob implements ShouldQueue
 
                     // Render
                     $pdf->Image($logoPath, $offsetX, $offsetY, $renderW, $renderH);
+
+                    // Center of page
+                    $pageW = $pdf->GetPageWidth();
+                    $pageH = $pdf->GetPageHeight();
+
+                    list($imgW, $imgH) = getimagesize($logoPath);
+
+                    // Desired max watermark size
+                    $wmMaxW = 100;
+                    $wmMaxH = 100;
+
+                    // Preserve aspect ratio
+                    $ratio = min($wmMaxW / $imgW, $wmMaxH / $imgH);
+                    $wmW = $imgW * $ratio;
+                    $wmH = $imgH * $ratio;
+
+                    // Centered position
+                    $wmX = ($pageW - $wmW) / 2;
+                    $wmY = ($pageH - $wmH) / 2;
+
+                    // Transparency (0.0 = fully transparent, 1.0 = opaque)
+                    $pdf->SetAlpha(0.15); // nice watermark opacity
+
+                    // Draw watermark
+                    $pdf->Image($logoPath, $wmX, $wmY, $wmW, $wmH);
+
+                    // Reset opacity
+                    $pdf->SetAlpha(1);
                 }
             }
 
