@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\backOffice;
 
+use App\Classes\FileUploadClass;
 use App\Models\SslInfo;
 use App\Models\AdmissionFee;
 use Illuminate\Http\Request;
@@ -25,19 +26,30 @@ use App\Models\CenterExam;
 use App\Models\Exam;
 use App\Models\ExamMark;
 use App\Models\InstituteDetail;
+use App\Models\Signature;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 use Savannabits\PrimevueDatatables\PrimevueDatatables;
+use Symfony\Component\HttpFoundation\Response;
 
 class AdmissionController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+
+    protected $fileUpload;
+
+    public function __construct(FileUploadClass $fileUpload)
+    {
+        $this->fileUpload = $fileUpload;
+    }
+
     public function index()
     {
         $admissionFee = AdmissionFee::all();
@@ -951,5 +963,86 @@ class AdmissionController extends Controller
                 'list'   => $list
             ]
         );
+    }
+
+    public function signatureUpload(Request $request)
+    {
+        // Validation
+        $rules = [
+            'title' => [
+                'required',
+                Rule::unique('signatures')->where(
+                    fn($q) =>
+                    $q->where('institute_details_id', Auth::user()->institute_details_id)
+                )
+            ],
+            'signature' => 'required|file|mimes:jpg,jpeg,png,webp,heic|max:5120',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+
+            $instituteDetail = InstituteDetail::findOrFail(Auth::user()->institute_details_id);
+
+            /** -----------------------------------------
+             * 1. HANDLE FILE UPLOAD
+             * ---------------------------------------- */
+            $file = $request->file('signature');
+            $signature_url = null;
+
+            if ($file) {
+                // Read image dimensions
+                $image = \Intervention\Image\Facades\Image::make($file);
+                $originalWidth = $image->width();
+                $originalHeight = $image->height();
+
+                // Upload new file
+                $signature_url = $this->fileUpload->imageUploader(
+                    $file,
+                    "institutes/{$instituteDetail->institute_id}/signature",
+                    $originalWidth,
+                    $originalHeight
+                );
+            }
+
+            /** -----------------------------------------
+             * 2. SAVE SIGNATURE RECORD
+             * ---------------------------------------- */
+            $signature = new Signature();
+            $signature->title = trim($request->title);
+            $signature->image_path = $signature_url;
+            $signature->institute_details_id = $instituteDetail->id;
+            $signature->save();
+
+            /** -----------------------------------------
+             * 3. DELETE OLD SIGNATURE (AFTER SUCCESS)
+             * ---------------------------------------- */
+            if (!empty($instituteDetail->signature)) {
+                $this->fileUpload->fileUnlink($instituteDetail->signature);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Signature uploaded successfully',
+                'data' => $signature,
+            ], Response::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+
+            Log::error($e);
+            return response()->json(['errors' => 'Record not found'], Response::HTTP_NOT_FOUND);
+        } catch (QueryException $e) {
+
+            Log::error($e);
+            return response()->json(['errors' => 'Database error occurred.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+
+            Log::error($e);
+            return response()->json(['errors' => 'An unexpected error occurred.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

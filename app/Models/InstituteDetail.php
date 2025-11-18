@@ -35,4 +35,9 @@ class InstituteDetail extends Model
     {
         return $this->hasMany(Wallet::class, 'institute_details_id');
     }
+
+    public function signatures()
+    {
+        return $this->hasMany(Signature::class);
+    }
 }

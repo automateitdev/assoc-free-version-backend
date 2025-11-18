@@ -295,6 +295,7 @@ Route::group(['middleware' => ['auth:api']], function () {
 
     Route::post('exam/ranking', [AdmissionController::class, 'ranking']);
 
+    Route::post('signature/upload', [AdminUpdateController::class, 'signatureUpload']);
     Route::get('export-progress', [AdmissionController::class, 'exportProgress']);
 });
 
