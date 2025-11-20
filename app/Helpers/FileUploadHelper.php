@@ -5,7 +5,7 @@ namespace App\Helpers;
 use App\Exceptions\FileUploadException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\ImageManager;
+use Intervention\Image\Image as InterventionImage;
 use Intervention\Image\Laravel\Facades\Image;
 
 class FileUploadHelper
@@ -63,22 +63,8 @@ class FileUploadHelper
         return $storagePath;
       }
 
-      // Create manager
-      $manager = new ImageManager(); // optional config array if needed
-
       // Raster images: read and orient
-      $img = $manager->driver('gd')->make($file)->orientate(); // pass driver name
-
-      // Resize if width or height provided
-      if ($width || $height) {
-        $img->resize($width, $height, function ($constraint) {
-          $constraint->aspectRatio();
-        });
-      }
-
-      // Encode and save
-      $img->encode('webp')->save($path);
-      $img->encode('webp')->save($path);
+      $img = InterventionImage::read($file)->orient();
 
       if ($width || $height) {
         $img->resize($width, $height, function ($constraint) {
