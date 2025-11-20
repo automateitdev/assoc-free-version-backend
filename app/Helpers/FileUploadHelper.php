@@ -69,7 +69,7 @@ class FileUploadHelper
        * ========================
        */
       $manager = new ImageManager(new Driver());
-      $img = $manager->read($file)->autoOrient(); // v3 auto-orientation
+      $img = $manager->make($file)->orientate();
 
       // Resize if needed
       if ($width || $height) {

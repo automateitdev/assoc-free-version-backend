@@ -992,7 +992,7 @@ class AdmissionController extends Controller
 
             // Intervention Image v3
             $manager = new ImageManager(new Driver());
-            $image = $manager->read($file)->autoOrient();
+            $image = $manager->make($file)->orientate();
 
             // Ensure temp folder exists
             $tempDir = storage_path("app/temp");
