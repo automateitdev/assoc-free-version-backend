@@ -13,7 +13,8 @@ class FileUploadHelper
 
   public function __construct()
   {
-    $this->disk = app()->environment('production') ? 's3' : 'public';
+    // $this->disk = app()->environment('production') ? 's3' : 'public';
+    $this->disk = 'public';
     Log::channel('uploader_log')->info("FileUploadClass initialized with disk: {$this->disk}");
   }
 
