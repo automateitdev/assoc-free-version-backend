@@ -992,7 +992,8 @@ class AdmissionController extends Controller
 
             // Resize & convert to webp
             $manager = new ImageManager(new Driver());
-            $image = $manager->read($file)->orientate();
+            $image = $manager->read($file)->autoOrient();
+
 
             $tmp = storage_path("app/temp/" . uniqid() . ".webp");
             $image->encode('webp', 85)->save($tmp);

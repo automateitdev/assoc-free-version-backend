@@ -57,7 +57,8 @@ class FileUploadHelper
 
       // Raster images
       $manager = new ImageManager(new Driver()); // or 'imagick'
-      $img = $manager->make($file)->orientate();
+      $img = $manager->read($file)->autoOrient();
+
 
       if ($width || $height) {
         $img->resize($width, $height, function ($constraint) {
