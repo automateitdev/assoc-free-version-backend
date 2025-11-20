@@ -37,6 +37,7 @@ use Intervention\Image\ImageManager;
 use Maatwebsite\Excel\Facades\Excel;
 use Savannabits\PrimevueDatatables\PrimevueDatatables;
 use Symfony\Component\HttpFoundation\Response;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class AdmissionController extends Controller
 {
@@ -990,7 +991,7 @@ class AdmissionController extends Controller
             $file = $request->file('signature');
 
             // Resize & convert to webp
-            $manager = new ImageManager('gd');
+            $manager = new ImageManager(new Driver());
             $image = $manager->read($file)->orientate();
 
             $tmp = storage_path("app/temp/" . uniqid() . ".webp");

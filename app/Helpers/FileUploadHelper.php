@@ -6,7 +6,7 @@ use App\Exceptions\FileUploadException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager; // ✅ use ImageManager, not Facade
-
+use Intervention\Image\Drivers\Gd\Driver;
 class FileUploadHelper
 {
   protected $disk;
@@ -56,7 +56,7 @@ class FileUploadHelper
       }
 
       // Raster images
-      $manager = new ImageManager(['driver' => 'gd']); // or 'imagick'
+      $manager = new ImageManager(new Driver()); // or 'imagick'
       $img = $manager->make($file)->orientate();
 
       if ($width || $height) {
@@ -80,7 +80,8 @@ class FileUploadHelper
         default => 85,
       };
 
-      $img->encode('webp', $quality)->save($tmpPath);
+      $img->encode('webp', $quality);
+      $img->save($tmpPath);
 
       Storage::disk($this->disk)->makeDirectory($path);
       Storage::disk($this->disk)->put($storagePath, file_get_contents($tmpPath), 'public');
