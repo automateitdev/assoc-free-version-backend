@@ -87,7 +87,7 @@ class FileUploadHelper
       }
 
       // Raster images
-      $manager = new ImageManager(new Driver());
+      $manager = new ImageManager(['driver' => 'gd']);
       $img = $manager->read($file);
 
       // Manual EXIF orientation
