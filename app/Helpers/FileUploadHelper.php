@@ -5,8 +5,7 @@ namespace App\Helpers;
 use App\Exceptions\FileUploadException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Image as InterventionImage;
-use Intervention\Image\Laravel\Facades\Image;
+use Intervention\Image\Image;
 
 class FileUploadHelper
 {
@@ -64,7 +63,7 @@ class FileUploadHelper
       }
 
       // Raster images: read and orient
-      $img = InterventionImage::read($file)->orient();
+      $img = Image::read($file)->orient();
 
       if ($width || $height) {
         $img->resize($width, $height, function ($constraint) {
