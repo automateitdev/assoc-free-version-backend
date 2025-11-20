@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Helpers\ApiResponseHelper;
 use App\Http\Controllers\Controller;
+use App\Models\Signature;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -86,7 +88,7 @@ class AdminUpdateController extends Controller
     /**
      * Update the specified resource in storage.
      */
-   
+
     public function update(User $user, Request $request)
     {
 
@@ -105,8 +107,7 @@ class AdminUpdateController extends Controller
             ], 422);
         }
 
-        if(!empty($request->status))
-        {
+        if (!empty($request->status)) {
             $input = User::find($user);
             $input->status = $request->status;
             $input->user_type = $request->role;
@@ -116,14 +117,13 @@ class AdminUpdateController extends Controller
                 'message' => 'User Update Successfully',
                 'data' => $input,
             ]);
-        }else{
+        } else {
             $user->syncRoles($request->get('role'));
             return response()->json([
                 'message' => 'User Update Successfully',
                 'data' => $user,
             ]);
         }
-        
     }
     /**
      * Remove the specified resource from storage.
@@ -131,5 +131,17 @@ class AdminUpdateController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function getSignatureList()
+    {
+        $signatureList  = Signature::where('institute_details_id', Auth::user()->institute_details_id)->get();
+        return response()->json(
+            [
+                'status' => 'success',
+                'message' => 'Fetched signatures',
+                'signatures' => $signatureList
+            ]
+        );
     }
 }
