@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Classes;
+namespace App\Helpers;
 
 use App\Exceptions\FileUploadException;
 use Illuminate\Support\Facades\Log;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
 
-class FileUploadClass
+class FileUploadHelper
 {
   protected $disk;
 

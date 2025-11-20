@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\backOffice;
 
-use App\Classes\FileUploadClass;
 use App\Models\SslInfo;
 use App\Models\AdmissionFee;
 use Illuminate\Http\Request;
 use App\Utils\ServerErrorMask;
 use App\Helpers\ApiResponseHelper;
+use App\Helpers\FileUploadHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -45,7 +45,7 @@ class AdmissionController extends Controller
 
     protected $fileUpload;
 
-    public function __construct(FileUploadClass $fileUpload)
+    public function __construct(FileUploadHelper $fileUpload)
     {
         $this->fileUpload = $fileUpload;
     }

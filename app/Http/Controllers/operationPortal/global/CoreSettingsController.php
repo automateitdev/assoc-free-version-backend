@@ -116,7 +116,7 @@ class CoreSettingsController extends Controller
     private function normalizeCategoryName($name)
     {
         // Normalize the category name by making it lowercase and removing special characters
-        $normalized = strtolower($name);
+        $normalized = $name;
 
         // Replace non-alphanumeric characters, spaces, and multiple consecutive spaces with hyphens
         $normalized = preg_replace('/[^a-z0-9\s]+/', '-', $normalized);
