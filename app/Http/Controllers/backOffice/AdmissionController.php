@@ -1007,15 +1007,14 @@ class AdmissionController extends Controller
                 // Upload new file
                 $signature_url = $this->fileUpload->imageUploader(
                     $file,
-                    "institutes/{$instituteDetail->institute_id}/signature",
-                    $originalWidth,
-                    $originalHeight
+                    "institutes/{$instituteDetail->institute_id}/signature"
                 );
             }
 
             /** -----------------------------------------
              * 2. SAVE SIGNATURE RECORD
              * ---------------------------------------- */
+            // Save new signature
             $signature = new Signature();
             $signature->title = trim($request->title);
             $signature->image_path = $signature_url;

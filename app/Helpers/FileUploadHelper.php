@@ -23,79 +23,21 @@ class FileUploadHelper
   public function imageUploader($file, $path, $width = null, $height = null, $old_image = null)
   {
     try {
-      if (!$file) {
-        Log::channel('uploader_log')->error("Image Upload Error: No file provided.");
-        throw new FileUploadException('No file was provided for upload.');
+      if (!$file || !$file->isValid()) {
+        throw new FileUploadException('Uploaded file is invalid.');
       }
-
-      Log::channel('uploader_log')->info("Starting image upload process", [
-        'file_name' => $file->getClientOriginalName(),
-        'file_size' => $file->getSize(),
-        'file_type' => $file->getMimeType(),
-        'path' => $path,
-        'width' => $width,
-        'height' => $height,
-        'disk' => $this->disk
-      ]);
-
-      if ($old_image) {
-        Log::channel('uploader_log')->info("Attempting to delete old image: {$old_image}");
-        $this->fileUnlink($old_image);
-      }
-
-      if (!$file->isValid()) {
-        throw new FileUploadException('Uploaded file is invalid or corrupted.');
-      }
-
-      // ✅ Detect MIME type and map to file extension
-      $mime = $file->getMimeType();
-
-      $mimeToExt = [
-        'image/jpeg' => 'jpg',
-        'image/png' => 'png',
-        'image/webp' => 'webp',
-        'image/gif' => 'gif',
-        'image/svg+xml' => 'svg',
-      ];
-
-      $ext = $mimeToExt[$mime] ?? null;
-
-      if (!$ext || !in_array($ext, array_values($mimeToExt))) {
-        Log::channel('uploader_log')->error("Unsupported or undetectable MIME type: {$mime}", [
-          'file_name' => $file->getClientOriginalName()
-        ]);
-        throw new FileUploadException("File type '{$mime}' is not supported. Allowed types: jpg, jpeg, png, gif, svg, webp.");
-      }
-
-      // ✅ Handle SVG separately (no resizing or re-encoding)
-      if ($ext === 'svg') {
-        $fileName = uniqid() . '.svg';
-        $storagePath = $path . '/' . $fileName;
-        Storage::disk($this->disk)->makeDirectory($path);
-        Storage::disk($this->disk)->put($storagePath, file_get_contents($file), 'public');
-        return $storagePath;
-      }
-
-      // ✅ Handle raster images (JPG, PNG, etc.)
-      // $img = Image::make($file)->orientate();
 
       $manager = new ImageManager(new Driver());
-
-      // read image from file system
       $img = $manager->read($file);
 
+      // Resize with aspect ratio (v3 syntax)
       if ($width || $height) {
-        $img->resize($width, $height, function ($constraint) {
-          $constraint->aspectRatio();
-        });
+        $img->resize($width, $height, keepAspectRatio: true);
       }
 
-      // Convert to webp format
+      // Convert to webp
       $fileName = uniqid() . '.webp';
       $storagePath = $path . '/' . $fileName;
-      $tmpPath = storage_path('app/temp/' . $fileName);
-
-      Storage::disk('local')->makeDirectory('temp');
 
       $fileSizeMB = $file->getSize() / (1024 * 1024);
       $quality = match (true) {
@@ -106,11 +48,11 @@ class FileUploadHelper
         default => 85,
       };
 
-      $img->encodeByMediaType('image/webp', progressive: true, quality: $quality);
-      Storage::disk($this->disk)->makeDirectory($path);
-      Storage::disk($this->disk)->put($storagePath, file_get_contents($tmpPath), 'public');
+      // Encode returns EncodedImage, so cast to string
+      $encoded = (string) $img->encodeByMediaType('image/webp', quality: $quality);
 
-      @unlink($tmpPath);
+      Storage::disk($this->disk)->makeDirectory($path);
+      Storage::disk($this->disk)->put($storagePath, $encoded, 'public');
 
       return $storagePath;
     } catch (\Throwable $e) {
@@ -125,6 +67,7 @@ class FileUploadHelper
       throw new FileUploadException("Failed to upload image: " . $e->getMessage());
     }
   }
+
 
   public function getImagePath($imagePath)
   {
