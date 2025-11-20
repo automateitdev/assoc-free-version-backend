@@ -990,7 +990,7 @@ class AdmissionController extends Controller
             $file = $request->file('signature');
 
             // Initialize Intervention Image manager
-            $manager = new \Intervention\Image\ImageManager();
+            $manager = new \Intervention\Image\ImageManager(['driver' => 'gd']);
 
             // Read image
             $image = $manager->read($file);
