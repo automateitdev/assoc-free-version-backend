@@ -106,8 +106,7 @@ class FileUploadHelper
         default => 85,
       };
 
-      $img->encode('webp', $quality)->save($tmpPath);
-
+      $img->encodeByMediaType('image/webp', progressive: true, quality: $quality);
       Storage::disk($this->disk)->makeDirectory($path);
       Storage::disk($this->disk)->put($storagePath, file_get_contents($tmpPath), 'public');
 
