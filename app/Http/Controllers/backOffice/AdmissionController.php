@@ -33,10 +33,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Intervention\Image\ImageManager;
 use Maatwebsite\Excel\Facades\Excel;
 use Savannabits\PrimevueDatatables\PrimevueDatatables;
 use Symfony\Component\HttpFoundation\Response;
+use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
 class AdmissionController extends Controller
@@ -967,84 +967,85 @@ class AdmissionController extends Controller
         );
     }
 
-
     public function signatureUpload(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        // Validation
+        $rules = [
             'title' => [
                 'required',
                 Rule::unique('signatures')->where(
-                    fn($q) => $q->where('institute_details_id', Auth::user()->institute_details_id)
+                    fn($q) =>
+                    $q->where('institute_details_id', Auth::user()->institute_details_id)
                 )
             ],
             'signature' => 'required|file|mimes:jpg,jpeg,png,webp,heic|max:5120',
-        ]);
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
+            return response()->json(['errors' => $validator->errors()], Response::HTTP_BAD_REQUEST);
         }
 
         try {
-            $institute = InstituteDetail::findOrFail(Auth::user()->institute_details_id);
 
+            $instituteDetail = InstituteDetail::findOrFail(Auth::user()->institute_details_id);
+
+            /** -----------------------------------------
+             * 1. HANDLE FILE UPLOAD
+             * ---------------------------------------- */
             $file = $request->file('signature');
+            $signature_url = null;
 
-            // Initialize Intervention Image manager
-            $manager = new \Intervention\Image\ImageManager(['driver' => 'gd']);
+            if ($file) {
+                // Read image dimensions
+                $manager = new ImageManager(new Driver());
+                $image = $manager->read($file);
+                $originalWidth = $image->width();
+                $originalHeight = $image->height();
 
-            // Read image
-            $image = $manager->read($file);
-
-            // Manual EXIF orientation fix
-            try {
-                $exif = @exif_read_data($file->getPathname());
-                if (!empty($exif['Orientation'])) {
-                    switch ($exif['Orientation']) {
-                        case 3:
-                            $image->rotate(180);
-                            break;
-                        case 6:
-                            $image->rotate(90);
-                            break;
-                        case 8:
-                            $image->rotate(-90);
-                            break;
-                    }
-                }
-            } catch (\Throwable $e) {
-                // Ignore if EXIF data is missing
+                // Upload new file
+                $signature_url = $this->fileUpload->imageUploader(
+                    $file,
+                    "institutes/{$instituteDetail->institute_id}/signature",
+                    $originalWidth,
+                    $originalHeight
+                );
             }
 
-            // Resize if needed (optional)
-            $image->resize(800, null, function ($constraint) {
-                $constraint->aspectRatio();
-            });
+            /** -----------------------------------------
+             * 2. SAVE SIGNATURE RECORD
+             * ---------------------------------------- */
+            $signature = new Signature();
+            $signature->title = trim($request->title);
+            $signature->image_path = $signature_url;
+            $signature->institute_details_id = $instituteDetail->id;
+            $signature->save();
 
-            // Save as WebP to temp
-            $tmp = storage_path("app/temp/" . uniqid() . ".webp");
-            $image->encode('webp', 85)->save($tmp);
-
-            // Upload final image using your fileUpload service
-            $signature_url = $this->fileUpload->fileUpload($tmp, 'signatures');
-
-            // Save DB record
-            $signature = Signature::create([
-                'title' => $request->title,
-                'image_path' => $signature_url,
-                'institute_details_id' => $institute->id,
-            ]);
-
-            // Remove temp file
-            @unlink($tmp);
+            /** -----------------------------------------
+             * 3. DELETE OLD SIGNATURE (AFTER SUCCESS)
+             * ---------------------------------------- */
+            if (!empty($instituteDetail->signature)) {
+                $this->fileUpload->fileUnlink($instituteDetail->signature);
+            }
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Signature uploaded',
-                'data' => $signature
-            ]);
-        } catch (\Exception $e) {
+                'message' => 'Signature uploaded successfully',
+                'data' => $signature,
+            ], Response::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+
             Log::error($e);
-            return response()->json(['errors' => 'Error uploading signature'], 500);
+            return response()->json(['errors' => 'Record not found'], Response::HTTP_NOT_FOUND);
+        } catch (QueryException $e) {
+
+            Log::error($e);
+            return response()->json(['errors' => 'Database error occurred.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+
+            Log::error($e);
+            return response()->json(['errors' => 'An unexpected error occurred.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }
