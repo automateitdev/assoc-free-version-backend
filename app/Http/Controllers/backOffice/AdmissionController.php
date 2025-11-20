@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Intervention\Image\ImageManager;
 use Maatwebsite\Excel\Facades\Excel;
 use Savannabits\PrimevueDatatables\PrimevueDatatables;
 use Symfony\Component\HttpFoundation\Response;
@@ -965,10 +966,10 @@ class AdmissionController extends Controller
         );
     }
 
+
     public function signatureUpload(Request $request)
     {
-        // Validation
-        $rules = [
+        $validator = Validator::make($request->all(), [
             'title' => [
                 'required',
                 Rule::unique('signatures')->where(
@@ -977,72 +978,44 @@ class AdmissionController extends Controller
                 )
             ],
             'signature' => 'required|file|mimes:jpg,jpeg,png,webp,heic|max:5120',
-        ];
-
-        $validator = Validator::make($request->all(), $rules);
+        ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], Response::HTTP_BAD_REQUEST);
+            return response()->json(['errors' => $validator->errors()], 400);
         }
 
         try {
+            $institute = InstituteDetail::findOrFail(Auth::user()->institute_details_id);
 
-            $instituteDetail = InstituteDetail::findOrFail(Auth::user()->institute_details_id);
-
-            /** -----------------------------------------
-             * 1. HANDLE FILE UPLOAD
-             * ---------------------------------------- */
             $file = $request->file('signature');
-            $signature_url = null;
 
-            if ($file) {
-                // Read image dimensions
-                $image = \Intervention\Image\Facades\Image::make($file);
-                $originalWidth = $image->width();
-                $originalHeight = $image->height();
+            // Resize & convert to webp
+            $manager = new ImageManager('gd');
+            $image = $manager->read($file)->orientate();
 
-                // Upload new file
-                $signature_url = $this->fileUpload->imageUploader(
-                    $file,
-                    "institutes/{$instituteDetail->institute_id}/signature",
-                    $originalWidth,
-                    $originalHeight
-                );
-            }
+            $tmp = storage_path("app/temp/" . uniqid() . ".webp");
+            $image->encode('webp', 85)->save($tmp);
 
-            /** -----------------------------------------
-             * 2. SAVE SIGNATURE RECORD
-             * ---------------------------------------- */
-            $signature = new Signature();
-            $signature->title = trim($request->title);
-            $signature->image_path = $signature_url;
-            $signature->institute_details_id = $instituteDetail->id;
-            $signature->save();
+            // Upload final image
+            $signature_url = $this->fileUpload->fileUpload($tmp, 'signatures');
 
-            /** -----------------------------------------
-             * 3. DELETE OLD SIGNATURE (AFTER SUCCESS)
-             * ---------------------------------------- */
-            if (!empty($instituteDetail->signature)) {
-                $this->fileUpload->fileUnlink($instituteDetail->signature);
-            }
+            // Save DB record
+            $signature = Signature::create([
+                'title' => $request->title,
+                'image_path' => $signature_url,
+                'institute_details_id' => $institute->id,
+            ]);
+
+            unlink($tmp);
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Signature uploaded successfully',
-                'data' => $signature,
-            ], Response::HTTP_OK);
-        } catch (ModelNotFoundException $e) {
-
-            Log::error($e);
-            return response()->json(['errors' => 'Record not found'], Response::HTTP_NOT_FOUND);
-        } catch (QueryException $e) {
-
-            Log::error($e);
-            return response()->json(['errors' => 'Database error occurred.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+                'message' => 'Signature uploaded',
+                'data' => $signature
+            ]);
         } catch (\Exception $e) {
-
             Log::error($e);
-            return response()->json(['errors' => 'An unexpected error occurred.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->json(['errors' => 'Error uploading signature'], 500);
         }
     }
 }
