@@ -990,13 +990,24 @@ class AdmissionController extends Controller
 
             $file = $request->file('signature');
 
-            // Resize & convert to webp
+            // Intervention Image v3
             $manager = new ImageManager(new Driver());
             $image = $manager->read($file)->autoOrient();
 
+            // Ensure temp folder exists
+            $tempDir = storage_path("app/temp");
+            if (!file_exists($tempDir)) {
+                mkdir($tempDir, 0775, true);
+            }
 
-            $tmp = storage_path("app/temp/" . uniqid() . ".webp");
-            $image->encode('webp', 85)->save($tmp);
+            // Temp WebP path
+            $tmp = $tempDir . "/" . uniqid() . ".webp";
+
+            // Encode image to WebP (Note: encode does NOT return image in v3)
+            $image->encode('webp', 85);
+
+            // Now save the actual encoded content
+            $image->save($tmp);
 
             // Upload final image
             $signature_url = $this->fileUpload->fileUpload($tmp, 'signatures');
@@ -1008,7 +1019,8 @@ class AdmissionController extends Controller
                 'institute_details_id' => $institute->id,
             ]);
 
-            unlink($tmp);
+            // Delete temp file
+            @unlink($tmp);
 
             return response()->json([
                 'status' => 'success',
