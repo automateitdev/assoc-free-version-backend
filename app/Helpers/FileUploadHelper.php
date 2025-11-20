@@ -4,8 +4,8 @@ namespace App\Helpers;
 
 use App\Exceptions\FileUploadException;
 use Illuminate\Support\Facades\Log;
-use Intervention\Image\Laravel\Facades\Image;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Laravel\Facades\Image;
 
 class FileUploadHelper
 {
@@ -15,9 +15,12 @@ class FileUploadHelper
   {
     // $this->disk = app()->environment('production') ? 's3' : 'public';
     $this->disk = 'public';
-    Log::channel('uploader_log')->info("FileUploadClass initialized with disk: {$this->disk}");
+    Log::channel('uploader_log')->info("FileUploadHelper initialized with disk: {$this->disk}");
   }
 
+  /**
+   * Upload image with optional resize and webp conversion
+   */
   public function imageUploader($file, $path, $width = null, $height = null, $old_image = null)
   {
     try {
@@ -26,18 +29,8 @@ class FileUploadHelper
         throw new FileUploadException('No file was provided for upload.');
       }
 
-      Log::channel('uploader_log')->info("Starting image upload process", [
-        'file_name' => $file->getClientOriginalName(),
-        'file_size' => $file->getSize(),
-        'file_type' => $file->getMimeType(),
-        'path' => $path,
-        'width' => $width,
-        'height' => $height,
-        'disk' => $this->disk
-      ]);
-
+      // Delete old image if provided
       if ($old_image) {
-        Log::channel('uploader_log')->info("Attempting to delete old image: {$old_image}");
         $this->fileUnlink($old_image);
       }
 
@@ -45,9 +38,7 @@ class FileUploadHelper
         throw new FileUploadException('Uploaded file is invalid or corrupted.');
       }
 
-      // ✅ Detect MIME type and map to file extension
       $mime = $file->getMimeType();
-
       $mimeToExt = [
         'image/jpeg' => 'jpg',
         'image/png' => 'png',
@@ -58,14 +49,11 @@ class FileUploadHelper
 
       $ext = $mimeToExt[$mime] ?? null;
 
-      if (!$ext || !in_array($ext, array_values($mimeToExt))) {
-        Log::channel('uploader_log')->error("Unsupported or undetectable MIME type: {$mime}", [
-          'file_name' => $file->getClientOriginalName()
-        ]);
-        throw new FileUploadException("File type '{$mime}' is not supported. Allowed types: jpg, jpeg, png, gif, svg, webp.");
+      if (!$ext) {
+        throw new FileUploadException("Unsupported file type: {$mime}");
       }
 
-      // ✅ Handle SVG separately (no resizing or re-encoding)
+      // Handle SVG separately
       if ($ext === 'svg') {
         $fileName = uniqid() . '.svg';
         $storagePath = $path . '/' . $fileName;
@@ -74,8 +62,8 @@ class FileUploadHelper
         return $storagePath;
       }
 
-      // ✅ Handle raster images (JPG, PNG, etc.)
-      $img = Image::make($file)->orientate();
+      // Raster images: read and orient
+      $img = Image::read($file)->orient();
 
       if ($width || $height) {
         $img->resize($width, $height, function ($constraint) {
@@ -83,7 +71,7 @@ class FileUploadHelper
         });
       }
 
-      // Convert to webp format
+      // Convert to webp
       $fileName = uniqid() . '.webp';
       $storagePath = $path . '/' . $fileName;
       $tmpPath = storage_path('app/temp/' . $fileName);
@@ -120,6 +108,9 @@ class FileUploadHelper
     }
   }
 
+  /**
+   * Get public URL for image
+   */
   public function getImagePath($imagePath)
   {
     if ($imagePath && Storage::disk($this->disk)->exists($imagePath)) {
@@ -128,22 +119,24 @@ class FileUploadHelper
     return asset('storage/default/demo_user.png');
   }
 
+  /**
+   * Delete a file
+   */
   public function fileUnlink($path)
   {
     if (!$path) return false;
 
-    Log::channel('uploader_log')->info('Trying to delete: ' . $path);
-
     if (Storage::disk($this->disk)->exists($path)) {
       Storage::disk($this->disk)->delete($path);
-      Log::channel('uploader_log')->info('Deleted successfully: ' . $path);
       return true;
     }
 
-    Log::channel('uploader_log')->warning('File not found: ' . $path);
     return false;
   }
 
+  /**
+   * Upload PDF file
+   */
   public function pdfUploader($file, $path, $old_file = null)
   {
     try {
