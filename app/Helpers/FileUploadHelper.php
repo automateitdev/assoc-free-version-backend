@@ -15,31 +15,60 @@ class FileUploadHelper
   public function __construct()
   {
     $this->disk = 'public';
-    Log::channel('uploader_log')->info("FileUploadClass initialized with disk: {$this->disk}");
+    Log::channel('uploader_log')->info("FileUploadHelper initialized with disk: {$this->disk}");
   }
 
+  /**
+   * Fix image orientation manually using EXIF data
+   */
+  private function fixOrientation($image, $file)
+  {
+    try {
+      $exif = @exif_read_data($file->getPathname());
+      if (!empty($exif['Orientation'])) {
+        switch ($exif['Orientation']) {
+          case 3:
+            $image->rotate(180);
+            break;
+          case 6:
+            $image->rotate(90);
+            break;
+          case 8:
+            $image->rotate(-90);
+            break;
+        }
+      }
+    } catch (\Throwable $e) {
+      // Ignore if EXIF is missing
+    }
+
+    return $image;
+  }
+
+  /**
+   * Upload image and convert to WebP
+   */
   public function imageUploader($file, $path, $width = null, $height = null, $old_image = null)
   {
     try {
       if (!$file) {
-        throw new FileUploadException('No file was provided for upload.');
-      }
-
-      if (!$file->isValid()) {
-        throw new FileUploadException('Uploaded file is invalid or corrupted.');
+        throw new FileUploadException('No file provided.');
       }
 
       if ($old_image) {
         $this->fileUnlink($old_image);
       }
 
-      // Allowed raster MIME → extension
+      if (!$file->isValid()) {
+        throw new FileUploadException('Uploaded file is invalid.');
+      }
+
       $mime = $file->getMimeType();
       $mimeToExt = [
         'image/jpeg' => 'jpg',
-        'image/png'  => 'png',
+        'image/png' => 'png',
         'image/webp' => 'webp',
-        'image/gif'  => 'gif',
+        'image/gif' => 'gif',
         'image/svg+xml' => 'svg',
       ];
 
@@ -48,28 +77,21 @@ class FileUploadHelper
         throw new FileUploadException("Unsupported MIME type: {$mime}");
       }
 
-      /**
-       * ======================
-       * 🟣 SVG FILE HANDLING
-       * ======================
-       */
+      // Handle SVG directly
       if ($ext === 'svg') {
         $fileName = uniqid() . '.svg';
         $storagePath = $path . '/' . $fileName;
-
         Storage::disk($this->disk)->makeDirectory($path);
         Storage::disk($this->disk)->put($storagePath, file_get_contents($file), 'public');
-
         return $storagePath;
       }
 
-      /**
-       * ========================
-       * 🟢 RASTER IMAGE PROCESS
-       * ========================
-       */
+      // Raster images
       $manager = new ImageManager(new Driver());
-      $img = $manager->make($file)->orientate();
+      $img = $manager->read($file);
+
+      // Manual EXIF orientation
+      $img = $this->fixOrientation($img, $file);
 
       // Resize if needed
       if ($width || $height) {
@@ -78,37 +100,24 @@ class FileUploadHelper
         });
       }
 
-      /**
-       * ========================
-       * 🟠 WEBP COMPRESSION
-       * ========================
-       */
+      // WebP conversion
       $fileName = uniqid() . '.webp';
-      $storagePath = $path . '/' . $fileName;
+      $tmpPath = storage_path('app/temp/' . $fileName);
+      Storage::disk('local')->makeDirectory('temp');
 
-      // Ensure temp directory exists
-      $tmpDir = storage_path('app/temp');
-      if (!is_dir($tmpDir)) {
-        mkdir($tmpDir, 0775, true);
-      }
-
-      $tmpPath = $tmpDir . '/' . $fileName;
-
-      // Auto-quality based on file size
+      // Adjust quality based on size
       $fileSizeMB = $file->getSize() / (1024 * 1024);
       $quality = match (true) {
         $fileSizeMB > 10 => 30,
-        $fileSizeMB > 5  => 40,
-        $fileSizeMB > 1  => 60,
+        $fileSizeMB > 5 => 40,
+        $fileSizeMB > 1 => 60,
         $fileSizeMB > 0.5 => 70,
         default => 85,
       };
 
-      // Encode does NOT return image in v3
-      $img->encode('webp', $quality);
-      $img->save($tmpPath);
+      $img->encode('webp', $quality)->save($tmpPath);
 
-      // Save final image to storage
+      $storagePath = $path . '/' . $fileName;
       Storage::disk($this->disk)->makeDirectory($path);
       Storage::disk($this->disk)->put($storagePath, file_get_contents($tmpPath), 'public');
 
@@ -128,6 +137,9 @@ class FileUploadHelper
     }
   }
 
+  /**
+   * Get full URL for stored image
+   */
   public function getImagePath($imagePath)
   {
     if ($imagePath && Storage::disk($this->disk)->exists($imagePath)) {
@@ -136,10 +148,12 @@ class FileUploadHelper
     return asset('storage/default/demo_user.png');
   }
 
+  /**
+   * Delete a file from storage
+   */
   public function fileUnlink($path)
   {
     if (!$path) return false;
-
     if (Storage::disk($this->disk)->exists($path)) {
       Storage::disk($this->disk)->delete($path);
       return true;

@@ -974,8 +974,7 @@ class AdmissionController extends Controller
             'title' => [
                 'required',
                 Rule::unique('signatures')->where(
-                    fn($q) =>
-                    $q->where('institute_details_id', Auth::user()->institute_details_id)
+                    fn($q) => $q->where('institute_details_id', Auth::user()->institute_details_id)
                 )
             ],
             'signature' => 'required|file|mimes:jpg,jpeg,png,webp,heic|max:5120',
@@ -990,26 +989,42 @@ class AdmissionController extends Controller
 
             $file = $request->file('signature');
 
-            // Intervention Image v3
-            $manager = new ImageManager(new Driver());
-            $image = $manager->make($file)->orientate();
+            // Initialize Intervention Image manager
+            $manager = new \Intervention\Image\ImageManager();
 
-            // Ensure temp folder exists
-            $tempDir = storage_path("app/temp");
-            if (!file_exists($tempDir)) {
-                mkdir($tempDir, 0775, true);
+            // Read image
+            $image = $manager->read($file);
+
+            // Manual EXIF orientation fix
+            try {
+                $exif = @exif_read_data($file->getPathname());
+                if (!empty($exif['Orientation'])) {
+                    switch ($exif['Orientation']) {
+                        case 3:
+                            $image->rotate(180);
+                            break;
+                        case 6:
+                            $image->rotate(90);
+                            break;
+                        case 8:
+                            $image->rotate(-90);
+                            break;
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Ignore if EXIF data is missing
             }
 
-            // Temp WebP path
-            $tmp = $tempDir . "/" . uniqid() . ".webp";
+            // Resize if needed (optional)
+            $image->resize(800, null, function ($constraint) {
+                $constraint->aspectRatio();
+            });
 
-            // Encode image to WebP (Note: encode does NOT return image in v3)
-            $image->encode('webp', 85);
+            // Save as WebP to temp
+            $tmp = storage_path("app/temp/" . uniqid() . ".webp");
+            $image->encode('webp', 85)->save($tmp);
 
-            // Now save the actual encoded content
-            $image->save($tmp);
-
-            // Upload final image
+            // Upload final image using your fileUpload service
             $signature_url = $this->fileUpload->fileUpload($tmp, 'signatures');
 
             // Save DB record
@@ -1019,7 +1034,7 @@ class AdmissionController extends Controller
                 'institute_details_id' => $institute->id,
             ]);
 
-            // Delete temp file
+            // Remove temp file
             @unlink($tmp);
 
             return response()->json([
