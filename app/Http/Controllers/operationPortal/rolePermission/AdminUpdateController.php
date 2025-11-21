@@ -132,16 +132,4 @@ class AdminUpdateController extends Controller
     {
         //
     }
-
-    public function getSignatureList()
-    {
-        $signatureList  = Signature::where('institute_details_id', Auth::user()->institute_details_id)->get();
-        return response()->json(
-            [
-                'status' => 'success',
-                'message' => 'Fetched signatures',
-                'signatures' => $signatureList
-            ]
-        );
-    }
 }

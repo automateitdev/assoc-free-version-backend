@@ -1047,4 +1047,16 @@ class AdmissionController extends Controller
             return response()->json(['errors' => 'An unexpected error occurred.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function getSignatureList()
+    {
+        $signatureList  = Signature::where('institute_details_id', Auth::user()->institute_details_id)->get();
+        return response()->json(
+            [
+                'status' => 'success',
+                'message' => 'Fetched signatures',
+                'signatures' => $signatureList
+            ]
+        );
+    }
 }
